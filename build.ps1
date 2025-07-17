@@ -12,6 +12,7 @@ if ($? -eq $false) {
 docker compose $ComposeFiles up --detach --renew-anon-volumes app
 
 $env:STACKAGEOAUTH2FAKETESTS_APPURI = "http://localhost:32111/"
+$env:STACKAGEOAUTH2FAKETESTS_ISSUERURI = "http://localhost:32111"
 
 dotnet test -l "console;verbosity=detailed" -c Release outside-in.tests/Stackage.OAuth2.Fake.OutsideIn.Tests/Stackage.OAuth2.Fake.OutsideIn.Tests.csproj
 

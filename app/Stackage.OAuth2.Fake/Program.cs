@@ -2,14 +2,22 @@ using System;
 using System.Linq;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Stackage.OAuth2.Fake;
+using Stackage.OAuth2.Fake.Endpoints;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddSingleton(builder.Configuration.Get<Configuration>()!);
 
 var app = builder.Build();
 
 app.UseHttpsRedirection();
 
 app.MapGet("/health", () => Results.Ok());
+
+app.MapWellKnownEndpoints();
 
 var summaries = new[]
 {

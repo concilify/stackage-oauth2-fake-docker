@@ -10,6 +10,8 @@ public static class Configuration
 
    public static readonly string AppUri = Instance["AppUri"] ?? string.Empty;
 
+   public static readonly string IssuerUri = Instance["IssuerUri"] ?? string.Empty;
+
    private static IConfiguration GetConfiguration()
    {
       var configuration = new ConfigurationBuilder()
