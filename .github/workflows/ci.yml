@@ -7,7 +7,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 5
 
     env:
       COMPOSE_FILES: -f docker-compose.app.yaml -f docker-compose.app.ci.yaml
@@ -23,9 +23,9 @@ jobs:
       run: docker compose ${COMPOSE_FILES} up --detach --renew-anon-volumes app
 
     - name: Test
-      run: dotnet test -c Release outside-in.tests/Concilify.JournalService.OutsideIn.Tests/Concilify.JournalService.OutsideIn.Tests.csproj
+      run: dotnet test -c Release outside-in.tests/Stackage.OAuth2.Fake.OutsideIn.Tests/Stackage.OAuth2.Fake.OutsideIn.Tests.csproj
       env:
-        CONCILIFYTESTS_APPURI: http://localhost:9006/
+        STACKAGEOAUTH2FAKETESTS_APPURI: http://localhost:32111/
 
     - name: Logs
       if: failure()
