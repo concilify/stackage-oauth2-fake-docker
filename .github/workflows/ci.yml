@@ -1,0 +1,32 @@
+on:
+  push:
+    branches:
+    - main
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    env:
+      COMPOSE_FILES: -f docker-compose.app.yaml -f docker-compose.app.ci.yaml
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Build
+      run: docker compose ${COMPOSE_FILES} build
+
+    - name: Run
+      run: docker compose ${COMPOSE_FILES} up --detach --renew-anon-volumes app
+
+    - name: Test
+      run: dotnet test -c Release outside-in.tests/Stackage.OAuth2.Fake.OutsideIn.Tests/Stackage.OAuth2.Fake.OutsideIn.Tests.csproj
+      env:
+        STACKAGEOAUTH2FAKETESTS_APPURI: http://localhost:32111/
+
+    - name: Logs
+      if: failure()
+      run: docker compose ${COMPOSE_FILES} logs
