@@ -8,9 +8,9 @@ public static class Configuration
 {
    private static readonly IConfiguration Instance = GetConfiguration();
 
-   public static readonly string AppUri = Instance["AppUri"] ?? string.Empty;
+   public static readonly string AppUrl = Instance["APP_URL"] ?? string.Empty;
 
-   public static readonly string IssuerUri = Instance["IssuerUri"] ?? string.Empty;
+   public static readonly string IssuerUrl = Instance["ISSUER_URL"] ?? string.Empty;
 
    private static IConfiguration GetConfiguration()
    {

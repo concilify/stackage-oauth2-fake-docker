@@ -3,7 +3,6 @@
 using System;
 using System.Net;
 using System.Net.Http;
-using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using NUnit.Framework;
 
@@ -15,7 +14,7 @@ public class OpenIdConfigurationEndpoint
    public async Task setup_before_all_tests()
    {
       using var httpClient = new HttpClient();
-      httpClient.BaseAddress = new Uri(Configuration.AppUri);
+      httpClient.BaseAddress = new Uri(Configuration.AppUrl);
 
       _httpResponse = await httpClient.GetAsync(".well-known/openid-configuration");
    }
@@ -29,8 +28,8 @@ public class OpenIdConfigurationEndpoint
    [Test]
    public async Task response_content_should_contain_issuer()
    {
-      var payload = JsonNode.Parse(await _httpResponse?.Content.ReadAsStringAsync());
+      var content = await _httpResponse!.ParseContentAsJson();
 
-      Assert.That(payload?["issuer"]?.GetValue<string>(), Is.EqualTo(Configuration.IssuerUri));
+      Assert.That(content["issuer"]?.GetValue<string>(), Is.EqualTo(Configuration.IssuerUrl));
    }
 }

@@ -12,7 +12,7 @@ public class PlaceholderTests
     public async Task weather_forecast_endpoint_returns_okay()
     {
        using var httpClient = new HttpClient();
-       httpClient.BaseAddress = new Uri(Configuration.AppUri);
+       httpClient.BaseAddress = new Uri(Configuration.AppUrl);
 
        var response = await httpClient.GetAsync("weatherforecast");
 

@@ -5,5 +5,5 @@ using Microsoft.Extensions.Configuration;
 public class Configuration
 {
    [ConfigurationKeyName("ISSUER_URL")]
-   public string IssuerUrl { get; set; } = string.Empty;
+   public string IssuerUrl { get; init; } = string.Empty;
 }

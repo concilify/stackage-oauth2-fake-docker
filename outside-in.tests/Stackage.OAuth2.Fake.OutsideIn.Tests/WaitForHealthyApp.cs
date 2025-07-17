@@ -14,7 +14,7 @@ public class WaitForHealthyApp
    public async Task setup_once_before_all_tests()
    {
       using var httpClient = new HttpClient();
-      httpClient.BaseAddress = new Uri(Configuration.AppUri);
+      httpClient.BaseAddress = new Uri(Configuration.AppUrl);
 
       for (var i = 0; i < 30; i++)
       {

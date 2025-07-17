@@ -25,8 +25,8 @@ jobs:
     - name: Test
       run: dotnet test -c Release outside-in.tests/Stackage.OAuth2.Fake.OutsideIn.Tests/Stackage.OAuth2.Fake.OutsideIn.Tests.csproj
       env:
-        STACKAGEOAUTH2FAKETESTS_APPURI: http://localhost:32111/
-        STACKAGEOAUTH2FAKETESTS_ISSUERURI: http://localhost:32111
+        STACKAGEOAUTH2FAKETESTS_APP_URL: http://localhost:32111/
+        STACKAGEOAUTH2FAKETESTS_ISSUER_URL: http://localhost:32111
 
     - name: Logs
       if: failure()
