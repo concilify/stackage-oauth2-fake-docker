@@ -1,4 +1,4 @@
-﻿namespace Stackage.OAuth2.Fake.OutsideIn.Tests.Scenarios.WellKnown;
+namespace Stackage.OAuth2.Fake.OutsideIn.Tests.Scenarios.WellKnown;
 
 using System;
 using System.Net;

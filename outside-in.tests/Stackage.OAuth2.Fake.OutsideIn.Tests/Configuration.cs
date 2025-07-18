@@ -1,4 +1,4 @@
-﻿namespace Stackage.OAuth2.Fake.OutsideIn.Tests;
+namespace Stackage.OAuth2.Fake.OutsideIn.Tests;
 
 using System.IO;
 using System.Reflection;
