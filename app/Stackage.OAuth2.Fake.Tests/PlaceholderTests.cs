@@ -1,12 +1,12 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 
 namespace Stackage.OAuth2.Fake.Tests;
 
 public class PlaceholderTests
 {
-    [Test]
-    public void Test()
-    {
-        Assert.Pass();
-    }
+   [Test]
+   public void Test()
+   {
+      Assert.Pass();
+   }
 }

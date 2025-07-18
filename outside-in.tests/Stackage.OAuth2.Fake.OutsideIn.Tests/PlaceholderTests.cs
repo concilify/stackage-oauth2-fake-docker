@@ -1,4 +1,4 @@
-﻿namespace Stackage.OAuth2.Fake.OutsideIn.Tests;
+namespace Stackage.OAuth2.Fake.OutsideIn.Tests;
 
 using System;
 using System.Net;
@@ -8,14 +8,14 @@ using NUnit.Framework;
 
 public class PlaceholderTests
 {
-    [Test]
-    public async Task weather_forecast_endpoint_returns_okay()
-    {
-       using var httpClient = new HttpClient();
-       httpClient.BaseAddress = new Uri(Configuration.AppUrl);
+   [Test]
+   public async Task weather_forecast_endpoint_returns_okay()
+   {
+      using var httpClient = new HttpClient();
+      httpClient.BaseAddress = new Uri(Configuration.AppUrl);
 
-       var response = await httpClient.GetAsync("weatherforecast");
+      var response = await httpClient.GetAsync("weatherforecast");
 
-       Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
-    }
+      Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+   }
 }
