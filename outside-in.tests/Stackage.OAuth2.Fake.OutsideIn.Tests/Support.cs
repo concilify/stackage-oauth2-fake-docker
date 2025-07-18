@@ -13,7 +13,7 @@ public static class Support
 
       if (jsonNode == null)
       {
-         throw new JsonException("Failed to deserialize the response.");
+         throw new JsonException("Failed to deserialize the response content.");
       }
 
       return jsonNode;
