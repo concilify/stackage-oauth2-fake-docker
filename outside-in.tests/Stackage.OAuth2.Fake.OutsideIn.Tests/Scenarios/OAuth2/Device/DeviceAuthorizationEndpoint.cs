@@ -6,6 +6,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using Stackage.OAuth2.Fake.OutsideIn.Tests.Model;
 
 public class DeviceAuthorizationEndpoint
 {
@@ -17,7 +18,7 @@ public class DeviceAuthorizationEndpoint
       using var httpClient = new HttpClient();
       httpClient.BaseAddress = new Uri(Configuration.AppUrl);
 
-      var openIdConfiguration = await httpClient.GetWellKnownOpenIdConfiguration();
+      var openIdConfigurationResponse = await httpClient.GetWellKnownOpenIdConfigurationAsync();
 
       var content = new FormUrlEncodedContent(new Dictionary<string, string>
       {
@@ -25,7 +26,7 @@ public class DeviceAuthorizationEndpoint
       });
 
       _httpResponse = await httpClient.PostAsync(
-         openIdConfiguration.DeviceAuthorizationEndpoint,
+         openIdConfigurationResponse.DeviceAuthorizationEndpoint,
          content);
    }
 
@@ -38,52 +39,52 @@ public class DeviceAuthorizationEndpoint
    [Test]
    public async Task response_content_should_contain_device_code()
    {
-      var oAuth2DeviceAuthorize = await _httpResponse!.ParseOAuth2DeviceAuthorize();
+      var deviceAuthorizeResponse = await _httpResponse!.ParseAsync<DeviceAuthorizeResponse>();
 
-      Assert.That(Guid.TryParse(oAuth2DeviceAuthorize.DeviceCode, out _), Is.True);
+      Assert.That(Guid.TryParse(deviceAuthorizeResponse.DeviceCode, out _), Is.True);
    }
 
    [Test]
    public async Task response_content_should_contain_user_code()
    {
-      var oAuth2DeviceAuthorize = await _httpResponse!.ParseOAuth2DeviceAuthorize();
+      var deviceAuthorizeResponse = await _httpResponse!.ParseAsync<DeviceAuthorizeResponse>();
 
-      Assert.That(oAuth2DeviceAuthorize.UserCode.Length, Is.EqualTo(4));
+      Assert.That(deviceAuthorizeResponse.UserCode.Length, Is.EqualTo(4));
    }
 
    [Test]
    public async Task response_content_should_contain_verification_uri()
    {
-      var oAuth2DeviceAuthorize = await _httpResponse!.ParseOAuth2DeviceAuthorize();
+      var deviceAuthorizeResponse = await _httpResponse!.ParseAsync<DeviceAuthorizeResponse>();
 
       Assert.That(
-         oAuth2DeviceAuthorize.VerificationUri,
+         deviceAuthorizeResponse.VerificationUri,
          Is.EqualTo($"{Configuration.IssuerUrl}/oauth2/device/verify"));
    }
 
    [Test]
    public async Task response_content_should_contain_verification_uri_complete()
    {
-      var oAuth2DeviceAuthorize = await _httpResponse!.ParseOAuth2DeviceAuthorize();
+      var deviceAuthorizeResponse = await _httpResponse!.ParseAsync<DeviceAuthorizeResponse>();
 
       Assert.That(
-         oAuth2DeviceAuthorize.VerificationUriComplete,
-         Is.EqualTo($"{Configuration.IssuerUrl}/oauth2/device/verify?user_code={oAuth2DeviceAuthorize.UserCode}"));
+         deviceAuthorizeResponse.VerificationUriComplete,
+         Is.EqualTo($"{Configuration.IssuerUrl}/oauth2/device/verify?user_code={deviceAuthorizeResponse.UserCode}"));
    }
 
    [Test]
    public async Task response_content_should_contain_expires_in()
    {
-      var oAuth2DeviceAuthorize = await _httpResponse!.ParseOAuth2DeviceAuthorize();
+      var deviceAuthorizeResponse = await _httpResponse!.ParseAsync<DeviceAuthorizeResponse>();
 
-      Assert.That(oAuth2DeviceAuthorize.ExpiresIn, Is.EqualTo(600));
+      Assert.That(deviceAuthorizeResponse.ExpiresIn, Is.EqualTo(600));
    }
 
    [Test]
    public async Task response_content_should_contain_interval()
    {
-      var oAuth2DeviceAuthorize = await _httpResponse!.ParseOAuth2DeviceAuthorize();
+      var deviceAuthorizeResponse = await _httpResponse!.ParseAsync<DeviceAuthorizeResponse>();
 
-      Assert.That(oAuth2DeviceAuthorize.Interval, Is.EqualTo(5));
+      Assert.That(deviceAuthorizeResponse.Interval, Is.EqualTo(5));
    }
 }

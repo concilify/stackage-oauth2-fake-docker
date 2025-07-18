@@ -2,7 +2,7 @@
 
 using System.Text.Json.Serialization;
 
-public record OAuth2DeviceAuthorize(
+public record DeviceAuthorizeResponse(
    [property:JsonPropertyName("device_code")]string DeviceCode,
    [property:JsonPropertyName("user_code")]string UserCode,
    [property:JsonPropertyName("verification_uri")]string VerificationUri,

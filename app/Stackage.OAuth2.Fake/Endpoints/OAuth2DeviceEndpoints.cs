@@ -15,7 +15,7 @@ public static class OAuth2DeviceEndpoints
          {
             var userCode = Guid.NewGuid().ToString()[..4].ToUpper();
 
-            var content = new DeviceAuthorizeResponse(
+            var content = new AuthorizeResponse(
                DeviceCode: Guid.NewGuid().ToString(),
                UserCode: userCode,
                VerificationEndpoint: $"{settings.IssuerUrl}{settings.DeviceVerificationPath}",
@@ -27,7 +27,7 @@ public static class OAuth2DeviceEndpoints
          });
    }
 
-   private record DeviceAuthorizeResponse(
+   private record AuthorizeResponse(
       [property:JsonPropertyName("device_code")]string DeviceCode,
       [property:JsonPropertyName("user_code")]string UserCode,
       [property:JsonPropertyName("verification_uri")]string VerificationEndpoint,

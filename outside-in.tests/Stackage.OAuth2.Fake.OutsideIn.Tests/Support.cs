@@ -7,34 +7,22 @@ using Stackage.OAuth2.Fake.OutsideIn.Tests.Model;
 
 public static class Support
 {
-   public static async Task<OpenIdConfiguration> GetWellKnownOpenIdConfiguration(this HttpClient httpClient)
+   public static async Task<OpenIdConfigurationResponse> GetWellKnownOpenIdConfigurationAsync(this HttpClient httpClient)
    {
       var httpResponse = await httpClient.GetAsync(".well-known/openid-configuration");
 
-      return await httpResponse.ParseWellKnownOpenIdConfiguration();
+      return await httpResponse.ParseAsync<OpenIdConfigurationResponse>();
    }
 
-   public static async Task<OpenIdConfiguration> ParseWellKnownOpenIdConfiguration(this HttpResponseMessage httpResponseMessage)
+   public static async Task<TResponse> ParseAsync<TResponse>(this HttpResponseMessage httpResponseMessage)
    {
-      var openIdConfiguration = JsonSerializer.Deserialize<OpenIdConfiguration>(await httpResponseMessage.Content.ReadAsStringAsync());
+      var response = JsonSerializer.Deserialize<TResponse>(await httpResponseMessage.Content.ReadAsStringAsync());
 
-      if (openIdConfiguration == null)
+      if (response == null)
       {
          throw new JsonException("Failed to deserialize the response content.");
       }
 
-      return openIdConfiguration;
-   }
-
-   public static async Task<OAuth2DeviceAuthorize> ParseOAuth2DeviceAuthorize(this HttpResponseMessage httpResponseMessage)
-   {
-      var oAuth2DeviceAuthorize = JsonSerializer.Deserialize<OAuth2DeviceAuthorize>(await httpResponseMessage.Content.ReadAsStringAsync());
-
-      if (oAuth2DeviceAuthorize == null)
-      {
-         throw new JsonException("Failed to deserialize the response content.");
-      }
-
-      return oAuth2DeviceAuthorize;
+      return response;
    }
 }

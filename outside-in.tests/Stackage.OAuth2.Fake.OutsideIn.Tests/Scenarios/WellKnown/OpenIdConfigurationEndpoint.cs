@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using Stackage.OAuth2.Fake.OutsideIn.Tests.Model;
 
 public class OpenIdConfigurationEndpoint
 {
@@ -28,18 +29,18 @@ public class OpenIdConfigurationEndpoint
    [Test]
    public async Task response_content_should_contain_issuer()
    {
-      var openIdConfiguration = await _httpResponse!.ParseWellKnownOpenIdConfiguration();
+      var openIdConfigurationResponse = await _httpResponse!.ParseAsync<OpenIdConfigurationResponse>();
 
-      Assert.That(openIdConfiguration.Issuer, Is.EqualTo(Configuration.IssuerUrl));
+      Assert.That(openIdConfigurationResponse.Issuer, Is.EqualTo(Configuration.IssuerUrl));
    }
 
    [Test]
    public async Task response_content_should_contain_device_authorization_endpoint()
    {
-      var openIdConfiguration = await _httpResponse!.ParseWellKnownOpenIdConfiguration();
+      var openIdConfigurationResponse = await _httpResponse!.ParseAsync<OpenIdConfigurationResponse>();
 
       Assert.That(
-         openIdConfiguration.DeviceAuthorizationEndpoint,
+         openIdConfigurationResponse.DeviceAuthorizationEndpoint,
          Is.EqualTo($"{Configuration.IssuerUrl}/oauth2/device/authorize"));
    }
 }
