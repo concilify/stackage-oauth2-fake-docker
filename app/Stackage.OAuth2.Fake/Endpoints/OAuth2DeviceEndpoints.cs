@@ -1,4 +1,4 @@
-﻿namespace Stackage.OAuth2.Fake.Endpoints;
+namespace Stackage.OAuth2.Fake.Endpoints;
 
 using System;
 using System.Text.Json.Serialization;
@@ -28,10 +28,10 @@ public static class OAuth2DeviceEndpoints
    }
 
    private record AuthorizeResponse(
-      [property:JsonPropertyName("device_code")]string DeviceCode,
-      [property:JsonPropertyName("user_code")]string UserCode,
-      [property:JsonPropertyName("verification_uri")]string VerificationEndpoint,
-      [property:JsonPropertyName("verification_uri_complete")]string VerificationCompleteEndpoint,
-      [property:JsonPropertyName("expires_in")]int ExpiresInSeconds,
-      [property:JsonPropertyName("interval")]int IntervalSeconds);
+      [property: JsonPropertyName("device_code")] string DeviceCode,
+      [property: JsonPropertyName("user_code")] string UserCode,
+      [property: JsonPropertyName("verification_uri")] string VerificationEndpoint,
+      [property: JsonPropertyName("verification_uri_complete")] string VerificationCompleteEndpoint,
+      [property: JsonPropertyName("expires_in")] int ExpiresInSeconds,
+      [property: JsonPropertyName("interval")] int IntervalSeconds);
 }

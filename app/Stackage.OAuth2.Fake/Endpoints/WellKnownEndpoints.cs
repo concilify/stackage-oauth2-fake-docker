@@ -21,6 +21,6 @@ public static class WellKnownEndpoints
    }
 
    private record OpenIdConfigurationResponse(
-      [property:JsonPropertyName("issuer")]string IssuerUrl,
-      [property:JsonPropertyName("device_authorization_endpoint")]string DeviceAuthorizationEndpoint);
+      [property: JsonPropertyName("issuer")] string IssuerUrl,
+      [property: JsonPropertyName("device_authorization_endpoint")] string DeviceAuthorizationEndpoint);
 }
