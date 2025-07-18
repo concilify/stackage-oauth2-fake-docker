@@ -2,7 +2,7 @@
 
 using Microsoft.Extensions.Configuration;
 
-public class Configuration
+public class Settings
 {
    [ConfigurationKeyName("ISSUER_URL")]
    public string IssuerUrl { get; init; } = string.Empty;

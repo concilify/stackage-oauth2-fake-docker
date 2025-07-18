@@ -9,7 +9,7 @@ using Stackage.OAuth2.Fake.Endpoints;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddSingleton(builder.Configuration.Get<Configuration>()!);
+builder.Services.AddSingleton(builder.Configuration.Get<Settings>()!);
 
 var app = builder.Build();
 

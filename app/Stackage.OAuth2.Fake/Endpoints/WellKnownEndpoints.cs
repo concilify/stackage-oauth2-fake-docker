@@ -10,14 +10,14 @@ public static class WellKnownEndpoints
    {
       app.MapGet(
          "/.well-known/openid-configuration",
-         (Configuration configuration) =>
+         (Settings settings) =>
          {
-            var response = new ConfigurationResponse(configuration.IssuerUrl);
+            var content = new OpenIdConfigurationResponse(settings.IssuerUrl);
 
-            return TypedResults.Json(response);
+            return TypedResults.Json(content);
          });
    }
 
-   private record ConfigurationResponse(
+   private record OpenIdConfigurationResponse(
       [property:JsonPropertyName("issuer")]string IssuerUrl);
 }
