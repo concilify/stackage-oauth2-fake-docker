@@ -6,7 +6,9 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
         "ASPNETCORE_HTTP_PORTS": "32111",
-        "ISSUER_URL": "http://localhost:32111"
+        "ISSUER_URL": "http://localhost:32111",
+        "DEVICE_AUTHORIZATION_PATH": "/oauth2/device/authorize",
+        "DEVICE_VERIFICATION_PATH": "/oauth2/device/verify"
       }
     }
   }

@@ -9,7 +9,8 @@ using Stackage.OAuth2.Fake.Endpoints;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddSingleton(builder.Configuration.Get<Settings>()!);
+var settings = builder.Configuration.Get<Settings>()!;
+builder.Services.AddSingleton(settings);
 
 var app = builder.Build();
 
@@ -18,6 +19,7 @@ app.UseHttpsRedirection();
 app.MapGet("/health", () => Results.Ok());
 
 app.MapWellKnownEndpoints();
+app.MapOAuth2DeviceEndpoints();
 
 var summaries = new[]
 {

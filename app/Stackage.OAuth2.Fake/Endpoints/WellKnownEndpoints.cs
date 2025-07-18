@@ -12,12 +12,15 @@ public static class WellKnownEndpoints
          "/.well-known/openid-configuration",
          (Settings settings) =>
          {
-            var content = new OpenIdConfigurationResponse(settings.IssuerUrl);
+            var content = new OpenIdConfigurationResponse(
+               settings.IssuerUrl,
+               $"{settings.IssuerUrl}{settings.DeviceAuthorizationPath}");
 
             return TypedResults.Json(content);
          });
    }
 
    private record OpenIdConfigurationResponse(
-      [property: JsonPropertyName("issuer")] string IssuerUrl);
+      [property: JsonPropertyName("issuer")] string IssuerUrl,
+      [property: JsonPropertyName("device_authorization_endpoint")] string DeviceAuthorizationEndpoint);
 }
