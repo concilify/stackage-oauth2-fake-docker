@@ -1,4 +1,4 @@
-﻿namespace Stackage.OAuth2.Fake.Endpoints;
+namespace Stackage.OAuth2.Fake.Endpoints;
 
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Builder;
@@ -19,5 +19,5 @@ public static class WellKnownEndpoints
    }
 
    private record OpenIdConfigurationResponse(
-      [property:JsonPropertyName("issuer")]string IssuerUrl);
+      [property: JsonPropertyName("issuer")] string IssuerUrl);
 }
