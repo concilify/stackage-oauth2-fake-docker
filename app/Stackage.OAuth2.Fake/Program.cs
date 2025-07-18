@@ -21,8 +21,6 @@ app.MapGet("/health", () => Results.Ok());
 app.MapWellKnownEndpoints();
 app.MapOAuth2DeviceEndpoints();
 
-app.MapGet(settings.DeviceVerificationPath, () => "foo");
-
 var summaries = new[]
 {
     "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
