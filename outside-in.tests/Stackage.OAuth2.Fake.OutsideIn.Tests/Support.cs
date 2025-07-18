@@ -7,13 +7,6 @@ using Stackage.OAuth2.Fake.OutsideIn.Tests.Model;
 
 public static class Support
 {
-   public static async Task<OpenIdConfigurationResponse> GetWellKnownOpenIdConfigurationAsync(this HttpClient httpClient)
-   {
-      var httpResponse = await httpClient.GetAsync(".well-known/openid-configuration");
-
-      return await httpResponse.ParseAsync<OpenIdConfigurationResponse>();
-   }
-
    public static async Task<TResponse> ParseAsync<TResponse>(this HttpResponseMessage httpResponseMessage)
    {
       var response = JsonSerializer.Deserialize<TResponse>(await httpResponseMessage.Content.ReadAsStringAsync());
@@ -24,5 +17,12 @@ public static class Support
       }
 
       return response;
+   }
+
+   public static async Task<OpenIdConfigurationResponse> GetWellKnownOpenIdConfigurationAsync(this HttpClient httpClient)
+   {
+      var httpResponse = await httpClient.GetAsync(".well-known/openid-configuration");
+
+      return await httpResponse.ParseAsync<OpenIdConfigurationResponse>();
    }
 }
