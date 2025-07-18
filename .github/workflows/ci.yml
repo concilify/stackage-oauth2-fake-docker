@@ -31,3 +31,14 @@ jobs:
     - name: Logs
       if: failure()
       run: docker compose ${COMPOSE_FILES} logs
+
+  verify-formatting:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify Formatting
+        run: dotnet format --verify-no-changes
