@@ -7,3 +7,4 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=32111
+      - ISSUER_URL=http://localhost:32111
