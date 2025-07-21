@@ -2,9 +2,11 @@ namespace Stackage.OAuth2.Fake.OutsideIn.Tests.Scenarios.OAuth2.Token;
 
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Microsoft.IdentityModel.Tokens;
 using NUnit.Framework;
 using Stackage.OAuth2.Fake.OutsideIn.Tests.Model;
 
@@ -42,12 +44,47 @@ public class get_device_token_after_starting_flow
    }
 
    [Test]
-   public async Task response_content_should_contain_access_token()
+   public async Task response_content_should_contain_access_token_signed_by_public_key()
    {
       var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
 
-      // TODO: Future PR - verify access token is a JWT and add another test to verify it against jwks.json when available
-      Assert.That(tokenResponse.AccessToken, Is.EqualTo("FakeAccessToken"));
+      var parameters = new TokenValidationParameters
+      {
+         IssuerSigningKey = (await Support.GetJsonWebKeySetAsync()).Keys[0],
+         ValidIssuer = Configuration.IssuerUrl,
+         ValidateAudience = false
+      };
+
+      new JwtSecurityTokenHandler().ValidateToken(
+         tokenResponse.AccessToken,
+         parameters,
+         out var securityToken);
+
+      Assert.That(securityToken, Is.InstanceOf<JwtSecurityToken>());
+   }
+
+   [Test]
+   public async Task response_content_should_contain_access_token_with_issuer()
+   {
+      var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
+
+      var securityToken = new JwtSecurityTokenHandler().ReadToken(tokenResponse.AccessToken);
+
+      Assert.That(securityToken.Issuer, Is.EqualTo(Configuration.IssuerUrl));
+   }
+
+   [Test]
+   public async Task response_content_should_contain_access_token_with_sub()
+   {
+      var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
+
+      var securityToken = new JwtSecurityTokenHandler().ReadToken(tokenResponse.AccessToken);
+
+      Assert.That(securityToken, Is.InstanceOf<JwtSecurityToken>());
+
+      var jwtSecurityToken = (JwtSecurityToken)securityToken;
+
+      Assert.That(jwtSecurityToken.Subject, Is.EqualTo("default-user-id"));
    }
 
    [Test]

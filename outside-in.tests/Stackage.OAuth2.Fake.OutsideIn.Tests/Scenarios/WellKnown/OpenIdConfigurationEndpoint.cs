@@ -35,6 +35,16 @@ public class OpenIdConfigurationEndpoint
    }
 
    [Test]
+   public async Task response_content_should_contain_jwks_uri()
+   {
+      var openIdConfigurationResponse = await _httpResponse!.ParseAsync<OpenIdConfigurationResponse>();
+
+      Assert.That(
+         openIdConfigurationResponse.JwksUri,
+         Is.EqualTo($"{Configuration.IssuerUrl}/.well-known/jwks.json"));
+   }
+
+   [Test]
    public async Task response_content_should_contain_token_endpoint()
    {
       var openIdConfigurationResponse = await _httpResponse!.ParseAsync<OpenIdConfigurationResponse>();

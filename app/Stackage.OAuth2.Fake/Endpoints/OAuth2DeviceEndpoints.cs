@@ -3,6 +3,7 @@ namespace Stackage.OAuth2.Fake.Endpoints;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Stackage.OAuth2.Fake.Services;
 
 public static class OAuth2DeviceEndpoints
 {

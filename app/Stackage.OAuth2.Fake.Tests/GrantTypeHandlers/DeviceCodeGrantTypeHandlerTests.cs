@@ -2,10 +2,11 @@ namespace Stackage.OAuth2.Fake.Tests.GrantTypeHandlers;
 
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Extensions.Primitives;
 using NUnit.Framework;
 using Stackage.OAuth2.Fake.GrantTypeHandlers;
+using Stackage.OAuth2.Fake.Services;
+using Stackage.OAuth2.Fake.Tests.Stubs;
 
 public class DeviceCodeGrantTypeHandlerTests
 {
@@ -98,10 +99,17 @@ public class DeviceCodeGrantTypeHandlerTests
    }
 
    private static DeviceCodeGrantTypeHandler CreateHandler(
-      DeviceCodeCache? deviceCodeCache = null)
+      DeviceCodeCache? deviceCodeCache = null,
+      ITokenGenerator? tokenGenerator = null,
+      Settings? settings = null)
    {
       deviceCodeCache ??= new DeviceCodeCache();
+      tokenGenerator ??= TokenGeneratorStub.Valid();
+      settings ??= new Settings();
 
-      return new DeviceCodeGrantTypeHandler(deviceCodeCache);
+      return new DeviceCodeGrantTypeHandler(
+         deviceCodeCache,
+         tokenGenerator,
+         settings);
    }
 }

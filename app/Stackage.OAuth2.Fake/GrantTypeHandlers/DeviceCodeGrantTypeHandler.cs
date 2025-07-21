@@ -1,15 +1,28 @@
 namespace Stackage.OAuth2.Fake.GrantTypeHandlers;
 
+using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Http;
+using Stackage.OAuth2.Fake.Services;
 
 public class DeviceCodeGrantTypeHandler : IGrantTypeHandler
 {
-   private readonly DeviceCodeCache _deviceCodeCache;
+   private const int TokenExpirySecs = 20 * 60;
 
-   public DeviceCodeGrantTypeHandler(DeviceCodeCache deviceCodeCache)
+   private readonly DeviceCodeCache _deviceCodeCache;
+   private readonly ITokenGenerator _tokenGenerator;
+   private readonly Settings _settings;
+
+   public DeviceCodeGrantTypeHandler(
+      DeviceCodeCache deviceCodeCache,
+      ITokenGenerator tokenGenerator,
+      Settings settings)
    {
       _deviceCodeCache = deviceCodeCache;
+      _tokenGenerator = tokenGenerator;
+      _settings = settings;
    }
 
    public string GrantType => GrantTypes.DeviceCode;
@@ -28,11 +41,15 @@ public class DeviceCodeGrantTypeHandler : IGrantTypeHandler
 
       _deviceCodeCache.Remove(deviceCode.ToString());
 
-      // TODO: Future PR - create a signed JWT when keys are available for signing and verification
+      var claims = new List<Claim>
+      {
+         new(JwtRegisteredClaimNames.Sub, _settings.DefaultUserId)
+      };
+
       var response = new TokenResponse(
-         AccessToken: "FakeAccessToken",
+         AccessToken: _tokenGenerator.Generate(claims, TokenExpirySecs),
          TokenType: "Bearer",
-         ExpiresInSeconds: 1200
+         ExpiresInSeconds: TokenExpirySecs
       );
 
       return TypedResults.Json(response, statusCode: 200);
