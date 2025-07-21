@@ -35,6 +35,16 @@ public class OpenIdConfigurationEndpoint
    }
 
    [Test]
+   public async Task response_content_should_contain_token_endpoint()
+   {
+      var openIdConfigurationResponse = await _httpResponse!.ParseAsync<OpenIdConfigurationResponse>();
+
+      Assert.That(
+         openIdConfigurationResponse.TokenEndpoint,
+         Is.EqualTo($"{Configuration.IssuerUrl}/oauth2/token"));
+   }
+
+   [Test]
    public async Task response_content_should_contain_device_authorization_endpoint()
    {
       var openIdConfigurationResponse = await _httpResponse!.ParseAsync<OpenIdConfigurationResponse>();
@@ -42,5 +52,15 @@ public class OpenIdConfigurationEndpoint
       Assert.That(
          openIdConfigurationResponse.DeviceAuthorizationEndpoint,
          Is.EqualTo($"{Configuration.IssuerUrl}/oauth2/device/authorize"));
+   }
+
+   [Test]
+   public async Task response_content_should_contain_grant_types_supported()
+   {
+      var openIdConfigurationResponse = await _httpResponse!.ParseAsync<OpenIdConfigurationResponse>();
+
+      Assert.That(
+         openIdConfigurationResponse.GrantTypesSupported,
+         Is.EqualTo(["urn:ietf:params:oauth:grant-type:device_code"]));
    }
 }

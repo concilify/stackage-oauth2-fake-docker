@@ -14,7 +14,9 @@ public static class WellKnownEndpoints
          {
             var content = new OpenIdConfigurationResponse(
                settings.IssuerUrl,
-               $"{settings.IssuerUrl}{settings.DeviceAuthorizationPath}");
+               TokenEndpoint: $"{settings.IssuerUrl}{settings.TokenPath}",
+               DeviceAuthorizationEndpoint: $"{settings.IssuerUrl}{settings.DeviceAuthorizationPath}",
+               GrantTypesSupported: GrantTypes.Supported);
 
             return TypedResults.Json(content);
          });
@@ -22,5 +24,7 @@ public static class WellKnownEndpoints
 
    private record OpenIdConfigurationResponse(
       [property: JsonPropertyName("issuer")] string IssuerUrl,
-      [property: JsonPropertyName("device_authorization_endpoint")] string DeviceAuthorizationEndpoint);
+      [property: JsonPropertyName("token_endpoint")] string TokenEndpoint,
+      [property: JsonPropertyName("device_authorization_endpoint")] string DeviceAuthorizationEndpoint,
+      [property: JsonPropertyName("grant_types_supported")] string[] GrantTypesSupported);
 }

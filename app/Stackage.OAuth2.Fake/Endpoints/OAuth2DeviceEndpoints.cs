@@ -1,6 +1,5 @@
 namespace Stackage.OAuth2.Fake.Endpoints;
 
-using System;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -11,12 +10,15 @@ public static class OAuth2DeviceEndpoints
    {
       app.MapPost(
          "/oauth2/device/authorize",
-         (Settings settings) =>
+         (
+            DeviceCodeCache deviceCodeCache,
+            Settings settings
+         ) =>
          {
-            var userCode = Guid.NewGuid().ToString()[..4].ToUpper();
+            var (deviceCode, userCode) = deviceCodeCache.Create();
 
             var content = new AuthorizeResponse(
-               DeviceCode: Guid.NewGuid().ToString(),
+               DeviceCode: deviceCode,
                UserCode: userCode,
                VerificationEndpoint: $"{settings.IssuerUrl}{settings.DeviceVerificationPath}",
                VerificationCompleteEndpoint: $"{settings.IssuerUrl}{settings.DeviceVerificationPath}?user_code={userCode}",

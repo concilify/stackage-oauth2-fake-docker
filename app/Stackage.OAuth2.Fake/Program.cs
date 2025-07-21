@@ -6,11 +6,14 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Stackage.OAuth2.Fake;
 using Stackage.OAuth2.Fake.Endpoints;
+using Stackage.OAuth2.Fake.GrantTypeHandlers;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var settings = builder.Configuration.Get<Settings>()!;
-builder.Services.AddSingleton(settings);
+builder.Services.AddSingleton(builder.Configuration.Get<Settings>()!);
+builder.Services.AddSingleton<DeviceCodeCache>();
+
+builder.Services.AddTransient<IGrantTypeHandler, DeviceCodeGrantTypeHandler>();
 
 var app = builder.Build();
 
@@ -20,6 +23,7 @@ app.MapGet("/health", () => Results.Ok());
 
 app.MapWellKnownEndpoints();
 app.MapOAuth2DeviceEndpoints();
+app.MapTokenEndpoint();
 
 var summaries = new[]
 {
