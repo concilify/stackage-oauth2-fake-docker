@@ -12,8 +12,8 @@ public static class TokenEndpoint
    {
       app.MapPost(
          "/oauth2/token", IResult (
-            IEnumerable<IGrantTypeHandler> grantTypeHandlers,
-            HttpContext httpContext
+            HttpContext httpContext,
+            IEnumerable<IGrantTypeHandler> grantTypeHandlers
          ) =>
          {
             if (!httpContext.Request.Form.TryGetValue("grant_type", out var grantType))

@@ -14,8 +14,8 @@ public static class WellKnownEndpoints
       app.MapGet(
          "/.well-known/openid-configuration",
          (
-            IEnumerable<IGrantTypeHandler> grantTypeHandlers,
-            Settings settings
+            Settings settings,
+            IEnumerable<IGrantTypeHandler> grantTypeHandlers
          ) =>
          {
             return TypedResults.Json(new

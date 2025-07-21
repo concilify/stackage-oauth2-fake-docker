@@ -100,16 +100,16 @@ public class DeviceCodeGrantTypeHandlerTests
 
    private static DeviceCodeGrantTypeHandler CreateHandler(
       DeviceCodeCache? deviceCodeCache = null,
-      ITokenGenerator? tokenGenerator = null,
-      Settings? settings = null)
+      Settings? settings = null,
+      ITokenGenerator? tokenGenerator = null)
    {
       deviceCodeCache ??= new DeviceCodeCache();
-      tokenGenerator ??= TokenGeneratorStub.Valid();
       settings ??= new Settings();
+      tokenGenerator ??= TokenGeneratorStub.Valid();
 
       return new DeviceCodeGrantTypeHandler(
          deviceCodeCache,
-         tokenGenerator,
-         settings);
+         settings,
+         tokenGenerator);
    }
 }
