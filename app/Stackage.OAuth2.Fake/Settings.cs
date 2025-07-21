@@ -15,4 +15,7 @@ public class Settings
 
    [ConfigurationKeyName("DEVICE_VERIFICATION_PATH")]
    public string DeviceVerificationPath { get; init; } = string.Empty;
+
+   [ConfigurationKeyName("DEFAULT_USER_ID")]
+   public string DefaultUserId { get; init; } = string.Empty;
 }
