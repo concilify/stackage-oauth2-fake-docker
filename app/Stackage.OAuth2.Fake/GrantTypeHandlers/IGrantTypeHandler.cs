@@ -1,4 +1,4 @@
-﻿namespace Stackage.OAuth2.Fake.GrantTypeHandlers;
+namespace Stackage.OAuth2.Fake.GrantTypeHandlers;
 
 using Microsoft.AspNetCore.Http;
 

@@ -1,4 +1,4 @@
-﻿namespace Stackage.OAuth2.Fake.Endpoints;
+namespace Stackage.OAuth2.Fake.Endpoints;
 
 using System.Collections.Generic;
 using System.Linq;

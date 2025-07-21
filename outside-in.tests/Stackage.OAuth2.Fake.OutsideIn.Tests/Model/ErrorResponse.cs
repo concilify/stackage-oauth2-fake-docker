@@ -1,4 +1,4 @@
-﻿namespace Stackage.OAuth2.Fake.OutsideIn.Tests.Model;
+namespace Stackage.OAuth2.Fake.OutsideIn.Tests.Model;
 
 using System.Text.Json.Serialization;
 

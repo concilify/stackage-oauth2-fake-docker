@@ -1,4 +1,4 @@
-﻿namespace Stackage.OAuth2.Fake.Tests.GrantTypeHandlers;
+namespace Stackage.OAuth2.Fake.Tests.GrantTypeHandlers;
 
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;

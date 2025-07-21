@@ -1,4 +1,4 @@
-﻿namespace Stackage.OAuth2.Fake;
+namespace Stackage.OAuth2.Fake;
 
 using Microsoft.AspNetCore.Http;
 
