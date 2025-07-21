@@ -1,5 +1,6 @@
 namespace Stackage.OAuth2.Fake.OutsideIn.Tests;
 
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -24,5 +25,21 @@ public static class Support
       var httpResponse = await httpClient.GetAsync(".well-known/openid-configuration");
 
       return await httpResponse.ParseAsync<OpenIdConfigurationResponse>();
+   }
+
+   public static async Task<DeviceAuthorizeResponse> StartDeviceAuthorizationAsync(
+      this HttpClient httpClient,
+      OpenIdConfigurationResponse openIdConfigurationResponse)
+   {
+      var content = new FormUrlEncodedContent(new Dictionary<string, string>
+      {
+         ["client_id"] = "AnyClientId",
+      });
+
+      var httpResponse = await httpClient.PostAsync(
+         openIdConfigurationResponse.DeviceAuthorizationEndpoint,
+         content);
+
+      return await httpResponse.ParseAsync<DeviceAuthorizeResponse>();
    }
 }

@@ -1,8 +1,11 @@
 namespace Stackage.OAuth2.Fake.Endpoints;
 
+using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Stackage.OAuth2.Fake.GrantTypeHandlers;
 
 public static class WellKnownEndpoints
 {
@@ -10,11 +13,16 @@ public static class WellKnownEndpoints
    {
       app.MapGet(
          "/.well-known/openid-configuration",
-         (Settings settings) =>
+         (
+            IEnumerable<IGrantTypeHandler> grantTypeHandlers,
+            Settings settings
+         ) =>
          {
             var content = new OpenIdConfigurationResponse(
                settings.IssuerUrl,
-               $"{settings.IssuerUrl}{settings.DeviceAuthorizationPath}");
+               TokenEndpoint: $"{settings.IssuerUrl}{settings.TokenPath}",
+               DeviceAuthorizationEndpoint: $"{settings.IssuerUrl}{settings.DeviceAuthorizationPath}",
+               GrantTypesSupported: grantTypeHandlers.Select(h => h.GrantType).ToArray());
 
             return TypedResults.Json(content);
          });
@@ -22,5 +30,7 @@ public static class WellKnownEndpoints
 
    private record OpenIdConfigurationResponse(
       [property: JsonPropertyName("issuer")] string IssuerUrl,
-      [property: JsonPropertyName("device_authorization_endpoint")] string DeviceAuthorizationEndpoint);
+      [property: JsonPropertyName("token_endpoint")] string TokenEndpoint,
+      [property: JsonPropertyName("device_authorization_endpoint")] string DeviceAuthorizationEndpoint,
+      [property: JsonPropertyName("grant_types_supported")] string[] GrantTypesSupported);
 }

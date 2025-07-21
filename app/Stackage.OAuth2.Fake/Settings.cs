@@ -7,6 +7,9 @@ public class Settings
    [ConfigurationKeyName("ISSUER_URL")]
    public string IssuerUrl { get; init; } = string.Empty;
 
+   [ConfigurationKeyName("TOKEN_PATH")]
+   public string TokenPath { get; init; } = string.Empty;
+
    [ConfigurationKeyName("DEVICE_AUTHORIZATION_PATH")]
    public string DeviceAuthorizationPath { get; init; } = string.Empty;
 
