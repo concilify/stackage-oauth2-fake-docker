@@ -2,6 +2,7 @@
 
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Extensions.Primitives;
 using NUnit.Framework;
 using Stackage.OAuth2.Fake.GrantTypeHandlers;
@@ -18,6 +19,7 @@ public class DeviceCodeGrantTypeHandlerTests
 
       var result = testSubject.Handle(httpRequest);
 
+      Assert.That(result, Is.InstanceOf<IStatusCodeHttpResult>());
       Assert.That(((IStatusCodeHttpResult)result).StatusCode, Is.EqualTo(400));
    }
 
@@ -34,6 +36,7 @@ public class DeviceCodeGrantTypeHandlerTests
 
       var result = testSubject.Handle(httpRequest);
 
+      Assert.That(result, Is.InstanceOf<IStatusCodeHttpResult>());
       Assert.That(((IStatusCodeHttpResult)result).StatusCode, Is.EqualTo(400));
    }
 
@@ -54,6 +57,7 @@ public class DeviceCodeGrantTypeHandlerTests
 
       var result = testSubject.Handle(httpRequest);
 
+      Assert.That(result, Is.InstanceOf<IStatusCodeHttpResult>());
       Assert.That(((IStatusCodeHttpResult)result).StatusCode, Is.EqualTo(200));
    }
 
@@ -76,6 +80,7 @@ public class DeviceCodeGrantTypeHandlerTests
 
       var result = testSubject.Handle(httpRequest);
 
+      Assert.That(result, Is.InstanceOf<IStatusCodeHttpResult>());
       Assert.That(((IStatusCodeHttpResult)result).StatusCode, Is.EqualTo(400));
    }
 
