@@ -84,7 +84,7 @@ public class get_device_token_after_starting_flow
 
       var jwtSecurityToken = (JwtSecurityToken)securityToken;
 
-      Assert.That(jwtSecurityToken.Subject, Is.EqualTo("default-user-id"));
+      Assert.That(jwtSecurityToken.Subject, Is.EqualTo("default-subject"));
    }
 
    [Test]
