@@ -12,17 +12,17 @@ public class DeviceCodeGrantTypeHandler : IGrantTypeHandler
    private const int TokenExpirySecs = 20 * 60;
 
    private readonly DeviceCodeCache _deviceCodeCache;
-   private readonly ITokenGenerator _tokenGenerator;
    private readonly Settings _settings;
+   private readonly ITokenGenerator _tokenGenerator;
 
    public DeviceCodeGrantTypeHandler(
       DeviceCodeCache deviceCodeCache,
-      ITokenGenerator tokenGenerator,
-      Settings settings)
+      Settings settings,
+      ITokenGenerator tokenGenerator)
    {
       _deviceCodeCache = deviceCodeCache;
-      _tokenGenerator = tokenGenerator;
       _settings = settings;
+      _tokenGenerator = tokenGenerator;
    }
 
    public string GrantType => GrantTypes.DeviceCode;
