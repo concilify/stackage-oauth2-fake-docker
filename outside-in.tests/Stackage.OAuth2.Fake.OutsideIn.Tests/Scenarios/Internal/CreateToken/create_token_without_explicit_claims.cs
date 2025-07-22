@@ -20,7 +20,7 @@ public class create_token_without_explicit_claims
       using var httpClient = new HttpClient();
       httpClient.BaseAddress = new Uri(Configuration.AppUrl);
 
-      var content = JsonContent.Create(new { });
+      var content = JsonContent.Create(new { claims = new { } });
 
       _httpResponse = await httpClient.PostAsync(".internal/create-token", content);
    }
@@ -62,7 +62,13 @@ public class create_token_without_explicit_claims
 
       var jwtSecurityToken = (JwtSecurityToken)securityToken;
 
-      Assert.That(jwtSecurityToken.Subject, Is.EqualTo("default-user-id"));
+      Assert.That(jwtSecurityToken.Subject, Is.EqualTo("default-subject"));
+   }
+
+   [Test]
+   public void METHOD()
+   {
+      Assert.Fail();
    }
 
    [Test]

@@ -17,6 +17,7 @@ builder.Services.AddSingleton<JsonWebKeyCache>();
 
 builder.Services.AddTransient<IGrantTypeHandler, DeviceCodeGrantTypeHandler>();
 builder.Services.AddTransient<ITokenGenerator, TokenGenerator>();
+builder.Services.AddTransient<IClaimsParser, ClaimsParser>();
 
 var app = builder.Build();
 
@@ -27,6 +28,7 @@ app.MapGet("/health", () => Results.Ok());
 app.MapWellKnownEndpoints();
 app.MapOAuth2DeviceEndpoints();
 app.MapTokenEndpoint();
+app.MapInternalEndpoints();
 
 var summaries = new[]
 {
