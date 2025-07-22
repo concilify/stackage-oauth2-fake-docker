@@ -1,16 +1,16 @@
-namespace Stackage.OAuth2.Fake.OutsideIn.Tests.Scenarios.OAuth2.Token;
+﻿namespace Stackage.OAuth2.Fake.OutsideIn.Tests.Scenarios.Internal.CreateToken;
 
 using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Json;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Stackage.OAuth2.Fake.OutsideIn.Tests.Model;
 
 // ReSharper disable once InconsistentNaming
-public class get_device_token_after_starting_flow
+public class create_token_without_explicit_claims
 {
    private HttpResponseMessage? _httpResponse;
 
@@ -20,20 +20,9 @@ public class get_device_token_after_starting_flow
       using var httpClient = new HttpClient();
       httpClient.BaseAddress = new Uri(Configuration.AppUrl);
 
-      var openIdConfigurationResponse = await httpClient.GetWellKnownOpenIdConfigurationAsync();
+      var content = JsonContent.Create(new { });
 
-      var deviceAuthorizationResponse = await httpClient.StartDeviceAuthorizationAsync(openIdConfigurationResponse);
-
-      var content = new FormUrlEncodedContent(new Dictionary<string, string>
-      {
-         ["client_id"] = "AnyClientId",
-         ["grant_type"] = "urn:ietf:params:oauth:grant-type:device_code",
-         ["device_code"] = deviceAuthorizationResponse.DeviceCode,
-      });
-
-      _httpResponse = await httpClient.PostAsync(
-         openIdConfigurationResponse.TokenEndpoint,
-         content);
+      _httpResponse = await httpClient.PostAsync(".internal/create-token", content);
    }
 
    [Test]

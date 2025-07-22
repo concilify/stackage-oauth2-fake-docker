@@ -2,10 +2,12 @@ namespace Stackage.OAuth2.Fake.OutsideIn.Tests;
 
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.IdentityModel.Tokens;
+using NUnit.Framework;
 using Stackage.OAuth2.Fake.OutsideIn.Tests.Model;
 
 public static class Support
@@ -53,5 +55,24 @@ public static class Support
          content);
 
       return await httpResponse.ParseAsync<DeviceAuthorizeResponse>();
+   }
+
+   public static void AssertAccessTokenIsSigned(
+      this TokenResponse tokenResponse,
+      JsonWebKey jsonWebKey)
+   {
+      var parameters = new TokenValidationParameters
+      {
+         IssuerSigningKey = jsonWebKey,
+         ValidIssuer = Configuration.IssuerUrl,
+         ValidateAudience = false
+      };
+
+      new JwtSecurityTokenHandler().ValidateToken(
+         tokenResponse.AccessToken,
+         parameters,
+         out var securityToken);
+
+      Assert.That(securityToken, Is.InstanceOf<JwtSecurityToken>());
    }
 }
