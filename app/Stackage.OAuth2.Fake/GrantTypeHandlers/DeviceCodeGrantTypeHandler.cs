@@ -43,7 +43,7 @@ public class DeviceCodeGrantTypeHandler : IGrantTypeHandler
 
       var claims = new List<Claim>
       {
-         new(JwtRegisteredClaimNames.Sub, _settings.DefaultUserId)
+         new(JwtRegisteredClaimNames.Sub, _settings.DefaultSubject)
       };
 
       var response = new TokenResponse(

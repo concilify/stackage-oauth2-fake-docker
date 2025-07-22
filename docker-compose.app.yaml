@@ -11,4 +11,4 @@ services:
       - TOKEN_PATH=/oauth2/token
       - DEVICE_AUTHORIZATION_PATH=/oauth2/device/authorize
       - DEVICE_VERIFICATION_PATH=/oauth2/device/verify
-      - DEFAULT_USER_ID=default-user-id
+      - DEFAULT_SUBJECT=default-subject
