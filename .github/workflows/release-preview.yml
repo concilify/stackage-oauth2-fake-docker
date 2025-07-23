@@ -29,6 +29,15 @@ jobs:
     - name: Build
       run: docker compose ${COMPOSE_FILES} build
 
+    - name: Run
+      run: docker compose ${COMPOSE_FILES} up --detach --renew-anon-volumes app
+
+    - name: Test
+      run: dotnet test -c Release outside-in.tests/Stackage.OAuth2.Fake.OutsideIn.Tests/Stackage.OAuth2.Fake.OutsideIn.Tests.csproj
+      env:
+        STACKAGEOAUTH2FAKETESTS_APP_URL: http://localhost:32111/
+        STACKAGEOAUTH2FAKETESTS_ISSUER_URL: http://localhost:32111
+
     - name: Docker Push
       run: docker push ${IMAGE}:${VERSION}
 
