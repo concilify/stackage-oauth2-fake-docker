@@ -1,0 +1,51 @@
+on:
+  push:
+    tags:
+    - "v[0-9]+.[0-9]+.[0-9]+"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    permissions:
+      contents: read
+      packages: write
+
+    env:
+      COMPOSE_FILES: -f docker-compose.app.yaml -f docker-compose.app.release.yaml
+      IMAGE: ghcr.io/concilify/stackage-oauth2-fake
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Verify commit exists in origin/main
+      run: |
+        git fetch --no-tags --prune --depth=1 origin +refs/heads/*:refs/remotes/origin/*
+        git branch --remote --contains | grep origin/main
+
+    - name: Docker Login
+      run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+    - name: Set VERSION variable from tag
+      run: echo "VERSION=${GITHUB_REF/refs\/tags\/v/}" >> $GITHUB_ENV
+
+    - name: Build
+      run: docker compose ${COMPOSE_FILES} build
+
+    - name: Run
+      run: docker compose ${COMPOSE_FILES} up --detach --renew-anon-volumes app
+
+    - name: Test
+      run: dotnet test -c Release outside-in.tests/Stackage.OAuth2.Fake.OutsideIn.Tests/Stackage.OAuth2.Fake.OutsideIn.Tests.csproj
+      env:
+        STACKAGEOAUTH2FAKETESTS_APP_URL: http://localhost:32111/
+        STACKAGEOAUTH2FAKETESTS_ISSUER_URL: http://localhost:32111
+
+    - name: Docker Push
+      run: docker push ${IMAGE}:${VERSION}
+
+    - name: Logs
+      if: failure()
+      run: docker compose ${COMPOSE_FILES} logs

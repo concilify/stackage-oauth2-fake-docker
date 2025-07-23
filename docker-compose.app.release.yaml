@@ -1,0 +1,6 @@
+services:
+  app:
+    image: ${IMAGE}:${VERSION}
+    build:
+      args:
+        VERSION: ${VERSION}
