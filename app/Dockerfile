@@ -16,6 +16,8 @@ RUN dotnet test --configuration Release --no-restore ./Stackage.OAuth2.Fake.Test
 FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine
 WORKDIR /app
 
+COPY LICENSE /usr/share/doc/stackage-oauth2-fake/LICENSE
+
 COPY --from=build /build/Stackage.OAuth2.Fake/bin/Release/net8.0/publish .
 
 # Using the exec form of CMD allows SIGINT to be passed from container to app
