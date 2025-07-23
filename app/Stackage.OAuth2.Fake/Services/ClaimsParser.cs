@@ -13,17 +13,17 @@ public class ClaimsParser : IClaimsParser
       JsonObject claimsObject,
       [MaybeNullWhen(false)] out IList<Claim> claims)
    {
-      var parsedClaims = new List<Claim>();
+      var results = new List<Claim>();
 
       foreach (var (key, claimNode) in claimsObject)
       {
          if (claimNode is JsonValue claimValue && claimValue.GetValueKind() == JsonValueKind.String)
          {
-            parsedClaims.Add(new Claim(key, claimValue.GetValue<string>()));
+            results.Add(new Claim(key, claimValue.GetValue<string>()));
          }
          else if (claimNode is JsonArray claimArray && TryParseArrayOfStrings(claimArray, out var strings))
          {
-            parsedClaims.Add(new Claim(key, JsonSerializer.Serialize(strings), JsonClaimValueTypes.JsonArray));
+            results.Add(new Claim(key, JsonSerializer.Serialize(strings), JsonClaimValueTypes.JsonArray));
          }
          else
          {
@@ -32,7 +32,7 @@ public class ClaimsParser : IClaimsParser
          }
       }
 
-      claims = parsedClaims;
+      claims = results;
       return true;
    }
 
@@ -40,13 +40,13 @@ public class ClaimsParser : IClaimsParser
       JsonArray claimArray,
       [MaybeNullWhen(false)] out IList<string> strings)
    {
-      var parsedStrings = new List<string>();
+      var results = new List<string>();
 
       foreach (var claimArrayItemNode in claimArray)
       {
          if (claimArrayItemNode?.GetValueKind() == JsonValueKind.String)
          {
-            parsedStrings.Add(claimArrayItemNode.GetValue<string>());
+            results.Add(claimArrayItemNode.GetValue<string>());
          }
          else
          {
@@ -55,7 +55,7 @@ public class ClaimsParser : IClaimsParser
          }
       }
 
-      strings = parsedStrings;
+      strings = results;
       return true;
    }
 }
