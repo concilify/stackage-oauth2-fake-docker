@@ -1,8 +1,7 @@
-﻿namespace Stackage.OAuth2.Fake.Endpoints;
+namespace Stackage.OAuth2.Fake.Endpoints;
 
 using System;
 using System.IdentityModel.Tokens.Jwt;
-using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Text.Json;
