@@ -3,7 +3,9 @@ namespace Stackage.OAuth2.Fake.OutsideIn.Tests;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Net.Http;
+using System.Security.Claims;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.IdentityModel.Tokens;
@@ -74,5 +76,21 @@ public static class Support
          out var securityToken);
 
       Assert.That(securityToken, Is.InstanceOf<JwtSecurityToken>());
+   }
+
+   public static JwtSecurityToken ParseJwtSecurityToken(this TokenResponse tokenResponse)
+   {
+      var securityToken = new JwtSecurityTokenHandler().ReadToken(tokenResponse.AccessToken);
+
+      Assert.That(securityToken, Is.InstanceOf<JwtSecurityToken>());
+
+      return (JwtSecurityToken)securityToken;
+   }
+
+   public static IReadOnlyList<Claim> ParseClaims(this TokenResponse tokenResponse, string name)
+   {
+      var jwtSecurityToken = tokenResponse.ParseJwtSecurityToken();
+
+      return jwtSecurityToken.Claims.Where(c => c.Type == name).ToList();
    }
 }

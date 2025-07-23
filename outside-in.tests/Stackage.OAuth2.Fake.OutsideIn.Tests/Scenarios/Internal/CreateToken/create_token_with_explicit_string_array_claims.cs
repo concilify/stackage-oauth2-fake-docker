@@ -2,6 +2,7 @@
 
 using System;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
@@ -67,19 +68,43 @@ public class create_token_with_explicit_string_array_claims
    {
       var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
 
-      var securityToken = new JwtSecurityTokenHandler().ReadToken(tokenResponse.AccessToken);
-
-      Assert.That(securityToken, Is.InstanceOf<JwtSecurityToken>());
-
-      var jwtSecurityToken = (JwtSecurityToken)securityToken;
+      var jwtSecurityToken = tokenResponse.ParseJwtSecurityToken();
 
       Assert.That(jwtSecurityToken.Subject, Is.EqualTo("default-subject"));
    }
 
    [Test]
-   public void METHOD()
+   public async Task response_content_should_contain_access_token_with_claim_a()
    {
-      Assert.Fail();
+      var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
+
+      var claims = tokenResponse.ParseClaims("http://oauth2.fake/claim-a");
+
+      Assert.That(claims.Count, Is.EqualTo(2));
+      Assert.That(claims[0].Value, Is.EqualTo("claim-a-one"));
+      Assert.That(claims[1].Value, Is.EqualTo("claim-a-two"));
+   }
+
+   [Test]
+   public async Task response_content_should_contain_access_token_with_claim_b()
+   {
+      var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
+
+      var claims = tokenResponse.ParseClaims("http://oauth2.fake/claim-b");
+
+      Assert.That(claims.Count, Is.EqualTo(1));
+      Assert.That(claims[0].Value, Is.EqualTo("claim-b-single"));
+   }
+
+   [Test]
+   public async Task response_content_should_contain_access_token_with_claim_c()
+   {
+      var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
+
+      var claims = tokenResponse.ParseClaims("http://oauth2.fake/claim-c");
+
+      Assert.That(claims.Count, Is.EqualTo(1));
+      Assert.That(claims[0].Value, Is.EqualTo("claim-c-single"));
    }
 
    [Test]

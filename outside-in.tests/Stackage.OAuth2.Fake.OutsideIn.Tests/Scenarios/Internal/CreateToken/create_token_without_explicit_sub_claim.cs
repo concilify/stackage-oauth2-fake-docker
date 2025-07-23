@@ -2,6 +2,7 @@
 
 using System;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
@@ -10,7 +11,7 @@ using NUnit.Framework;
 using Stackage.OAuth2.Fake.OutsideIn.Tests.Model;
 
 // ReSharper disable once InconsistentNaming
-public class create_token_without_explicit_claims
+public class create_token_without_explicit_sub_claim
 {
    private HttpResponseMessage? _httpResponse;
 
@@ -20,7 +21,15 @@ public class create_token_without_explicit_claims
       using var httpClient = new HttpClient();
       httpClient.BaseAddress = new Uri(Configuration.AppUrl);
 
-      var content = JsonContent.Create(new { claims = new { } });
+      var body = new
+      {
+         claims = new
+         {
+            custom_claim = "custom-value"
+         }
+      };
+
+      var content = JsonContent.Create(body);
 
       _httpResponse = await httpClient.PostAsync(".internal/create-token", content);
    }
@@ -59,6 +68,17 @@ public class create_token_without_explicit_claims
       var jwtSecurityToken = tokenResponse.ParseJwtSecurityToken();
 
       Assert.That(jwtSecurityToken.Subject, Is.EqualTo("default-subject"));
+   }
+
+   [Test]
+   public async Task response_content_should_contain_access_token_with_custom_claim()
+   {
+      var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
+
+      var claims = tokenResponse.ParseClaims("custom_claim");
+
+      Assert.That(claims.Count, Is.EqualTo(1));
+      Assert.That(claims[0].Value, Is.EqualTo("custom-value"));
    }
 
    [Test]

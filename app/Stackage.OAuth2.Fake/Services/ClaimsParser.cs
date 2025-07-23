@@ -9,7 +9,9 @@ using System.Text.Json.Nodes;
 
 public class ClaimsParser : IClaimsParser
 {
-   public bool TryParse(JsonObject claimsObject, [MaybeNullWhen(false)] out IList<Claim> claims)
+   public bool TryParse(
+      JsonObject claimsObject,
+      [MaybeNullWhen(false)] out IList<Claim> claims)
    {
       claims = new List<Claim>();
 
@@ -19,18 +21,8 @@ public class ClaimsParser : IClaimsParser
          {
             claims.Add(new Claim(key, claimValue.GetValue<string>()));
          }
-         else if (claimNode is JsonArray claimArray)
+         else if (claimNode is JsonArray claimArray && TryParseArrayOfStrings(claimArray, out var strings))
          {
-            var strings = new List<string>();
-
-            foreach (var claimArrayItemNode in claimArray)
-            {
-               if (claimArrayItemNode?.GetValueKind() == JsonValueKind.String)
-               {
-                  strings.Add(claimArrayItemNode.GetValue<string>());
-               }
-            }
-
             claims.Add(new Claim(key, JsonSerializer.Serialize(strings), JsonClaimValueTypes.JsonArray));
          }
          else
@@ -41,13 +33,27 @@ public class ClaimsParser : IClaimsParser
       }
 
       return true;
-      // var i = request.Claims.Count;
-      //
-      // var claims = new List<Claim>
-      // {
-      //    new(JwtRegisteredClaimNames.Sub, settings.DefaultSubject)
-      // };
+   }
 
-//            claims.Add(new Claim("http://concilify/permissions", JsonSerializer.Serialize(permissions), JsonClaimValueTypes.JsonArray));
+   private static bool TryParseArrayOfStrings(
+      JsonArray claimArray,
+      [MaybeNullWhen(false)] out IList<string> strings)
+   {
+      strings = new List<string>();
+
+      foreach (var claimArrayItemNode in claimArray)
+      {
+         if (claimArrayItemNode?.GetValueKind() == JsonValueKind.String)
+         {
+            strings.Add(claimArrayItemNode.GetValue<string>());
+         }
+         else
+         {
+            strings = null;
+            return false;
+         }
+      }
+
+      return true;
    }
 }

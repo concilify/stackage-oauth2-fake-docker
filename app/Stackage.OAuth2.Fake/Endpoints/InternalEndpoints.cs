@@ -2,10 +2,13 @@
 
 using System;
 using System.IdentityModel.Tokens.Jwt;
+using System.IO;
 using System.Linq;
 using System.Security.Claims;
+using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -20,16 +23,25 @@ public static class InternalEndpoints
       app.MapPost(
          "/.internal/create-token",
          (
-            [FromBody] CreateTokenRequest request,
+            [FromBody] CreateTokenRequest? request,
             [FromServices] IClaimsParser claimsParser,
             Settings settings,
             ITokenGenerator tokenGenerator
          ) =>
          {
+            if (request == null)
+            {
+               return Error.InvalidRequest("The request body was missing");
+            }
+
+            if (request.Claims == null)
+            {
+               return Error.InvalidRequest("The claims property was missing");
+            }
+
             if (!claimsParser.TryParse(request.Claims, out var claims))
             {
-               // TODO:
-               throw new Exception();
+               return Error.InvalidRequest("The claims property must contain string properties or string array properties");
             }
 
             if (claims.All(c => c.Type != JwtRegisteredClaimNames.Sub))
@@ -49,5 +61,20 @@ public static class InternalEndpoints
    }
 
    private record CreateTokenRequest(
-      [property: JsonPropertyName("claims"), JsonRequired] JsonObject Claims);
+      [property: JsonPropertyName("claims")] JsonObject? Claims)
+   {
+      public static ValueTask<CreateTokenRequest?> BindAsync(HttpContext context)
+      {
+         try
+         {
+            var request = JsonSerializer.Deserialize<CreateTokenRequest>(context.Request.Body);
+
+            return ValueTask.FromResult(request);
+         }
+         catch (Exception e)
+         {
+            return ValueTask.FromResult<CreateTokenRequest?>(null);
+         }
+      }
+   }
 }

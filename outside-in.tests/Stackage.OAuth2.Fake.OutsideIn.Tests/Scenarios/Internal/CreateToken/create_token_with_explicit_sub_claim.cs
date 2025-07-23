@@ -2,6 +2,7 @@
 
 using System;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
@@ -24,7 +25,8 @@ public class create_token_with_explicit_sub_claim
       {
          claims = new
          {
-            sub = "explicit-subject"
+            sub = "explicit-subject",
+            custom_claim = "custom-value"
          }
       };
 
@@ -64,19 +66,20 @@ public class create_token_with_explicit_sub_claim
    {
       var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
 
-      var securityToken = new JwtSecurityTokenHandler().ReadToken(tokenResponse.AccessToken);
-
-      Assert.That(securityToken, Is.InstanceOf<JwtSecurityToken>());
-
-      var jwtSecurityToken = (JwtSecurityToken)securityToken;
+      var jwtSecurityToken = tokenResponse.ParseJwtSecurityToken();
 
       Assert.That(jwtSecurityToken.Subject, Is.EqualTo("explicit-subject"));
    }
 
    [Test]
-   public void METHOD()
+   public async Task response_content_should_contain_access_token_with_custom_claim()
    {
-      Assert.Fail();
+      var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
+
+      var claims = tokenResponse.ParseClaims("custom_claim");
+
+      Assert.That(claims.Count, Is.EqualTo(1));
+      Assert.That(claims[0].Value, Is.EqualTo("custom-value"));
    }
 
    [Test]

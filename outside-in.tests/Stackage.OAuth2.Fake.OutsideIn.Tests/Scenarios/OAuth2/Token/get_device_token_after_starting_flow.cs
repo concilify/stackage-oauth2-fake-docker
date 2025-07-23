@@ -67,11 +67,7 @@ public class get_device_token_after_starting_flow
    {
       var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
 
-      var securityToken = new JwtSecurityTokenHandler().ReadToken(tokenResponse.AccessToken);
-
-      Assert.That(securityToken, Is.InstanceOf<JwtSecurityToken>());
-
-      var jwtSecurityToken = (JwtSecurityToken)securityToken;
+      var jwtSecurityToken = tokenResponse.ParseJwtSecurityToken();
 
       Assert.That(jwtSecurityToken.Subject, Is.EqualTo("default-subject"));
    }

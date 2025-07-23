@@ -10,7 +10,7 @@ using NUnit.Framework;
 using Stackage.OAuth2.Fake.OutsideIn.Tests.Model;
 
 // ReSharper disable once InconsistentNaming
-public class create_token_without_body
+public class create_token_without_claims_property
 {
    private HttpResponseMessage? _httpResponse;
 
@@ -20,7 +20,9 @@ public class create_token_without_body
       using var httpClient = new HttpClient();
       httpClient.BaseAddress = new Uri(Configuration.AppUrl);
 
-      _httpResponse = await httpClient.PostAsync(".internal/create-token", null);
+      var content = JsonContent.Create(new { });
+
+      _httpResponse = await httpClient.PostAsync(".internal/create-token", content);
    }
 
    [Test]
@@ -42,6 +44,6 @@ public class create_token_without_body
    {
       var errorResponse = await _httpResponse!.ParseAsync<ErrorResponse>();
 
-      Assert.That(errorResponse.ErrorDescription, Is.EqualTo("The request body was missing"));
+      Assert.That(errorResponse.ErrorDescription, Is.EqualTo("The claims property was missing"));
    }
 }

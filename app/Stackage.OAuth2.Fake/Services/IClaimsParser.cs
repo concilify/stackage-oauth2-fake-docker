@@ -7,5 +7,7 @@ using System.Text.Json.Nodes;
 
 public interface IClaimsParser
 {
-   bool TryParse(JsonObject claimsObject, [MaybeNullWhen(false)] out IList<Claim> claims);
+   bool TryParse(
+      JsonObject claimsObject,
+      [MaybeNullWhen(false)] out IList<Claim> claims);
 }
