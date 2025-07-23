@@ -1,16 +1,17 @@
-namespace Stackage.OAuth2.Fake.OutsideIn.Tests.Scenarios.OAuth2.Token;
+namespace Stackage.OAuth2.Fake.OutsideIn.Tests.Scenarios.Internal.CreateToken;
 
 using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Json;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Stackage.OAuth2.Fake.OutsideIn.Tests.Model;
 
 // ReSharper disable once InconsistentNaming
-public class get_device_token_after_starting_flow
+public class create_token_with_explicit_string_array_claims
 {
    private HttpResponseMessage? _httpResponse;
 
@@ -20,20 +21,19 @@ public class get_device_token_after_starting_flow
       using var httpClient = new HttpClient();
       httpClient.BaseAddress = new Uri(Configuration.AppUrl);
 
-      var openIdConfigurationResponse = await httpClient.GetWellKnownOpenIdConfigurationAsync();
-
-      var deviceAuthorizationResponse = await httpClient.StartDeviceAuthorizationAsync(openIdConfigurationResponse);
-
-      var content = new FormUrlEncodedContent(new Dictionary<string, string>
+      var body = new
       {
-         ["client_id"] = "AnyClientId",
-         ["grant_type"] = "urn:ietf:params:oauth:grant-type:device_code",
-         ["device_code"] = deviceAuthorizationResponse.DeviceCode,
-      });
+         claims = new JsonObject
+         {
+            ["http://oauth2.fake/claim-a"] = new JsonArray { "claim-a-one", "claim-a-two" },
+            ["http://oauth2.fake/claim-b"] = new JsonArray { "claim-b-single" },
+            ["http://oauth2.fake/claim-c"] = "claim-c-single",
+         }
+      };
 
-      _httpResponse = await httpClient.PostAsync(
-         openIdConfigurationResponse.TokenEndpoint,
-         content);
+      var content = JsonContent.Create(body);
+
+      _httpResponse = await httpClient.PostAsync(".internal/create-token", content);
    }
 
    [Test]
@@ -70,6 +70,40 @@ public class get_device_token_after_starting_flow
       var jwtSecurityToken = tokenResponse.ParseJwtSecurityToken();
 
       Assert.That(jwtSecurityToken.Subject, Is.EqualTo("default-subject"));
+   }
+
+   [Test]
+   public async Task response_content_should_contain_access_token_with_claim_a()
+   {
+      var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
+
+      var claims = tokenResponse.ParseClaims("http://oauth2.fake/claim-a");
+
+      Assert.That(claims.Count, Is.EqualTo(2));
+      Assert.That(claims[0].Value, Is.EqualTo("claim-a-one"));
+      Assert.That(claims[1].Value, Is.EqualTo("claim-a-two"));
+   }
+
+   [Test]
+   public async Task response_content_should_contain_access_token_with_claim_b()
+   {
+      var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
+
+      var claims = tokenResponse.ParseClaims("http://oauth2.fake/claim-b");
+
+      Assert.That(claims.Count, Is.EqualTo(1));
+      Assert.That(claims[0].Value, Is.EqualTo("claim-b-single"));
+   }
+
+   [Test]
+   public async Task response_content_should_contain_access_token_with_claim_c()
+   {
+      var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
+
+      var claims = tokenResponse.ParseClaims("http://oauth2.fake/claim-c");
+
+      Assert.That(claims.Count, Is.EqualTo(1));
+      Assert.That(claims[0].Value, Is.EqualTo("claim-c-single"));
    }
 
    [Test]
