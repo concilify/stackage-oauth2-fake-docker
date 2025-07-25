@@ -9,6 +9,7 @@ services:
       - ASPNETCORE_HTTP_PORTS=32111
       - ISSUER_URL=http://localhost:32111
       - TOKEN_PATH=/oauth2/token
+      - AUTHORIZATION_PATH=/oauth2/authorize
       - DEVICE_AUTHORIZATION_PATH=/oauth2/device/authorize
       - DEVICE_VERIFICATION_PATH=/oauth2/device/verify
       - DEFAULT_SUBJECT=default-subject

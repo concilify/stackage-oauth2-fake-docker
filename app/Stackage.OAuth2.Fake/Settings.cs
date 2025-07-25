@@ -10,6 +10,9 @@ public class Settings
    [ConfigurationKeyName("TOKEN_PATH")]
    public string TokenPath { get; init; } = string.Empty;
 
+   [ConfigurationKeyName("AUTHORIZATION_PATH")]
+   public string AuthorizationPath { get; init; } = string.Empty;
+
    [ConfigurationKeyName("DEVICE_AUTHORIZATION_PATH")]
    public string DeviceAuthorizationPath { get; init; } = string.Empty;
 

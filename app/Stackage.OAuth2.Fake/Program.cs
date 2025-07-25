@@ -24,6 +24,7 @@ app.UseHttpsRedirection();
 app.MapGet("/health", () => Results.Ok());
 
 app.MapWellKnownEndpoints();
+app.MapAuthorizationEndpoint();
 app.MapOAuth2DeviceEndpoints();
 app.MapTokenEndpoint();
 app.MapInternalEndpoints();
