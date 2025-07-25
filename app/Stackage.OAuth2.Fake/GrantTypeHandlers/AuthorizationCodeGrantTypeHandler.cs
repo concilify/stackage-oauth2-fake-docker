@@ -1,8 +1,11 @@
 namespace Stackage.OAuth2.Fake.GrantTypeHandlers;
 
+using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Security.Claims;
+using System.Text.Json.Nodes;
 using Microsoft.AspNetCore.Http;
 using Stackage.OAuth2.Fake.Services;
 
@@ -10,16 +13,16 @@ public class AuthorizationCodeGrantTypeHandler : IGrantTypeHandler
 {
    private const int TokenExpirySecs = 20 * 60;
 
-   private readonly AuthorizationCodeCache _authorizationCodeCache;
+   private readonly AuthorizationCache _authorizationCache;
    private readonly Settings _settings;
    private readonly ITokenGenerator _tokenGenerator;
 
    public AuthorizationCodeGrantTypeHandler(
-      AuthorizationCodeCache authorizationCodeCache,
+      AuthorizationCache authorizationCache,
       Settings settings,
       ITokenGenerator tokenGenerator)
    {
-      _authorizationCodeCache = authorizationCodeCache;
+      _authorizationCache = authorizationCache;
       _settings = settings;
       _tokenGenerator = tokenGenerator;
    }
@@ -33,29 +36,40 @@ public class AuthorizationCodeGrantTypeHandler : IGrantTypeHandler
          return Error.InvalidRequest("The code parameter was missing");
       }
 
-      // TODO: get scope here
-      if (!_authorizationCodeCache.CodeIsValid(code.ToString()))
+      if (!_authorizationCache.TryGet(code.ToString(), out var scope))
       {
          return Error.InvalidGrant("The given code was not found");
       }
 
-      _authorizationCodeCache.Remove(code.ToString());
+      _authorizationCache.Remove(code.ToString());
 
       var claims = new List<Claim>
       {
          new(JwtRegisteredClaimNames.Sub, _settings.DefaultSubject)
       };
 
-      // TODO: include optional scope from /authorize request
-      // TODO: include refresh_token if offline_access in scope
-      // 	"refresh_token": "v1.MUaqY2ForOnqThbFs0t9V-yfD1Fw2Sb1YUScFm6fZNEsFTcKzDz-woOAr2n64NTHVxRF5IsJmoBeJY9WYzLg4uQ",
-
-      var response = new
+      if (scope.Length != 0)
       {
-         access_token = _tokenGenerator.Generate(claims, TokenExpirySecs),
-         token_type = "Bearer",
-         expires_in = TokenExpirySecs
+         claims.Add(new Claim("scope", string.Join(" ", scope)));
+      }
+
+      var response = new JsonObject
+      {
+         ["access_token"] = _tokenGenerator.Generate(claims, TokenExpirySecs)
       };
+
+      if (scope.Length != 0)
+      {
+         if (scope.Contains("offline_access"))
+         {
+            response["refresh_token"] = Guid.NewGuid().ToString();
+         }
+
+         response["scope"] = string.Join(" ", scope);
+      }
+
+      response["expires_in"] = TokenExpirySecs;
+      response["token_type"] = "Bearer";
 
       return TypedResults.Json(response, statusCode: 200);
    }

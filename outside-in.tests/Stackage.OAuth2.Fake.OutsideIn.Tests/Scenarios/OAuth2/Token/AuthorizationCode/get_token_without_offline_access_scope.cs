@@ -25,14 +25,15 @@ public class get_token_without_offline_access_scope
 
       var openIdConfigurationResponse = await httpClient.GetWellKnownOpenIdConfigurationAsync();
 
-      var authorizationResponse = await httpClient.StartAuthorizationAsync(openIdConfigurationResponse);
+      var authorizationResponse = await httpClient.StartAuthorizationAsync(
+         openIdConfigurationResponse,
+         scopes: ["any_scope"]);
 
       var content = new FormUrlEncodedContent(new Dictionary<string, string>
       {
          ["client_id"] = "AnyClientId",
          ["grant_type"] = "authorization_code",
-         ["code"] = authorizationResponse.Code,
-         ["scope"] = "any_scope"
+         ["code"] = authorizationResponse.Code
       });
 
       _httpResponse = await httpClient.PostAsync(

@@ -14,7 +14,7 @@ public class AuthorizationCodeGrantTypeHandlerTests
    public void handle_returns_status_code_400_when_authorization_code_missing()
    {
       var testSubject = CreateHandler(
-         authorizationCodeCache: new AuthorizationCodeCache());
+         authorizationCache: new AuthorizationCache());
 
       var httpRequest = CreateRequest(new Dictionary<string, StringValues>());
 
@@ -28,7 +28,7 @@ public class AuthorizationCodeGrantTypeHandlerTests
    public void handle_returns_status_code_400_when_authorization_code_not_found()
    {
       var testSubject = CreateHandler(
-         authorizationCodeCache: new AuthorizationCodeCache());
+         authorizationCache: new AuthorizationCache());
 
       var httpRequest = CreateRequest(new Dictionary<string, StringValues>
       {
@@ -44,12 +44,12 @@ public class AuthorizationCodeGrantTypeHandlerTests
    [Test]
    public void handle_returns_status_code_200_when_authorization_code_found()
    {
-      var authorizationCodeCache = new AuthorizationCodeCache();
+      var authorizationCache = new AuthorizationCache();
 
-      var authorizationCode = authorizationCodeCache.Create();
+      var authorizationCode = authorizationCache.Create(scopes: []);
 
       var testSubject = CreateHandler(
-         authorizationCodeCache: authorizationCodeCache);
+         authorizationCache: authorizationCache);
 
       var httpRequest = CreateRequest(new Dictionary<string, StringValues>
       {
@@ -65,12 +65,12 @@ public class AuthorizationCodeGrantTypeHandlerTests
    [Test]
    public void second_call_to_handle_returns_status_code_400_when_authorization_code_found()
    {
-      var authorizationCodeCache = new AuthorizationCodeCache();
+      var authorizationCache = new AuthorizationCache();
 
-      var authorizationCode = authorizationCodeCache.Create();
+      var authorizationCode = authorizationCache.Create(scopes: []);
 
       var testSubject = CreateHandler(
-         authorizationCodeCache: authorizationCodeCache);
+         authorizationCache: authorizationCache);
 
       var httpRequest = CreateRequest(new Dictionary<string, StringValues>
       {
@@ -99,16 +99,16 @@ public class AuthorizationCodeGrantTypeHandlerTests
    }
 
    private static AuthorizationCodeGrantTypeHandler CreateHandler(
-      AuthorizationCodeCache? authorizationCodeCache = null,
+      AuthorizationCache? authorizationCache = null,
       Settings? settings = null,
       ITokenGenerator? tokenGenerator = null)
    {
-      authorizationCodeCache ??= new AuthorizationCodeCache();
+      authorizationCache ??= new AuthorizationCache();
       settings ??= new Settings();
       tokenGenerator ??= TokenGeneratorStub.Valid();
 
       return new AuthorizationCodeGrantTypeHandler(
-         authorizationCodeCache,
+         authorizationCache,
          settings,
          tokenGenerator);
    }

@@ -8,7 +8,7 @@ using System.Net.Http;
 using System.Security.Claims;
 using System.Text.Json;
 using System.Threading.Tasks;
-using System.Web;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.IdentityModel.Tokens;
 using NUnit.Framework;
 using Stackage.OAuth2.Fake.OutsideIn.Tests.Model;
@@ -46,16 +46,31 @@ public static class Support
 
    public static async Task<AuthorizationResponse> StartAuthorizationAsync(
       this HttpClient httpClient,
-      OpenIdConfigurationResponse openIdConfigurationResponse)
+      OpenIdConfigurationResponse openIdConfigurationResponse,
+      string[]? scopes = null)
    {
+      scopes ??= [];
+
+      var requestQuery = new Dictionary<string, string?>
+      {
+         ["response_type"] = "code",
+         ["state"] = "AnyState",
+         ["redirect_uri"] = "http://any-host/callback"
+      };
+
+      if (scopes.Length != 0)
+      {
+         requestQuery["scope"] = string.Join(" ", scopes);
+      }
+
       var httpResponse = await httpClient.GetAsync(
-         $"{openIdConfigurationResponse.AuthorizationEndpoint}?response_type=code&state=AnyState&redirect_uri=http://any-host/callback");
+         QueryHelpers.AddQueryString(openIdConfigurationResponse.AuthorizationEndpoint, requestQuery));
 
-      var queryString = HttpUtility.ParseQueryString(httpResponse.Headers.Location?.Query ?? string.Empty);
+      var queryString = QueryHelpers.ParseNullableQuery(httpResponse.Headers.Location?.Query);
 
-      Assert.That(queryString.Keys, Contains.Item("code"));
+      Assert.That(queryString?.Keys, Contains.Item("code"));
 
-      return new AuthorizationResponse(Code: queryString["code"] ?? string.Empty);
+      return new AuthorizationResponse(Code: queryString!["code"].ToString());
    }
 
    public static async Task<DeviceAuthorizeResponse> StartDeviceAuthorizationAsync(

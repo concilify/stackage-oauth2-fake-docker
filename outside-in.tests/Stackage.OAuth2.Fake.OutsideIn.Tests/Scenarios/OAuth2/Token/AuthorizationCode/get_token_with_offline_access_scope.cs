@@ -25,14 +25,15 @@ public class get_token_with_offline_access_scope
 
       var openIdConfigurationResponse = await httpClient.GetWellKnownOpenIdConfigurationAsync();
 
-      var authorizationResponse = await httpClient.StartAuthorizationAsync(openIdConfigurationResponse);
+      var authorizationResponse = await httpClient.StartAuthorizationAsync(
+         openIdConfigurationResponse,
+         scopes: ["any_scope", "offline_access"]);
 
       var content = new FormUrlEncodedContent(new Dictionary<string, string>
       {
          ["client_id"] = "AnyClientId",
          ["grant_type"] = "authorization_code",
-         ["code"] = authorizationResponse.Code,
-         ["scope"] = "any_scope offline_access"
+         ["code"] = authorizationResponse.Code
       });
 
       _httpResponse = await httpClient.PostAsync(
@@ -81,11 +82,10 @@ public class get_token_with_offline_access_scope
    {
       var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
 
-      var scopes = tokenResponse.ParseClaims("scope");
+      var scope = tokenResponse.ParseClaim("scope");
 
-      Assert.That(scopes.Count, Is.EqualTo(2));
-      Assert.That(scopes[0].Value, Is.EqualTo("any_scope"));
-      Assert.That(scopes[1].Value, Is.EqualTo("offline_access"));
+      Assert.That(scope, Is.Not.Null);
+      Assert.That(scope!.Value, Is.EqualTo("any_scope offline_access"));
    }
 
    [Test]

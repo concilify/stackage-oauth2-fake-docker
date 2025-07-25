@@ -15,10 +15,11 @@ public static class AuthorizationEndpoint
          (
             [FromQuery(Name = "state")] string state,
             [FromQuery(Name = "redirect_uri")] string redirectUri,
-            AuthorizationCodeCache authorizationCodeCache
+            [FromQuery(Name = "scope")] string? scope,
+            AuthorizationCache authorizationCache
          ) =>
          {
-            var code = authorizationCodeCache.Create();
+            var code = authorizationCache.Create(scope?.Split(' ') ?? []);
 
             return TypedResults.Redirect($"{redirectUri}?code={code}&state={state}");
          });
