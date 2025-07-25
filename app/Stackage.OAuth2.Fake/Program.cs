@@ -10,9 +10,11 @@ using Stackage.OAuth2.Fake.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSingleton(builder.Configuration.Get<Settings>()!);
+builder.Services.AddSingleton<AuthorizationCodeCache>();
 builder.Services.AddSingleton<DeviceCodeCache>();
 builder.Services.AddSingleton<JsonWebKeyCache>();
 
+builder.Services.AddTransient<IGrantTypeHandler, AuthorizationCodeGrantTypeHandler>();
 builder.Services.AddTransient<IGrantTypeHandler, DeviceCodeGrantTypeHandler>();
 builder.Services.AddTransient<ITokenGenerator, TokenGenerator>();
 builder.Services.AddTransient<IClaimsParser, ClaimsParser>();

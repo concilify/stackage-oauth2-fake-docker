@@ -79,8 +79,12 @@ public class OpenIdConfigurationEndpoint
    {
       var openIdConfigurationResponse = await _httpResponse!.ParseAsync<OpenIdConfigurationResponse>();
 
-      Assert.That(
-         openIdConfigurationResponse.GrantTypesSupported,
-         Is.EqualTo(["urn:ietf:params:oauth:grant-type:device_code"]));
+      string[] expectedGrantTypes =
+      [
+         "authorization_code",
+         "urn:ietf:params:oauth:grant-type:device_code"
+      ];
+
+      Assert.That(openIdConfigurationResponse.GrantTypesSupported, Is.EqualTo(expectedGrantTypes));
    }
 }
