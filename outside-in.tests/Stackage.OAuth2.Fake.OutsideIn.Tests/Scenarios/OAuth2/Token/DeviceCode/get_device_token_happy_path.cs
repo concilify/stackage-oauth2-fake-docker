@@ -1,4 +1,4 @@
-namespace Stackage.OAuth2.Fake.OutsideIn.Tests.Scenarios.OAuth2.Token;
+namespace Stackage.OAuth2.Fake.OutsideIn.Tests.Scenarios.OAuth2.Token.DeviceCode;
 
 using System;
 using System.Collections.Generic;
