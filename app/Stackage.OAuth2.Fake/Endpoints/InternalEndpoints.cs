@@ -70,7 +70,7 @@ public static class InternalEndpoints
 
             return ValueTask.FromResult(request);
          }
-         catch (Exception e)
+         catch (Exception)
          {
             return ValueTask.FromResult<CreateTokenRequest?>(null);
          }
