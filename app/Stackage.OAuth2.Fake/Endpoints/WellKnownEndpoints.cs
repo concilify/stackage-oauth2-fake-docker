@@ -23,6 +23,7 @@ public static class WellKnownEndpoints
                issuer = settings.IssuerUrl,
                jwks_uri = $"{settings.IssuerUrl}/.well-known/jwks.json",
                token_endpoint = $"{settings.IssuerUrl}{settings.TokenPath}",
+               authorization_endpoint = $"{settings.IssuerUrl}{settings.AuthorizationPath}",
                device_authorization_endpoint = $"{settings.IssuerUrl}{settings.DeviceAuthorizationPath}",
                grant_types_supported = grantTypeHandlers.Select(h => h.GrantType).ToArray(),
             });

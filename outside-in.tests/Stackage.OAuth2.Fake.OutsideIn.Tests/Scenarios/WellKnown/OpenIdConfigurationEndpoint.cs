@@ -55,6 +55,16 @@ public class OpenIdConfigurationEndpoint
    }
 
    [Test]
+   public async Task response_content_should_contain_authorization_endpoint()
+   {
+      var openIdConfigurationResponse = await _httpResponse!.ParseAsync<OpenIdConfigurationResponse>();
+
+      Assert.That(
+         openIdConfigurationResponse.AuthorizationEndpoint,
+         Is.EqualTo($"{Configuration.IssuerUrl}/oauth2/authorize"));
+   }
+
+   [Test]
    public async Task response_content_should_contain_device_authorization_endpoint()
    {
       var openIdConfigurationResponse = await _httpResponse!.ParseAsync<OpenIdConfigurationResponse>();
