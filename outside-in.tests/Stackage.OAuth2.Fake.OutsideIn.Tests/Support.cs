@@ -8,6 +8,7 @@ using System.Net.Http;
 using System.Security.Claims;
 using System.Text.Json;
 using System.Threading.Tasks;
+using System.Web;
 using Microsoft.IdentityModel.Tokens;
 using NUnit.Framework;
 using Stackage.OAuth2.Fake.OutsideIn.Tests.Model;
@@ -41,6 +42,20 @@ public static class Support
       var httpResponse = await httpClient.GetAsync(".well-known/jwks.json");
 
       return await httpResponse.ParseAsync<JsonWebKeySet>();
+   }
+
+   public static async Task<AuthorizationResponse> StartAuthorizationAsync(
+      this HttpClient httpClient,
+      OpenIdConfigurationResponse openIdConfigurationResponse)
+   {
+      var httpResponse = await httpClient.GetAsync(
+         $"{openIdConfigurationResponse.AuthorizationEndpoint}?response_type=code&state=AnyState&redirect_uri=http://any-host/callback");
+
+      var queryString = HttpUtility.ParseQueryString(httpResponse.Headers.Location?.Query ?? string.Empty);
+
+      Assert.That(queryString.Keys, Contains.Item("code"));
+
+      return new AuthorizationResponse(Code: queryString["code"] ?? string.Empty);
    }
 
    public static async Task<DeviceAuthorizeResponse> StartDeviceAuthorizationAsync(
