@@ -11,11 +11,14 @@ public class AuthorizationCodeCache
    {
       var code = Guid.NewGuid().ToString();
 
+      // TODO: capture optional scope here too
+
       _codes.TryAdd(code, string.Empty);
 
       return code;
    }
 
+   // TODO: replace with Try... method and return scope
    public bool CodeIsValid(string code)
    {
       return _codes.ContainsKey(code);

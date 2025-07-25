@@ -108,4 +108,11 @@ public static class Support
 
       return jwtSecurityToken.Claims.Where(c => c.Type == name).ToList();
    }
+
+   public static Claim? ParseClaim(this TokenResponse tokenResponse, string name)
+   {
+      var jwtSecurityToken = tokenResponse.ParseJwtSecurityToken();
+
+      return jwtSecurityToken.Claims.SingleOrDefault(c => c.Type == name);
+   }
 }

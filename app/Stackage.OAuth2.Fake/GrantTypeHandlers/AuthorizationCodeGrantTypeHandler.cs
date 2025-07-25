@@ -33,6 +33,7 @@ public class AuthorizationCodeGrantTypeHandler : IGrantTypeHandler
          return Error.InvalidRequest("The code parameter was missing");
       }
 
+      // TODO: get scope here
       if (!_authorizationCodeCache.CodeIsValid(code.ToString()))
       {
          return Error.InvalidGrant("The given code was not found");
@@ -44,6 +45,10 @@ public class AuthorizationCodeGrantTypeHandler : IGrantTypeHandler
       {
          new(JwtRegisteredClaimNames.Sub, _settings.DefaultSubject)
       };
+
+      // TODO: include optional scope from /authorize request
+      // TODO: include refresh_token if offline_access in scope
+      // 	"refresh_token": "v1.MUaqY2ForOnqThbFs0t9V-yfD1Fw2Sb1YUScFm6fZNEsFTcKzDz-woOAr2n64NTHVxRF5IsJmoBeJY9WYzLg4uQ",
 
       var response = new
       {
