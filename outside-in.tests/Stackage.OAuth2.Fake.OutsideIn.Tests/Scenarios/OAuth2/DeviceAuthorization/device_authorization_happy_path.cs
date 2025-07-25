@@ -1,4 +1,4 @@
-namespace Stackage.OAuth2.Fake.OutsideIn.Tests.Scenarios.OAuth2.Device;
+namespace Stackage.OAuth2.Fake.OutsideIn.Tests.Scenarios.OAuth2.DeviceAuthorization;
 
 using System;
 using System.Collections.Generic;
@@ -8,7 +8,8 @@ using System.Threading.Tasks;
 using NUnit.Framework;
 using Stackage.OAuth2.Fake.OutsideIn.Tests.Model;
 
-public class DeviceAuthorizationEndpoint
+// ReSharper disable once InconsistentNaming
+public class device_authorization_happy_path
 {
    private HttpResponseMessage? _httpResponse;
 
