@@ -1,4 +1,4 @@
-﻿namespace Stackage.OAuth2.Fake.Model;
+namespace Stackage.OAuth2.Fake.Model;
 
 public interface IAuthorization
 {

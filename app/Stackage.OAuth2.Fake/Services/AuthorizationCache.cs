@@ -1,4 +1,4 @@
-﻿namespace Stackage.OAuth2.Fake.Services;
+namespace Stackage.OAuth2.Fake.Services;
 
 using System;
 using System.Collections.Concurrent;

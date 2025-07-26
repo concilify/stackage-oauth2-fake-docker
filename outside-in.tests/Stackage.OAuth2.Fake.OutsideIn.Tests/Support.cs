@@ -58,7 +58,7 @@ public static class Support
       return new AuthorizationResponse(Code: queryString["code"] ?? string.Empty);
    }
 
-   public static async Task<DeviceAuthorizeResponse> StartDeviceAuthorizationAsync(
+   public static async Task<DeviceAuthorizationResponse> StartDeviceAuthorizationAsync(
       this HttpClient httpClient,
       OpenIdConfigurationResponse openIdConfigurationResponse)
    {
@@ -71,7 +71,7 @@ public static class Support
          openIdConfigurationResponse.DeviceAuthorizationEndpoint,
          content);
 
-      return await httpResponse.ParseAsync<DeviceAuthorizeResponse>();
+      return await httpResponse.ParseAsync<DeviceAuthorizationResponse>();
    }
 
    public static void AssertAccessTokenIsSigned(
