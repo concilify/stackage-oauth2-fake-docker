@@ -3,29 +3,31 @@ namespace Stackage.OAuth2.Fake.Services;
 using System;
 using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
+using Stackage.OAuth2.Fake.Model;
 
-public class AuthorizationCache
+public class AuthorizationCache<TAuthorization>
+   where TAuthorization : IAuthorization
 {
-   private readonly ConcurrentDictionary<string, string[]> _authorizations = new();
+   private readonly ConcurrentDictionary<string, TAuthorization> _authorizations = new();
 
-   public string Create(string[] scopes)
+   public TAuthorization Add(Func<TAuthorization> authorizationFactory)
    {
-      var code = Guid.NewGuid().ToString();
+      var authorization = authorizationFactory();
 
-      _authorizations.TryAdd(code, scopes);
+      _authorizations.TryAdd(authorization.Code, authorization);
 
-      return code;
+      return authorization;
    }
 
    public bool TryGet(
       string code,
-      [MaybeNullWhen(false)] out string[] scope)
+      [MaybeNullWhen(false)] out TAuthorization authorization)
    {
-      return _authorizations.TryGetValue(code, out scope);
+      return _authorizations.TryGetValue(code, out authorization);
    }
 
-   public void Remove(string code)
+   public void Remove(TAuthorization authorization)
    {
-      _authorizations.TryRemove(code, out _);
+      _authorizations.TryRemove(authorization.Code, out _);
    }
 }

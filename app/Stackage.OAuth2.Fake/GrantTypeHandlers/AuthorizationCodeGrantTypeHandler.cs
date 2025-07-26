@@ -7,18 +7,19 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text.Json.Nodes;
 using Microsoft.AspNetCore.Http;
+using Stackage.OAuth2.Fake.Model;
 using Stackage.OAuth2.Fake.Services;
 
 public class AuthorizationCodeGrantTypeHandler : IGrantTypeHandler
 {
    private const int TokenExpirySecs = 20 * 60;
 
-   private readonly AuthorizationCache _authorizationCache;
+   private readonly AuthorizationCache<UserAuthorization> _authorizationCache;
    private readonly Settings _settings;
    private readonly ITokenGenerator _tokenGenerator;
 
    public AuthorizationCodeGrantTypeHandler(
-      AuthorizationCache authorizationCache,
+      AuthorizationCache<UserAuthorization> authorizationCache,
       Settings settings,
       ITokenGenerator tokenGenerator)
    {
@@ -27,7 +28,7 @@ public class AuthorizationCodeGrantTypeHandler : IGrantTypeHandler
       _tokenGenerator = tokenGenerator;
    }
 
-   public string GrantType => "authorization_code";
+   public string GrantType => GrantTypes.AuthorizationCode;
 
    public IResult Handle(HttpRequest httpRequest)
    {
@@ -36,12 +37,12 @@ public class AuthorizationCodeGrantTypeHandler : IGrantTypeHandler
          return Error.InvalidRequest("The code parameter was missing");
       }
 
-      if (!_authorizationCache.TryGet(code.ToString(), out var scope))
+      if (!_authorizationCache.TryGet(code.ToString(), out var authorization))
       {
          return Error.InvalidGrant("The given code was not found");
       }
 
-      _authorizationCache.Remove(code.ToString());
+      _authorizationCache.Remove(authorization);
 
       var claims = new List<Claim>
       {
