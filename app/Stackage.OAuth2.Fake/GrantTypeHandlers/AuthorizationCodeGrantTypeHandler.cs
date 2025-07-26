@@ -3,7 +3,6 @@ namespace Stackage.OAuth2.Fake.GrantTypeHandlers;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
 using System.Text.Json.Nodes;
 using Microsoft.AspNetCore.Http;
@@ -49,9 +48,9 @@ public class AuthorizationCodeGrantTypeHandler : IGrantTypeHandler
          new(JwtRegisteredClaimNames.Sub, _settings.DefaultSubject)
       };
 
-      if (scope.Length != 0)
+      if (authorization.IncludeScope)
       {
-         claims.Add(new Claim("scope", string.Join(" ", scope)));
+         claims.Add(new Claim("scope", authorization.Scope));
       }
 
       var response = new JsonObject
@@ -59,14 +58,14 @@ public class AuthorizationCodeGrantTypeHandler : IGrantTypeHandler
          ["access_token"] = _tokenGenerator.Generate(claims, TokenExpirySecs)
       };
 
-      if (scope.Length != 0)
+      if (authorization.IncludeRefreshToken)
       {
-         if (scope.Contains("offline_access"))
-         {
-            response["refresh_token"] = Guid.NewGuid().ToString();
-         }
+         response["refresh_token"] = Guid.NewGuid().ToString();
+      }
 
-         response["scope"] = string.Join(" ", scope);
+      if (authorization.IncludeScope)
+      {
+         response["scope"] = authorization.Scope;
       }
 
       response["expires_in"] = TokenExpirySecs;
