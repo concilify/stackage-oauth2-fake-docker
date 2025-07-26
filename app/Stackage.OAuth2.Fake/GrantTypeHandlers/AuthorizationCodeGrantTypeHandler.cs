@@ -41,6 +41,8 @@ public class AuthorizationCodeGrantTypeHandler : IGrantTypeHandler
          return Error.InvalidGrant("The given code was not found");
       }
 
+      // TODO: Share the following with refresh_code
+
       _authorizationCache.Remove(authorization);
 
       var claims = new List<Claim>

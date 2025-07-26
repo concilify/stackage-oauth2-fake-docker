@@ -17,6 +17,7 @@ builder.Services.AddSingleton<JsonWebKeyCache>();
 
 builder.Services.AddTransient<IGrantTypeHandler, AuthorizationCodeGrantTypeHandler>();
 builder.Services.AddTransient<IGrantTypeHandler, DeviceCodeGrantTypeHandler>();
+builder.Services.AddTransient<IGrantTypeHandler, RefreshTokenGrantTypeHandler>();
 builder.Services.AddTransient<ITokenGenerator, TokenGenerator>();
 builder.Services.AddTransient<IClaimsParser, ClaimsParser>();
 
