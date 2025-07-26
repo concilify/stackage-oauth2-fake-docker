@@ -3,7 +3,6 @@ namespace Stackage.OAuth2.Fake.GrantTypeHandlers;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Http;
 using Stackage.OAuth2.Fake.Model;
 using Stackage.OAuth2.Fake.Services;
@@ -47,17 +46,13 @@ public class DeviceCodeGrantTypeHandler : IGrantTypeHandler
          new(JwtRegisteredClaimNames.Sub, _settings.DefaultSubject)
       };
 
-      var response = new TokenResponse(
-         AccessToken: _tokenGenerator.Generate(claims, TokenExpirySecs),
-         TokenType: "Bearer",
-         ExpiresInSeconds: TokenExpirySecs
-      );
+      var response = new
+      {
+         access_token = _tokenGenerator.Generate(claims, TokenExpirySecs),
+         token_type = "Bearer",
+         expires_in = TokenExpirySecs
+      };
 
       return TypedResults.Json(response, statusCode: 200);
    }
-
-   private record TokenResponse(
-      [property: JsonPropertyName("access_token")] string AccessToken,
-      [property: JsonPropertyName("token_type")] string TokenType,
-      [property: JsonPropertyName("expires_in")] int ExpiresInSeconds);
 }
