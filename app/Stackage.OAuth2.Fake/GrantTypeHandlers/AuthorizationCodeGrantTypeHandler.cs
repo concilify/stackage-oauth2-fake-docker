@@ -1,8 +1,10 @@
 namespace Stackage.OAuth2.Fake.GrantTypeHandlers;
 
+using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Text.Json.Nodes;
 using Microsoft.AspNetCore.Http;
 using Stackage.OAuth2.Fake.Model;
 using Stackage.OAuth2.Fake.Services;
@@ -46,12 +48,28 @@ public class AuthorizationCodeGrantTypeHandler : IGrantTypeHandler
          new(JwtRegisteredClaimNames.Sub, _settings.DefaultSubject)
       };
 
-      var response = new
+      if (authorization.IncludeScope)
       {
-         access_token = _tokenGenerator.Generate(claims, TokenExpirySecs),
-         token_type = "Bearer",
-         expires_in = TokenExpirySecs
+         claims.Add(new Claim("scope", authorization.Scope));
+      }
+
+      var response = new JsonObject
+      {
+         ["access_token"] = _tokenGenerator.Generate(claims, TokenExpirySecs)
       };
+
+      if (authorization.IncludeRefreshToken)
+      {
+         response["refresh_token"] = Guid.NewGuid().ToString();
+      }
+
+      if (authorization.IncludeScope)
+      {
+         response["scope"] = authorization.Scope;
+      }
+
+      response["expires_in"] = TokenExpirySecs;
+      response["token_type"] = "Bearer";
 
       return TypedResults.Json(response, statusCode: 200);
    }

@@ -17,10 +17,11 @@ public static class AuthorizationEndpoints
          (
             [FromQuery(Name = "state")] string state,
             [FromQuery(Name = "redirect_uri")] string redirectUri,
+            [FromQuery(Name = "scope")] string? scope,
             AuthorizationCache<UserAuthorization> authorizationCache
          ) =>
          {
-            var authorization = authorizationCache.Add(UserAuthorization.Create);
+            var authorization = authorizationCache.Add(() => UserAuthorization.Create(scope ?? string.Empty));
 
             return TypedResults.Redirect($"{redirectUri}?code={authorization.Code}&state={state}");
          });
