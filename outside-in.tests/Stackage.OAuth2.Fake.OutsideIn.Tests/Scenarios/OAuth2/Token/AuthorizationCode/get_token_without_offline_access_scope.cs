@@ -89,7 +89,7 @@ public class get_token_without_offline_access_scope
    }
 
    [Test]
-   public async Task response_content_should_contain_refresh_token()
+   public async Task response_content_should_not_contain_refresh_token()
    {
       var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
 

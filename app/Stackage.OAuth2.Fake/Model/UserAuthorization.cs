@@ -11,10 +11,10 @@ public record UserAuthorization(string Code, string[] Scopes) : IAuthorization
 
    public string Scope => string.Join(" ", Scopes);
 
-   public static UserAuthorization Create(string[] scopes)
+   public static UserAuthorization Create(string scope)
    {
       return new UserAuthorization(
          Code: Guid.NewGuid().ToString(),
-         Scopes: scopes);
+         Scopes: scope.Split(' ').Where(s => !string.IsNullOrWhiteSpace(s)).ToArray());
    }
 }
