@@ -4,27 +4,28 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
+using Stackage.OAuth2.Fake.Model;
 using Stackage.OAuth2.Fake.Services;
 
 public class AuthorizationCodeGrantTypeHandler : IGrantTypeHandler
 {
    private const int TokenExpirySecs = 20 * 60;
 
-   private readonly AuthorizationCodeCache _authorizationCodeCache;
+   private readonly AuthorizationCache<UserAuthorization> _authorizationCache;
    private readonly Settings _settings;
    private readonly ITokenGenerator _tokenGenerator;
 
    public AuthorizationCodeGrantTypeHandler(
-      AuthorizationCodeCache authorizationCodeCache,
+      AuthorizationCache<UserAuthorization> authorizationCache,
       Settings settings,
       ITokenGenerator tokenGenerator)
    {
-      _authorizationCodeCache = authorizationCodeCache;
+      _authorizationCache = authorizationCache;
       _settings = settings;
       _tokenGenerator = tokenGenerator;
    }
 
-   public string GrantType => "authorization_code";
+   public string GrantType => GrantTypes.AuthorizationCode;
 
    public IResult Handle(HttpRequest httpRequest)
    {
@@ -33,12 +34,12 @@ public class AuthorizationCodeGrantTypeHandler : IGrantTypeHandler
          return Error.InvalidRequest("The code parameter was missing");
       }
 
-      if (!_authorizationCodeCache.CodeIsValid(code.ToString()))
+      if (!_authorizationCache.TryGet(code.ToString(), out var authorization))
       {
          return Error.InvalidGrant("The given code was not found");
       }
 
-      _authorizationCodeCache.Remove(code.ToString());
+      _authorizationCache.Remove(authorization);
 
       var claims = new List<Claim>
       {

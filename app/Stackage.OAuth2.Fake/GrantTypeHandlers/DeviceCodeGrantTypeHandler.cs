@@ -5,22 +5,23 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Http;
+using Stackage.OAuth2.Fake.Model;
 using Stackage.OAuth2.Fake.Services;
 
 public class DeviceCodeGrantTypeHandler : IGrantTypeHandler
 {
    private const int TokenExpirySecs = 20 * 60;
 
-   private readonly DeviceCodeCache _deviceCodeCache;
+   private readonly AuthorizationCache<DeviceAuthorization> _authorizationCache;
    private readonly Settings _settings;
    private readonly ITokenGenerator _tokenGenerator;
 
    public DeviceCodeGrantTypeHandler(
-      DeviceCodeCache deviceCodeCache,
+      AuthorizationCache<DeviceAuthorization> authorizationCache,
       Settings settings,
       ITokenGenerator tokenGenerator)
    {
-      _deviceCodeCache = deviceCodeCache;
+      _authorizationCache = authorizationCache;
       _settings = settings;
       _tokenGenerator = tokenGenerator;
    }
@@ -34,12 +35,12 @@ public class DeviceCodeGrantTypeHandler : IGrantTypeHandler
          return Error.InvalidRequest("The device_code parameter was missing");
       }
 
-      if (!_deviceCodeCache.DeviceIsVerified(deviceCode.ToString()))
+      if (!_authorizationCache.TryGet(deviceCode.ToString(), out var authorization))
       {
          return Error.InvalidGrant("The given device_code was not found");
       }
 
-      _deviceCodeCache.Remove(deviceCode.ToString());
+      _authorizationCache.Remove(authorization);
 
       var claims = new List<Claim>
       {

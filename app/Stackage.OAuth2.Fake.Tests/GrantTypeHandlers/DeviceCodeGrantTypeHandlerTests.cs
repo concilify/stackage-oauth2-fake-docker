@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 using NUnit.Framework;
 using Stackage.OAuth2.Fake.GrantTypeHandlers;
+using Stackage.OAuth2.Fake.Model;
 using Stackage.OAuth2.Fake.Services;
 using Stackage.OAuth2.Fake.Tests.Stubs;
 
@@ -14,7 +15,7 @@ public class DeviceCodeGrantTypeHandlerTests
    public void handle_returns_status_code_400_when_device_code_missing()
    {
       var testSubject = CreateHandler(
-         deviceCodeCache: new DeviceCodeCache());
+         authorizationCache: new AuthorizationCache<DeviceAuthorization>());
 
       var httpRequest = CreateRequest(new Dictionary<string, StringValues>());
 
@@ -28,7 +29,7 @@ public class DeviceCodeGrantTypeHandlerTests
    public void handle_returns_status_code_400_when_device_code_not_found()
    {
       var testSubject = CreateHandler(
-         deviceCodeCache: new DeviceCodeCache());
+         authorizationCache: new AuthorizationCache<DeviceAuthorization>());
 
       var httpRequest = CreateRequest(new Dictionary<string, StringValues>
       {
@@ -44,16 +45,16 @@ public class DeviceCodeGrantTypeHandlerTests
    [Test]
    public void handle_returns_status_code_200_when_device_code_found()
    {
-      var deviceCodeCache = new DeviceCodeCache();
+      var authorizationCache = new AuthorizationCache<DeviceAuthorization>();
 
-      var (deviceCode, _) = deviceCodeCache.Create();
+      var authorization = authorizationCache.Add(DeviceAuthorization.Create);
 
       var testSubject = CreateHandler(
-         deviceCodeCache: deviceCodeCache);
+         authorizationCache: authorizationCache);
 
       var httpRequest = CreateRequest(new Dictionary<string, StringValues>
       {
-         ["device_code"] = deviceCode
+         ["device_code"] = authorization.DeviceCode
       });
 
       var result = testSubject.Handle(httpRequest);
@@ -65,16 +66,16 @@ public class DeviceCodeGrantTypeHandlerTests
    [Test]
    public void second_call_to_handle_returns_status_code_400_when_device_code_found()
    {
-      var deviceCodeCache = new DeviceCodeCache();
+      var authorizationCache = new AuthorizationCache<DeviceAuthorization>();
 
-      var (deviceCode, _) = deviceCodeCache.Create();
+      var authorization = authorizationCache.Add(DeviceAuthorization.Create);
 
       var testSubject = CreateHandler(
-         deviceCodeCache: deviceCodeCache);
+         authorizationCache: authorizationCache);
 
       var httpRequest = CreateRequest(new Dictionary<string, StringValues>
       {
-         ["device_code"] = deviceCode
+         ["device_code"] = authorization.DeviceCode
       });
 
       testSubject.Handle(httpRequest);
@@ -99,16 +100,16 @@ public class DeviceCodeGrantTypeHandlerTests
    }
 
    private static DeviceCodeGrantTypeHandler CreateHandler(
-      DeviceCodeCache? deviceCodeCache = null,
+      AuthorizationCache<DeviceAuthorization>? authorizationCache = null,
       Settings? settings = null,
       ITokenGenerator? tokenGenerator = null)
    {
-      deviceCodeCache ??= new DeviceCodeCache();
+      authorizationCache ??= new AuthorizationCache<DeviceAuthorization>();
       settings ??= new Settings();
       tokenGenerator ??= TokenGeneratorStub.Valid();
 
       return new DeviceCodeGrantTypeHandler(
-         deviceCodeCache,
+         authorizationCache,
          settings,
          tokenGenerator);
    }
