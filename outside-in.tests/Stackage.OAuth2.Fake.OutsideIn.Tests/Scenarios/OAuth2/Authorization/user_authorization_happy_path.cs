@@ -8,7 +8,7 @@ using System.Web;
 using NUnit.Framework;
 
 // ReSharper disable once InconsistentNaming
-public class authorization_happy_path
+public class user_authorization_happy_path
 {
    private HttpResponseMessage? _httpResponse;
 
