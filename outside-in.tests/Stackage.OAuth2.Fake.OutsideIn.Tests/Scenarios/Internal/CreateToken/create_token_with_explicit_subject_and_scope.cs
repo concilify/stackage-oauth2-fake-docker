@@ -1,4 +1,4 @@
-namespace Stackage.OAuth2.Fake.OutsideIn.Tests.Scenarios.Internal.CreateToken;
+﻿namespace Stackage.OAuth2.Fake.OutsideIn.Tests.Scenarios.Internal.CreateToken;
 
 using System;
 using System.IdentityModel.Tokens.Jwt;
@@ -10,7 +10,7 @@ using NUnit.Framework;
 using Stackage.OAuth2.Fake.OutsideIn.Tests.Model;
 
 // ReSharper disable once InconsistentNaming
-public class create_token_without_explicit_sub_claim
+public class create_token_with_explicit_subject_and_scope
 {
    private HttpResponseMessage? _httpResponse;
 
@@ -22,6 +22,8 @@ public class create_token_without_explicit_sub_claim
 
       var body = new
       {
+         subject = "explicit-subject",
+         scope = "first_token second_token",
          claims = new
          {
             custom_claim = "custom-value"
@@ -66,7 +68,18 @@ public class create_token_without_explicit_sub_claim
 
       var jwtSecurityToken = tokenResponse.ParseJwtSecurityToken();
 
-      Assert.That(jwtSecurityToken.Subject, Is.EqualTo("default-subject"));
+      Assert.That(jwtSecurityToken.Subject, Is.EqualTo("explicit-subject"));
+   }
+
+   [Test]
+   public async Task response_content_should_contain_access_token_with_scope()
+   {
+      var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
+
+      var scope = tokenResponse.ParseClaim("scope");
+
+      Assert.That(scope, Is.Not.Null);
+      Assert.That(scope!.Value, Is.EqualTo("first_token second_token"));
    }
 
    [Test]

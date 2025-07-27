@@ -1,9 +1,8 @@
 namespace Stackage.OAuth2.Fake.Services;
 
-using System.Collections.Generic;
-using System.Security.Claims;
+using Stackage.OAuth2.Fake.Model;
 
 public interface ITokenGenerator
 {
-   string Generate(IList<Claim> claims, int expirySeconds);
+   TokenResponse Generate(IAuthorization authorization);
 }

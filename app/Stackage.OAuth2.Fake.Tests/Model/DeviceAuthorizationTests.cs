@@ -4,7 +4,7 @@ using System;
 using NUnit.Framework;
 using Stackage.OAuth2.Fake.Model;
 
-public class UserAuthorizationTests
+public class DeviceAuthorizationTests
 {
    [TestCaseSource(nameof(ScopeTestCases))]
    public void scope_properties_equal_the_expected_values(ScopeTestCase testCase)
@@ -24,64 +24,56 @@ public class UserAuthorizationTests
          new TestCaseData(new ScopeTestCase(
             GivenScope: string.Empty,
             ExpectedScope: string.Empty,
-            ExpectedScopes: [],
             ExpectedIncludeScope: false,
             ExpectedIncludeRefreshToken: false))
             .SetName("Empty"),
          new TestCaseData(new ScopeTestCase(
             GivenScope: "single_item",
             ExpectedScope: "single_item",
-            ExpectedScopes: ["single_item"],
             ExpectedIncludeScope: true,
             ExpectedIncludeRefreshToken: false))
             .SetName("Single scope"),
          new TestCaseData(new ScopeTestCase(
             GivenScope: "first_item second_item",
             ExpectedScope: "first_item second_item",
-            ExpectedScopes: ["first_item", "second_item"],
             ExpectedIncludeScope: true,
             ExpectedIncludeRefreshToken: false))
             .SetName("Two scopes"),
          new TestCaseData(new ScopeTestCase(
             GivenScope: $" first_item {Environment.NewLine} second_item ",
             ExpectedScope: "first_item second_item",
-            ExpectedScopes: ["first_item", "second_item"],
             ExpectedIncludeScope: true,
             ExpectedIncludeRefreshToken: false))
             .SetName("Two scopes w/ whitespace"),
          new TestCaseData(new ScopeTestCase(
             GivenScope: "offline_access",
             ExpectedScope: "offline_access",
-            ExpectedScopes: ["offline_access"],
             ExpectedIncludeScope: true,
             ExpectedIncludeRefreshToken: true))
             .SetName("Offline access alone"),
          new TestCaseData(new ScopeTestCase(
             GivenScope: "offline_access second_item",
             ExpectedScope: "offline_access second_item",
-            ExpectedScopes: ["offline_access", "second_item"],
             ExpectedIncludeScope: true,
             ExpectedIncludeRefreshToken: true))
             .SetName("Offline access first of two"),
          new TestCaseData(new ScopeTestCase(
             GivenScope: "first_item offline_access",
             ExpectedScope: "first_item offline_access",
-            ExpectedScopes: ["first_item", "offline_access"],
             ExpectedIncludeScope: true,
             ExpectedIncludeRefreshToken: true))
             .SetName("Offline access second of two"),
       ];
    }
 
-   private static UserAuthorization CreateAuthorization(string scope)
+   private static DeviceAuthorization CreateAuthorization(string scope)
    {
-      return UserAuthorization.Create(scope: scope);
+      return DeviceAuthorization.Create(scope: scope);
    }
 
    public record ScopeTestCase(
       string GivenScope,
       string ExpectedScope,
-      string[] ExpectedScopes,
       bool ExpectedIncludeScope,
       bool ExpectedIncludeRefreshToken);
 }

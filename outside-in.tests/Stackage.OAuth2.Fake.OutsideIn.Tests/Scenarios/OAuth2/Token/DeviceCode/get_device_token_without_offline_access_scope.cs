@@ -1,37 +1,44 @@
-namespace Stackage.OAuth2.Fake.OutsideIn.Tests.Scenarios.Internal.CreateToken;
+namespace Stackage.OAuth2.Fake.OutsideIn.Tests.Scenarios.OAuth2.Token.DeviceCode;
 
 using System;
+using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Json;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Stackage.OAuth2.Fake.OutsideIn.Tests.Model;
 
 // ReSharper disable once InconsistentNaming
-public class create_token_with_explicit_sub_claim
+public class get_device_token_without_offline_access_scope
 {
    private HttpResponseMessage? _httpResponse;
 
    [OneTimeSetUp]
    public async Task setup_before_all_tests()
    {
-      using var httpClient = new HttpClient();
+      using var handler = new HttpClientHandler();
+      handler.AllowAutoRedirect = false;
+
+      var httpClient = new HttpClient(handler);
       httpClient.BaseAddress = new Uri(Configuration.AppUrl);
 
-      var body = new
+      var openIdConfigurationResponse = await httpClient.GetWellKnownOpenIdConfigurationAsync();
+
+      var deviceAuthorizationResponse = await httpClient.StartDeviceAuthorizationAsync(
+         openIdConfigurationResponse,
+         scopes: ["any_scope"]);
+
+      var content = new FormUrlEncodedContent(new Dictionary<string, string>
       {
-         claims = new
-         {
-            sub = "explicit-subject",
-            custom_claim = "custom-value"
-         }
-      };
+         ["client_id"] = "AnyClientId",
+         ["grant_type"] = "urn:ietf:params:oauth:grant-type:device_code",
+         ["device_code"] = deviceAuthorizationResponse.DeviceCode,
+      });
 
-      var content = JsonContent.Create(body);
-
-      _httpResponse = await httpClient.PostAsync(".internal/create-token", content);
+      _httpResponse = await httpClient.PostAsync(
+         openIdConfigurationResponse.TokenEndpoint,
+         content);
    }
 
    [Test]
@@ -67,18 +74,34 @@ public class create_token_with_explicit_sub_claim
 
       var jwtSecurityToken = tokenResponse.ParseJwtSecurityToken();
 
-      Assert.That(jwtSecurityToken.Subject, Is.EqualTo("explicit-subject"));
+      Assert.That(jwtSecurityToken.Subject, Is.EqualTo("default-subject"));
    }
 
    [Test]
-   public async Task response_content_should_contain_access_token_with_custom_claim()
+   public async Task response_content_should_contain_access_token_with_scope()
    {
       var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
 
-      var claims = tokenResponse.ParseClaims("custom_claim");
+      var scope = tokenResponse.ParseClaim("scope");
 
-      Assert.That(claims.Count, Is.EqualTo(1));
-      Assert.That(claims[0].Value, Is.EqualTo("custom-value"));
+      Assert.That(scope, Is.Not.Null);
+      Assert.That(scope!.Value, Is.EqualTo("any_scope"));
+   }
+
+   [Test]
+   public async Task response_content_should_not_contain_refresh_token()
+   {
+      var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
+
+      Assert.That(tokenResponse.RefreshToken, Is.Null);
+   }
+
+   [Test]
+   public async Task response_content_should_contain_scope()
+   {
+      var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
+
+      Assert.That(tokenResponse.Scope, Is.EqualTo("any_scope"));
    }
 
    [Test]
