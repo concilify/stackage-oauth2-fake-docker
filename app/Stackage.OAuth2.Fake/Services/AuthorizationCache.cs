@@ -10,6 +10,8 @@ public class AuthorizationCache<TAuthorization>
 {
    private readonly ConcurrentDictionary<string, TAuthorization> _authorizations = new();
 
+   public int Count => _authorizations.Count;
+
    public TAuthorization Add(Func<TAuthorization> authorizationFactory)
    {
       var authorization = authorizationFactory();

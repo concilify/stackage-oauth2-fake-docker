@@ -33,8 +33,6 @@ public class RefreshTokenGrantTypeHandler : IGrantTypeHandler
 
       _authorizationCache.Remove(authorization);
 
-      // TODO: additional scopes are ignored if included
-
       var response = _tokenGenerator.Generate(authorization);
 
       return TypedResults.Json(response, statusCode: 200);

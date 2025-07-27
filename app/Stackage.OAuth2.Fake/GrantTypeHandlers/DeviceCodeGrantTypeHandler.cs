@@ -31,11 +31,7 @@ public class DeviceCodeGrantTypeHandler : IGrantTypeHandler
          return Error.InvalidGrant("The given device_code was not found");
       }
 
-      // TODO: If not authorized return ???
-
       _authorizationCache.Remove(authorization);
-
-      // TODO: additional scopes are ignored if included
 
       var response = _tokenGenerator.Generate(authorization);
 
