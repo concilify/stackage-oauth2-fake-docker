@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Stackage.OAuth2.Fake.Model;
 using Stackage.OAuth2.Fake.Model.Authorization;
 using Stackage.OAuth2.Fake.Services;
 
@@ -40,6 +41,7 @@ public static class InternalEndpoints
             }
 
             var authorization = new InternalAuthorization(
+               Scope: (Scope?)request.Scope ?? Scope.Empty,
                Subject: request.Subject ?? settings.DefaultSubject,
                Claims: claims);
 
@@ -51,6 +53,7 @@ public static class InternalEndpoints
 
    private record CreateTokenRequest(
       [property: JsonPropertyName("subject")] string? Subject,
+      [property: JsonPropertyName("scope")] string? Scope,
       [property: JsonPropertyName("claims")] JsonObject? Claims)
    {
       public static ValueTask<CreateTokenRequest?> BindAsync(HttpContext context)

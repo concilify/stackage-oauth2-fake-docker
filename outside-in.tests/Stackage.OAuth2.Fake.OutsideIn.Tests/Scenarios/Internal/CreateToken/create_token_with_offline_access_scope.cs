@@ -10,7 +10,7 @@ using NUnit.Framework;
 using Stackage.OAuth2.Fake.OutsideIn.Tests.Model;
 
 // ReSharper disable once InconsistentNaming
-public class create_token_with_explicit_subject
+public class create_token_with_offline_access_scope
 {
    private HttpResponseMessage? _httpResponse;
 
@@ -22,11 +22,8 @@ public class create_token_with_explicit_subject
 
       var body = new
       {
-         subject = "explicit-subject",
-         claims = new
-         {
-            custom_claim = "custom-value"
-         }
+         scope = "any_scope offline_access",
+         claims = new { }
       };
 
       var content = JsonContent.Create(body);
@@ -67,18 +64,34 @@ public class create_token_with_explicit_subject
 
       var jwtSecurityToken = tokenResponse.ParseJwtSecurityToken();
 
-      Assert.That(jwtSecurityToken.Subject, Is.EqualTo("explicit-subject"));
+      Assert.That(jwtSecurityToken.Subject, Is.EqualTo("default-subject"));
    }
 
    [Test]
-   public async Task response_content_should_contain_access_token_with_custom_claim()
+   public async Task response_content_should_contain_access_token_with_scope()
    {
       var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
 
-      var claims = tokenResponse.ParseClaims("custom_claim");
+      var scope = tokenResponse.ParseClaim("scope");
 
-      Assert.That(claims.Count, Is.EqualTo(1));
-      Assert.That(claims[0].Value, Is.EqualTo("custom-value"));
+      Assert.That(scope, Is.Not.Null);
+      Assert.That(scope!.Value, Is.EqualTo("any_scope offline_access"));
+   }
+
+   [Test]
+   public async Task response_content_should_contain_refresh_token()
+   {
+      var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
+
+      Assert.That(Guid.TryParse(tokenResponse.RefreshToken, out _), Is.True);
+   }
+
+   [Test]
+   public async Task response_content_should_contain_scope()
+   {
+      var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
+
+      Assert.That(tokenResponse.Scope, Is.EqualTo("any_scope offline_access"));
    }
 
    [Test]

@@ -2,6 +2,7 @@ namespace Stackage.OAuth2.Fake.Tests.Model.Authorization;
 
 using System;
 using NUnit.Framework;
+using Stackage.OAuth2.Fake.Model;
 using Stackage.OAuth2.Fake.Model.Authorization;
 
 public class DeviceAuthorizationTests
@@ -42,8 +43,8 @@ public class DeviceAuthorizationTests
       Assert.That(testSubject.Subject, Is.EqualTo("AnySubject"));
    }
 
-   private static DeviceAuthorization CreateAuthorization()
+   private static DeviceAuthorization CreateAuthorization(string? scope = null)
    {
-      return DeviceAuthorization.Create();
+      return DeviceAuthorization.Create(scope: (Scope?)scope ?? Scope.Empty);
    }
 }

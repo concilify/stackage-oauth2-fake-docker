@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 using NUnit.Framework;
 using Stackage.OAuth2.Fake.GrantTypeHandlers;
+using Stackage.OAuth2.Fake.Model;
 using Stackage.OAuth2.Fake.Model.Authorization;
 using Stackage.OAuth2.Fake.Services;
 using Stackage.OAuth2.Fake.Tests.Stubs;
@@ -47,7 +48,7 @@ public class DeviceCodeGrantTypeHandlerTests
    {
       var authorizationCache = new AuthorizationCache<DeviceAuthorization>();
 
-      var authorization = authorizationCache.Add(DeviceAuthorization.Create);
+      var authorization = authorizationCache.Add(() => DeviceAuthorization.Create(scope: Scope.Empty));
 
       var testSubject = CreateHandler(
          authorizationCache: authorizationCache);
@@ -68,7 +69,7 @@ public class DeviceCodeGrantTypeHandlerTests
    {
       var authorizationCache = new AuthorizationCache<DeviceAuthorization>();
 
-      var authorization = authorizationCache.Add(DeviceAuthorization.Create);
+      var authorization = authorizationCache.Add(() => DeviceAuthorization.Create(scope: Scope.Empty));
 
       var testSubject = CreateHandler(
          authorizationCache: authorizationCache);

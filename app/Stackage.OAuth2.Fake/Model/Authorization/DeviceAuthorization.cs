@@ -2,14 +2,11 @@ namespace Stackage.OAuth2.Fake.Model.Authorization;
 
 using System;
 
-public record DeviceAuthorization(string DeviceCode, string UserCode) : IAuthorizationWithCode
+public record DeviceAuthorization(string DeviceCode, string UserCode, Scope Scope) : IAuthorizationWithCode
 {
    private string? _subject;
 
    public string Code => DeviceCode;
-
-   // TODO: Future PR - scope for device_code grants will be implemented later
-   public Scope Scope => Scope.Empty;
 
    public string Subject => _subject ?? throw new InvalidOperationException($"{nameof(DeviceAuthorization)} has not been authorized.");
 
@@ -20,10 +17,11 @@ public record DeviceAuthorization(string DeviceCode, string UserCode) : IAuthori
       _subject = subject;
    }
 
-   public static DeviceAuthorization Create()
+   public static DeviceAuthorization Create(Scope scope)
    {
       return new DeviceAuthorization(
          DeviceCode: Guid.NewGuid().ToString(),
-         UserCode: Guid.NewGuid().ToString()[..4].ToUpper());
+         UserCode: Guid.NewGuid().ToString()[..4].ToUpper(),
+         Scope: scope);
    }
 }
