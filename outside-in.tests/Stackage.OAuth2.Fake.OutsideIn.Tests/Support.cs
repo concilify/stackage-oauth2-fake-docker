@@ -5,8 +5,10 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Json;
 using System.Security.Claims;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.IdentityModel.Tokens;
@@ -97,6 +99,67 @@ public static class Support
          content);
 
       return await httpResponse.ParseAsync<DeviceAuthorizationResponse>();
+   }
+
+   public static async Task<TokenResponse> ExchangeAuthorizationCodeAsync(
+      this HttpClient httpClient,
+      OpenIdConfigurationResponse openIdConfigurationResponse,
+      string code)
+   {
+      var content = new FormUrlEncodedContent(new Dictionary<string, string>
+      {
+         ["client_id"] = "AnyClientId",
+         ["grant_type"] = "authorization_code",
+         ["code"] = code
+      });
+
+      var httpResponse = await httpClient.PostAsync(
+         openIdConfigurationResponse.TokenEndpoint,
+         content);
+
+      return await httpResponse.ParseAsync<TokenResponse>();
+   }
+
+   public static async Task<TokenResponse> ExchangeDeviceCodeAsync(
+      this HttpClient httpClient,
+      OpenIdConfigurationResponse openIdConfigurationResponse,
+      string deviceCode)
+   {
+      var content = new FormUrlEncodedContent(new Dictionary<string, string>
+      {
+         ["client_id"] = "AnyClientId",
+         ["grant_type"] = "urn:ietf:params:oauth:grant-type:device_code",
+         ["device_code"] = deviceCode
+      });
+
+      var httpResponse = await httpClient.PostAsync(
+         openIdConfigurationResponse.TokenEndpoint,
+         content);
+
+      return await httpResponse.ParseAsync<TokenResponse>();
+   }
+
+   public static async Task<TokenResponse> CreateTokenAsync(
+      this HttpClient httpClient,
+      string[]? scopes = null)
+   {
+      scopes ??= [];
+
+      var body = new JsonObject
+      {
+         ["claims"] = new JsonObject()
+      };
+
+      if (scopes.Length != 0)
+      {
+         body["scope"] = string.Join(" ", scopes);
+      }
+
+      var content = JsonContent.Create(body);
+
+      var httpResponse = await httpClient.PostAsync(".internal/create-token", content);
+
+      return await httpResponse.ParseAsync<TokenResponse>();
    }
 
    public static void AssertAccessTokenIsSigned(

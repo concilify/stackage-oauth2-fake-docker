@@ -13,10 +13,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSingleton(builder.Configuration.Get<Settings>()!);
 builder.Services.AddSingleton<AuthorizationCache<UserAuthorization>>();
 builder.Services.AddSingleton<AuthorizationCache<DeviceAuthorization>>();
+builder.Services.AddSingleton<AuthorizationCache<RefreshAuthorization>>();
 builder.Services.AddSingleton<JsonWebKeyCache>();
 
 builder.Services.AddTransient<IGrantTypeHandler, AuthorizationCodeGrantTypeHandler>();
 builder.Services.AddTransient<IGrantTypeHandler, DeviceCodeGrantTypeHandler>();
+builder.Services.AddTransient<IGrantTypeHandler, RefreshTokenGrantTypeHandler>();
 builder.Services.AddTransient<ITokenGenerator, TokenGenerator>();
 builder.Services.AddTransient<IClaimsParser, ClaimsParser>();
 

@@ -82,7 +82,8 @@ public class OpenIdConfigurationEndpoint
       string[] expectedGrantTypes =
       [
          "authorization_code",
-         "urn:ietf:params:oauth:grant-type:device_code"
+         "urn:ietf:params:oauth:grant-type:device_code",
+         "refresh_token"
       ];
 
       Assert.That(openIdConfigurationResponse.GrantTypesSupported, Is.EqualTo(expectedGrantTypes));

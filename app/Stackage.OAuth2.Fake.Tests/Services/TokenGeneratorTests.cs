@@ -2,6 +2,7 @@ namespace Stackage.OAuth2.Fake.Tests.Services;
 
 using NUnit.Framework;
 using Stackage.OAuth2.Fake.Model;
+using Stackage.OAuth2.Fake.Model.Authorization;
 using Stackage.OAuth2.Fake.Services;
 using Stackage.OAuth2.Fake.Tests.Stubs;
 
@@ -67,15 +68,56 @@ public class TokenGeneratorTests
       Assert.That(response.RefreshToken, Is.Not.Null);
    }
 
+   [Test]
+   public void authorization_cache_is_not_added_to_when_scope_is_not_offline_access()
+   {
+      var authorizationCache = new AuthorizationCache<RefreshAuthorization>();
+
+      var testSubject = CreateGenerator(
+         authorizationCache: authorizationCache);
+
+      var authorization = AuthorizationStub.With((Scope)"any_scope");
+
+      testSubject.Generate(authorization);
+
+      Assert.That(authorizationCache.Count, Is.EqualTo(0));
+   }
+
+   [Test]
+   public void authorization_cache_is_added_to_when_scope_is_offline_access()
+   {
+      var authorizationCache = new AuthorizationCache<RefreshAuthorization>();
+
+      var testSubject = CreateGenerator(
+         authorizationCache: authorizationCache);
+
+      var authorization = AuthorizationStub.With(
+         scope: (Scope)"offline_access",
+         subject: "AnySubject");
+
+      var response = testSubject.Generate(authorization);
+
+      Assert.That(authorizationCache.Count, Is.EqualTo(1));
+
+      authorizationCache.TryGet(response.RefreshToken!, out var cachedAuthorization);
+
+      Assert.That(cachedAuthorization, Is.Not.Null);
+      Assert.That(cachedAuthorization!.Scope, Is.SameAs(authorization.Scope));
+      Assert.That(cachedAuthorization.Subject, Is.SameAs(authorization.Subject));
+   }
+
    private static TokenGenerator CreateGenerator(
       JsonWebKeyCache? jsonWebKeyCache = null,
-      Settings? settings = null)
+      Settings? settings = null,
+      AuthorizationCache<RefreshAuthorization>? authorizationCache = null)
    {
       jsonWebKeyCache ??= new JsonWebKeyCache();
       settings ??= new Settings();
+      authorizationCache ??= new AuthorizationCache<RefreshAuthorization>();
 
       return new TokenGenerator(
          jsonWebKeyCache,
-         settings);
+         settings,
+         authorizationCache);
    }
 }
