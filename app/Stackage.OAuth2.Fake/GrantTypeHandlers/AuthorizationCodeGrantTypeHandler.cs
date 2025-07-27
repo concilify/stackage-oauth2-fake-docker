@@ -1,7 +1,7 @@
 namespace Stackage.OAuth2.Fake.GrantTypeHandlers;
 
 using Microsoft.AspNetCore.Http;
-using Stackage.OAuth2.Fake.Model;
+using Stackage.OAuth2.Fake.Model.Authorization;
 using Stackage.OAuth2.Fake.Services;
 
 public class AuthorizationCodeGrantTypeHandler : IGrantTypeHandler

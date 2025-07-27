@@ -1,22 +1,14 @@
-namespace Stackage.OAuth2.Fake.Model;
+namespace Stackage.OAuth2.Fake.Model.Authorization;
 
 using System;
-using System.Collections.Generic;
-using System.Security.Claims;
 
-public record DeviceAuthorization(string DeviceCode, string UserCode, Scope Scope) : IFutureAuthorization
+public record DeviceAuthorization(string DeviceCode, string UserCode, Scope Scope) : IAuthorizationWithCode
 {
    private string? _subject;
 
    public string Code => DeviceCode;
 
-   public bool IncludeScope => !Scope.IsEmpty;
-
-   public bool IncludeRefreshToken => Scope.Contains("offline_access");
-
    public string Subject => _subject ?? throw new InvalidOperationException($"{nameof(DeviceAuthorization)} has not been authorized.");
-
-   public IEnumerable<Claim> Claims => [];
 
    public bool IsAuthorized => _subject != null;
 
