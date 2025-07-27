@@ -1,8 +1,6 @@
 namespace Stackage.OAuth2.Fake.Endpoints;
 
 using System;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
@@ -10,12 +8,11 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Stackage.OAuth2.Fake.Model.Authorization;
 using Stackage.OAuth2.Fake.Services;
 
 public static class InternalEndpoints
 {
-   private const int TokenExpirySecs = 20 * 60;
-
    public static void MapInternalEndpoints(this WebApplication app)
    {
       app.MapPost(
@@ -42,14 +39,11 @@ public static class InternalEndpoints
                return Error.InvalidRequest("The claims property must contain string properties or string array properties");
             }
 
-            claims.Insert(0, new Claim(JwtRegisteredClaimNames.Sub, request.Subject ?? settings.DefaultSubject));
+            var authorization = new InternalAuthorization(
+               Subject: request.Subject ?? settings.DefaultSubject,
+               Claims: claims);
 
-            var response = new
-            {
-               access_token = tokenGenerator.Generate(claims, TokenExpirySecs),
-               token_type = "Bearer",
-               expires_in = TokenExpirySecs,
-            };
+            var response = tokenGenerator.Generate(authorization);
 
             return TypedResults.Json(response, statusCode: 200);
          });
