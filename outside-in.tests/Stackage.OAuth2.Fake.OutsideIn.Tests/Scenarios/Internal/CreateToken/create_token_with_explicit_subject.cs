@@ -10,7 +10,7 @@ using NUnit.Framework;
 using Stackage.OAuth2.Fake.OutsideIn.Tests.Model;
 
 // ReSharper disable once InconsistentNaming
-public class create_token_with_explicit_sub_claim
+public class create_token_with_explicit_subject
 {
    private HttpResponseMessage? _httpResponse;
 
@@ -22,9 +22,9 @@ public class create_token_with_explicit_sub_claim
 
       var body = new
       {
+         subject = "explicit-subject",
          claims = new
          {
-            sub = "explicit-subject",
             custom_claim = "custom-value"
          }
       };
