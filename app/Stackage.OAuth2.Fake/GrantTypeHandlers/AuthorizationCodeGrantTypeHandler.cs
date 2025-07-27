@@ -65,7 +65,7 @@ public class AuthorizationCodeGrantTypeHandler : IGrantTypeHandler
 
       if (authorization.IncludeScope)
       {
-         response["scope"] = authorization.Scope;
+         response["scope"] = (string)authorization.Scope;
       }
 
       response["expires_in"] = TokenExpirySecs;

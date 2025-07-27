@@ -21,7 +21,7 @@ public static class AuthorizationEndpoints
             AuthorizationCache<UserAuthorization> authorizationCache
          ) =>
          {
-            var authorization = authorizationCache.Add(() => UserAuthorization.Create(scope ?? string.Empty));
+            var authorization = authorizationCache.Add(() => UserAuthorization.Create((Scope?)scope ?? Scope.Empty));
 
             return TypedResults.Redirect($"{redirectUri}?code={authorization.Code}&state={state}");
          });
