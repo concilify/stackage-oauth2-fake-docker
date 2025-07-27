@@ -51,9 +51,7 @@ public class TokenGenerator : ITokenGenerator
       {
          if (authorization.Scope.Contains("offline_access"))
          {
-            var refreshToken = Guid.NewGuid().ToString();
-
-            response = response with { RefreshToken = refreshToken };
+            response = response with { RefreshToken = Guid.NewGuid().ToString() };
          }
 
          response = response with { Scope = authorization.Scope };
