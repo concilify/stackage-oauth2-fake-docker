@@ -2,6 +2,7 @@ namespace Stackage.OAuth2.Fake.Tests.Services;
 
 using NUnit.Framework;
 using Stackage.OAuth2.Fake.Model;
+using Stackage.OAuth2.Fake.Model.Authorization;
 using Stackage.OAuth2.Fake.Services;
 using Stackage.OAuth2.Fake.Tests.Stubs;
 
