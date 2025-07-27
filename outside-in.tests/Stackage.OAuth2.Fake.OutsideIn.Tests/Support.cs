@@ -5,8 +5,10 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Json;
 using System.Security.Claims;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.IdentityModel.Tokens;
@@ -133,6 +135,29 @@ public static class Support
       var httpResponse = await httpClient.PostAsync(
          openIdConfigurationResponse.TokenEndpoint,
          content);
+
+      return await httpResponse.ParseAsync<TokenResponse>();
+   }
+
+   public static async Task<TokenResponse> CreateTokenAsync(
+      this HttpClient httpClient,
+      string[]? scopes = null)
+   {
+      scopes ??= [];
+
+      var body = new JsonObject
+      {
+         ["claims"] = new JsonObject()
+      };
+
+      if (scopes.Length != 0)
+      {
+         body["scope"] = string.Join(" ", scopes);
+      }
+
+      var content = JsonContent.Create(body);
+
+      var httpResponse = await httpClient.PostAsync(".internal/create-token", content);
 
       return await httpResponse.ParseAsync<TokenResponse>();
    }
