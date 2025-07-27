@@ -47,7 +47,7 @@ public class DeviceCodeGrantTypeHandlerTests
    {
       var authorizationCache = new AuthorizationCache<DeviceAuthorization>();
 
-      var authorization = authorizationCache.Add(() => DeviceAuthorization.Create(scope: string.Empty));
+      var authorization = authorizationCache.Add(() => DeviceAuthorization.Create(Scope.Empty));
 
       var testSubject = CreateHandler(
          authorizationCache: authorizationCache);
@@ -68,7 +68,7 @@ public class DeviceCodeGrantTypeHandlerTests
    {
       var authorizationCache = new AuthorizationCache<DeviceAuthorization>();
 
-      var authorization = authorizationCache.Add(() => DeviceAuthorization.Create(scope: string.Empty));
+      var authorization = authorizationCache.Add(() => DeviceAuthorization.Create(Scope.Empty));
 
       var testSubject = CreateHandler(
          authorizationCache: authorizationCache);
@@ -101,16 +101,13 @@ public class DeviceCodeGrantTypeHandlerTests
 
    private static DeviceCodeGrantTypeHandler CreateHandler(
       AuthorizationCache<DeviceAuthorization>? authorizationCache = null,
-      Settings? settings = null,
       ITokenGenerator? tokenGenerator = null)
    {
       authorizationCache ??= new AuthorizationCache<DeviceAuthorization>();
-      settings ??= new Settings();
       tokenGenerator ??= TokenGeneratorStub.Valid();
 
       return new DeviceCodeGrantTypeHandler(
          authorizationCache,
-         settings,
          tokenGenerator);
    }
 }

@@ -118,6 +118,25 @@ public static class Support
       return await httpResponse.ParseAsync<TokenResponse>();
    }
 
+   public static async Task<TokenResponse> ExchangeDeviceCodeAsync(
+      this HttpClient httpClient,
+      OpenIdConfigurationResponse openIdConfigurationResponse,
+      string deviceCode)
+   {
+      var content = new FormUrlEncodedContent(new Dictionary<string, string>
+      {
+         ["client_id"] = "AnyClientId",
+         ["grant_type"] = "urn:ietf:params:oauth:grant-type:device_code",
+         ["device_code"] = deviceCode
+      });
+
+      var httpResponse = await httpClient.PostAsync(
+         openIdConfigurationResponse.TokenEndpoint,
+         content);
+
+      return await httpResponse.ParseAsync<TokenResponse>();
+   }
+
    public static void AssertAccessTokenIsSigned(
       this TokenResponse tokenResponse,
       JsonWebKey jsonWebKey)

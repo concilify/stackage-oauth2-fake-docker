@@ -3,4 +3,4 @@
 using System.Collections.Generic;
 using System.Security.Claims;
 
-public record InternalAuthorization(Scope Scope, string Subject, IEnumerable<Claim> Claims) : IAuthorization;
+public record InternalAuthorization(Scope Scope, string Subject, IEnumerable<Claim> Claims) : IAuthorizationWithClaims;

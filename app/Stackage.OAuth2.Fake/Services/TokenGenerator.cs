@@ -14,13 +14,16 @@ public class TokenGenerator : ITokenGenerator
 
    private readonly JsonWebKeyCache _jsonWebKeyCache;
    private readonly Settings _settings;
+   private readonly AuthorizationCache<RefreshAuthorization> _authorizationCache;
 
    public TokenGenerator(
       JsonWebKeyCache jsonWebKeyCache,
-      Settings settings)
+      Settings settings,
+      AuthorizationCache<RefreshAuthorization> authorizationCache)
    {
       _jsonWebKeyCache = jsonWebKeyCache;
       _settings = settings;
+      _authorizationCache = authorizationCache;
    }
 
    public TokenResponse Generate(IAuthorization authorization)
@@ -30,7 +33,10 @@ public class TokenGenerator : ITokenGenerator
          new(JwtRegisteredClaimNames.Sub, authorization.Subject)
       };
 
-      claims.AddRange(authorization.Claims);
+      if (authorization is IAuthorizationWithClaims authorizationWithClaims)
+      {
+         claims.AddRange(authorizationWithClaims.Claims);
+      }
 
       if (!authorization.Scope.IsEmpty)
       {
@@ -47,7 +53,11 @@ public class TokenGenerator : ITokenGenerator
       {
          if (authorization.Scope.Contains("offline_access"))
          {
-            response = response with { RefreshToken = Guid.NewGuid().ToString() };
+            var refreshToken = Guid.NewGuid().ToString();
+
+            response = response with { RefreshToken = refreshToken };
+
+            _authorizationCache.Add(() => RefreshAuthorization.Create(refreshToken, authorization));
          }
 
          response = response with { Scope = authorization.Scope };

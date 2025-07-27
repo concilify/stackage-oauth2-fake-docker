@@ -31,9 +31,11 @@ public class AuthorizationCodeGrantTypeHandler : IGrantTypeHandler
          return Error.InvalidGrant("The given code was not found");
       }
 
-      // TODO: Share the following with refresh_code
+      // TODO: If not authorized return ???
 
       _authorizationCache.Remove(authorization);
+
+      // TODO: additional scopes are ignored if included
 
       var response = _tokenGenerator.Generate(authorization);
 

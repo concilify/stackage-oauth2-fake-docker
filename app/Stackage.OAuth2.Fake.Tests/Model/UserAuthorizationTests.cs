@@ -6,6 +6,15 @@ using Stackage.OAuth2.Fake.Model;
 
 public class UserAuthorizationTests
 {
+   [Test]
+   public void METHOD()
+   {
+      // isauthorized
+      // authorize
+      // subject error or not
+      Assert.Fail();
+   }
+
    [TestCaseSource(nameof(ScopeTestCases))]
    public void scope_properties_equal_the_expected_values(ScopeTestCase testCase)
    {

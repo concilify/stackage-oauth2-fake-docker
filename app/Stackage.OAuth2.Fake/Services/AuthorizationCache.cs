@@ -6,7 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 using Stackage.OAuth2.Fake.Model;
 
 public class AuthorizationCache<TAuthorization>
-   where TAuthorization : IFutureAuthorization
+   where TAuthorization : IAuthorizationWithCode
 {
    private readonly ConcurrentDictionary<string, TAuthorization> _authorizations = new();
 
