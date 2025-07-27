@@ -1,8 +1,9 @@
-namespace Stackage.OAuth2.Fake.Tests.Model;
+namespace Stackage.OAuth2.Fake.Tests.Model.Authorization;
 
 using System;
 using NUnit.Framework;
 using Stackage.OAuth2.Fake.Model;
+using Stackage.OAuth2.Fake.Model.Authorization;
 
 public class DeviceAuthorizationTests
 {
@@ -44,6 +45,6 @@ public class DeviceAuthorizationTests
 
    private static DeviceAuthorization CreateAuthorization(string? scope = null)
    {
-      return DeviceAuthorization.Create(scope: (Scope?)scope ?? Scope.Empty);;
+      return DeviceAuthorization.Create(scope: (Scope?)scope ?? Scope.Empty);
    }
 }

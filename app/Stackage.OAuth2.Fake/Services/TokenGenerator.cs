@@ -7,6 +7,7 @@ using System.Linq;
 using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
 using Stackage.OAuth2.Fake.Model;
+using Stackage.OAuth2.Fake.Model.Authorization;
 
 public class TokenGenerator : ITokenGenerator
 {

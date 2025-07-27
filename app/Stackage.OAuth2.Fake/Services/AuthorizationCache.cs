@@ -3,7 +3,7 @@ namespace Stackage.OAuth2.Fake.Services;
 using System;
 using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
-using Stackage.OAuth2.Fake.Model;
+using Stackage.OAuth2.Fake.Model.Authorization;
 
 public class AuthorizationCache<TAuthorization>
    where TAuthorization : IAuthorizationWithCode

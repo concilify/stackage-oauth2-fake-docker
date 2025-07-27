@@ -1,7 +1,8 @@
-﻿namespace Stackage.OAuth2.Fake.Tests.Stubs;
+namespace Stackage.OAuth2.Fake.Tests.Stubs;
 
 using Moq;
 using Stackage.OAuth2.Fake.Model;
+using Stackage.OAuth2.Fake.Model.Authorization;
 
 public static class AuthorizationStub
 {

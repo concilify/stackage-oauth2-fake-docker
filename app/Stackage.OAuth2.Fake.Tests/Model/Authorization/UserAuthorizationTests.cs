@@ -1,8 +1,9 @@
-namespace Stackage.OAuth2.Fake.Tests.Model;
+namespace Stackage.OAuth2.Fake.Tests.Model.Authorization;
 
 using System;
 using NUnit.Framework;
 using Stackage.OAuth2.Fake.Model;
+using Stackage.OAuth2.Fake.Model.Authorization;
 
 public class UserAuthorizationTests
 {

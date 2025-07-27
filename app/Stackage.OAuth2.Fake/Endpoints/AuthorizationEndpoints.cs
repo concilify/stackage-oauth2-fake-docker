@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Stackage.OAuth2.Fake.Model;
+using Stackage.OAuth2.Fake.Model.Authorization;
 using Stackage.OAuth2.Fake.Services;
 
 public static class AuthorizationEndpoints
@@ -43,7 +44,7 @@ public static class AuthorizationEndpoints
             // here can be used immediately with the /oauth2/token endpoint using grant type urn:ietf:params:oauth:grant-type:device_code
             authorization.Authorize(settings.DefaultSubject);
 
-            var content = new
+            var response = new
             {
                device_code = authorization.DeviceCode,
                user_code = authorization.UserCode,
@@ -53,7 +54,7 @@ public static class AuthorizationEndpoints
                interval = 5
             };
 
-            return TypedResults.Json(content);
+            return TypedResults.Json(response);
          })
          .DisableAntiforgery();
    }

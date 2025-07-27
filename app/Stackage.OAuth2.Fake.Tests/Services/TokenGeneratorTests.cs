@@ -1,4 +1,4 @@
-﻿namespace Stackage.OAuth2.Fake.Tests.Services;
+namespace Stackage.OAuth2.Fake.Tests.Services;
 
 using NUnit.Framework;
 using Stackage.OAuth2.Fake.Model;

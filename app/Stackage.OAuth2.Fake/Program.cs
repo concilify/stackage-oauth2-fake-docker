@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Stackage.OAuth2.Fake;
 using Stackage.OAuth2.Fake.Endpoints;
 using Stackage.OAuth2.Fake.GrantTypeHandlers;
-using Stackage.OAuth2.Fake.Model;
+using Stackage.OAuth2.Fake.Model.Authorization;
 using Stackage.OAuth2.Fake.Services;
 
 var builder = WebApplication.CreateBuilder(args);
