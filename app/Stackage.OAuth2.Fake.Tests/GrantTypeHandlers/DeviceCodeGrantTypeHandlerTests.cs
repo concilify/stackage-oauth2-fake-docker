@@ -47,7 +47,7 @@ public class DeviceCodeGrantTypeHandlerTests
    {
       var authorizationCache = new AuthorizationCache<DeviceAuthorization>();
 
-      var authorization = authorizationCache.Add(DeviceAuthorization.Create);
+      var authorization = authorizationCache.Add(() => DeviceAuthorization.Create(scope: string.Empty));
 
       var testSubject = CreateHandler(
          authorizationCache: authorizationCache);
@@ -68,7 +68,7 @@ public class DeviceCodeGrantTypeHandlerTests
    {
       var authorizationCache = new AuthorizationCache<DeviceAuthorization>();
 
-      var authorization = authorizationCache.Add(DeviceAuthorization.Create);
+      var authorization = authorizationCache.Add(() => DeviceAuthorization.Create(scope: string.Empty));
 
       var testSubject = CreateHandler(
          authorizationCache: authorizationCache);

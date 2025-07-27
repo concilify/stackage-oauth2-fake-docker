@@ -6,9 +6,12 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
+using Stackage.OAuth2.Fake.Model;
 
 public class TokenGenerator : ITokenGenerator
 {
+   private const int TokenExpirySecs = 20 * 60;
+
    private readonly JsonWebKeyCache _jsonWebKeyCache;
    private readonly Settings _settings;
 
@@ -20,18 +23,44 @@ public class TokenGenerator : ITokenGenerator
       _settings = settings;
    }
 
-   public string Generate(IList<Claim> claims, int expirySeconds)
+   public TokenResponse Generate(IAuthorization authorization)
+   {
+      var claims = new List<Claim>
+      {
+         new(JwtRegisteredClaimNames.Sub, authorization.Subject)
+      };
+
+      claims.AddRange(authorization.Claims);
+
+      if (!authorization.Scope.IsEmpty)
+      {
+         claims.Add(new Claim("scope", authorization.Scope));
+      }
+
+      var response = new TokenResponse
+      {
+         AccessToken = Generate(claims, TokenExpirySecs),
+         ExpiresInSeconds = TokenExpirySecs
+      };
+
+      if (!authorization.Scope.IsEmpty)
+      {
+         if (authorization.Scope.Contains("offline_access"))
+         {
+            response = response with { RefreshToken = Guid.NewGuid().ToString() };
+         }
+
+         response = response with { Scope = authorization.Scope };
+      }
+
+      return response;
+   }
+
+   private string Generate(IList<Claim> claims, int expirySeconds)
    {
       var jwk = _jsonWebKeyCache.JsonWebKeys.First();
 
       var identity = new ClaimsIdentity(claims);
-
-      return CreateJwt(identity, expirySeconds, jwk);
-   }
-
-   private string CreateJwt(ClaimsIdentity identity, int expirySeconds, JsonWebKey jwk)
-   {
-      var tokenHandler = new JwtSecurityTokenHandler();
       var signingCredentials = new SigningCredentials(jwk, SecurityAlgorithms.RsaSha256);
       var utcNow = DateTime.UtcNow;
 
@@ -42,6 +71,8 @@ public class TokenGenerator : ITokenGenerator
          Expires = utcNow.AddSeconds(expirySeconds),
          SigningCredentials = signingCredentials
       };
+
+      var tokenHandler = new JwtSecurityTokenHandler();
 
       var token = tokenHandler.CreateToken(tokenDescriptor);
 

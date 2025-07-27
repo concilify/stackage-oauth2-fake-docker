@@ -75,12 +75,22 @@ public static class Support
 
    public static async Task<DeviceAuthorizationResponse> StartDeviceAuthorizationAsync(
       this HttpClient httpClient,
-      OpenIdConfigurationResponse openIdConfigurationResponse)
+      OpenIdConfigurationResponse openIdConfigurationResponse,
+      string[]? scopes = null)
    {
-      var content = new FormUrlEncodedContent(new Dictionary<string, string>
+      scopes ??= [];
+
+      var requestQuery = new Dictionary<string, string?>
       {
          ["client_id"] = "AnyClientId",
-      });
+      };
+
+      if (scopes.Length != 0)
+      {
+         requestQuery["scope"] = string.Join(" ", scopes);
+      }
+
+      var content = new FormUrlEncodedContent(requestQuery);
 
       var httpResponse = await httpClient.PostAsync(
          openIdConfigurationResponse.DeviceAuthorizationEndpoint,
