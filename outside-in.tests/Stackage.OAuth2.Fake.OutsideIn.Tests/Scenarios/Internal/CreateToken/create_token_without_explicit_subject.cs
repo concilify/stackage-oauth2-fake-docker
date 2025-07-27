@@ -10,7 +10,7 @@ using NUnit.Framework;
 using Stackage.OAuth2.Fake.OutsideIn.Tests.Model;
 
 // ReSharper disable once InconsistentNaming
-public class create_token_without_explicit_sub_claim
+public class create_token_without_explicit_subject
 {
    private HttpResponseMessage? _httpResponse;
 

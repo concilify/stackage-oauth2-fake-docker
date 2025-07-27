@@ -2,7 +2,6 @@ namespace Stackage.OAuth2.Fake.Endpoints;
 
 using System;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -43,10 +42,7 @@ public static class InternalEndpoints
                return Error.InvalidRequest("The claims property must contain string properties or string array properties");
             }
 
-            if (claims.All(c => c.Type != JwtRegisteredClaimNames.Sub))
-            {
-               claims.Insert(0, new Claim(JwtRegisteredClaimNames.Sub, settings.DefaultSubject));
-            }
+            claims.Insert(0, new Claim(JwtRegisteredClaimNames.Sub, request.Subject ?? settings.DefaultSubject));
 
             var response = new
             {
@@ -60,6 +56,7 @@ public static class InternalEndpoints
    }
 
    private record CreateTokenRequest(
+      [property: JsonPropertyName("subject")] string? Subject,
       [property: JsonPropertyName("claims")] JsonObject? Claims)
    {
       public static ValueTask<CreateTokenRequest?> BindAsync(HttpContext context)
