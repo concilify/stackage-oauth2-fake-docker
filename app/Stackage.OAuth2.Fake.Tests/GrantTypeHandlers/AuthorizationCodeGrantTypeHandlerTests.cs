@@ -6,6 +6,7 @@ using Microsoft.Extensions.Primitives;
 using NUnit.Framework;
 using Stackage.OAuth2.Fake.GrantTypeHandlers;
 using Stackage.OAuth2.Fake.Model;
+using Stackage.OAuth2.Fake.Model.Authorization;
 using Stackage.OAuth2.Fake.Services;
 using Stackage.OAuth2.Fake.Tests.Stubs;
 
@@ -101,16 +102,13 @@ public class AuthorizationCodeGrantTypeHandlerTests
 
    private static AuthorizationCodeGrantTypeHandler CreateHandler(
       AuthorizationCache<UserAuthorization>? authorizationCache = null,
-      Settings? settings = null,
       ITokenGenerator? tokenGenerator = null)
    {
       authorizationCache ??= new AuthorizationCache<UserAuthorization>();
-      settings ??= new Settings();
       tokenGenerator ??= TokenGeneratorStub.Valid();
 
       return new AuthorizationCodeGrantTypeHandler(
          authorizationCache,
-         settings,
          tokenGenerator);
    }
 }
