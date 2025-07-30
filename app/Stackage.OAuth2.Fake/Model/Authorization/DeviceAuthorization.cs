@@ -4,11 +4,15 @@ using System;
 
 public record DeviceAuthorization(string DeviceCode, string UserCode, Scope Scope) : IAuthorizationWithCode
 {
+   private const int DefaultTokenExpirySeconds = 20 * 60;
+
    private string? _subject;
 
    public string Code => DeviceCode;
 
    public string Subject => _subject ?? throw new InvalidOperationException($"{nameof(DeviceAuthorization)} has not been authorized.");
+
+   public int TokenExpirySeconds => DefaultTokenExpirySeconds;
 
    public bool IsAuthorized => _subject != null;
 

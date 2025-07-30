@@ -12,7 +12,7 @@ public static class AuthorizationEndpoints
    public static void MapAuthorizationEndpoints(this WebApplication app)
    {
       app.MapGet(
-         "/oauth2/authorize",
+         "/authorize",
          (
             [FromQuery(Name = "state")] string state,
             [FromQuery(Name = "redirect_uri")] string redirectUri,
@@ -31,7 +31,7 @@ public static class AuthorizationEndpoints
          });
 
       app.MapPost(
-         "/oauth2/device/authorize",
+         "/oauth/device/code",
          (
             [FromForm(Name = "scope")] string? scope,
             AuthorizationCache<DeviceAuthorization> authorizationCache,

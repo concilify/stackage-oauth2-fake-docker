@@ -11,7 +11,7 @@ public static class TokenEndpoint
    public static void MapTokenEndpoint(this WebApplication app)
    {
       app.MapPost(
-         "/oauth2/token", IResult (
+         "/oauth/token", IResult (
             HttpContext httpContext,
             IEnumerable<IGrantTypeHandler> grantTypeHandlers
          ) =>

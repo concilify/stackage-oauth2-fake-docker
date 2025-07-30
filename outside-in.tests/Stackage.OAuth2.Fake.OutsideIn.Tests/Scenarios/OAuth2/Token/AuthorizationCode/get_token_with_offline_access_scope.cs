@@ -89,6 +89,12 @@ public class get_token_with_offline_access_scope
    }
 
    [Test]
+   public void open_id_scope_returns_id_token()
+   {
+      Assert.Fail();
+   }
+
+   [Test]
    public async Task response_content_should_contain_refresh_token()
    {
       var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();

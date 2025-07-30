@@ -11,8 +11,6 @@ using Stackage.OAuth2.Fake.Model.Authorization;
 
 public class TokenGenerator : ITokenGenerator
 {
-   private const int TokenExpirySecs = 20 * 60;
-
    private readonly JsonWebKeyCache _jsonWebKeyCache;
    private readonly Settings _settings;
    private readonly AuthorizationCache<RefreshAuthorization> _authorizationCache;
@@ -29,29 +27,45 @@ public class TokenGenerator : ITokenGenerator
 
    public TokenResponse Generate(IAuthorization authorization)
    {
-      var claims = new List<Claim>
+      var accessTokenClaims = new List<Claim>
       {
          new(JwtRegisteredClaimNames.Sub, authorization.Subject)
       };
 
       if (authorization is IAuthorizationWithClaims authorizationWithClaims)
       {
-         claims.AddRange(authorizationWithClaims.Claims);
+         accessTokenClaims.AddRange(authorizationWithClaims.Claims);
       }
 
       if (!authorization.Scope.IsEmpty)
       {
-         claims.Add(new Claim("scope", authorization.Scope));
+         accessTokenClaims.Add(new Claim("scope", authorization.Scope));
       }
 
       var response = new TokenResponse
       {
-         AccessToken = Generate(claims, TokenExpirySecs),
-         ExpiresInSeconds = TokenExpirySecs
+         AccessToken = Generate(accessTokenClaims, authorization.TokenExpirySeconds),
+         ExpiresInSeconds = authorization.TokenExpirySeconds
       };
 
       if (!authorization.Scope.IsEmpty)
       {
+         if (authorization.Scope.Contains("openid"))
+         {
+            var idTokenClaims = new List<Claim>
+            {
+               new(JwtRegisteredClaimNames.Sub, authorization.Subject)
+            };
+
+            // TODO: concilify requires nickname and picture
+            idTokenClaims.Add(new Claim(JwtRegisteredClaimNames.Nickname, "???"));
+            idTokenClaims.Add(new Claim(JwtRegisteredClaimNames.Picture, "???"));
+
+            var idToken = Generate(idTokenClaims, authorization.TokenExpirySeconds);
+
+            response = response with { IdToken = idToken };
+         }
+
          if (authorization.Scope.Contains("offline_access"))
          {
             var refreshToken = Guid.NewGuid().ToString();
@@ -82,6 +96,12 @@ public class TokenGenerator : ITokenGenerator
          Expires = utcNow.AddSeconds(expirySeconds),
          SigningCredentials = signingCredentials
       };
+
+      // TODO: Add tests for -ve expiry
+      if (expirySeconds <= 0)
+      {
+         tokenDescriptor.NotBefore = utcNow.AddSeconds(expirySeconds - 1);
+      }
 
       var tokenHandler = new JwtSecurityTokenHandler();
 

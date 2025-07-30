@@ -7,6 +7,9 @@ public record TokenResponse
    [JsonPropertyName("access_token")]
    public required string AccessToken { get; init; }
 
+   [JsonPropertyName("id_token")]
+   public string? IdToken { get; init; }
+
    [JsonPropertyName("refresh_token")]
    public string? RefreshToken { get; init; }
 

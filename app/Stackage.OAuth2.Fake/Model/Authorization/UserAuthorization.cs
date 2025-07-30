@@ -4,9 +4,13 @@ using System;
 
 public record UserAuthorization(string Code, Scope Scope) : IAuthorizationWithCode
 {
+   private const int DefaultTokenExpirySeconds = 20 * 60;
+
    private string? _subject;
 
    public string Subject => _subject ?? throw new InvalidOperationException($"{nameof(UserAuthorization)} has not been authorized.");
+
+   public int TokenExpirySeconds => DefaultTokenExpirySeconds;
 
    public bool IsAuthorized => _subject != null;
 
