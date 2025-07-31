@@ -4,14 +4,18 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 using Stackage.OAuth2.Fake.GrantTypeHandlers;
 
 public static class TokenEndpoint
 {
    public static void MapTokenEndpoint(this WebApplication app)
    {
+      var settings = app.Services.GetRequiredService<Settings>();
+
       app.MapPost(
-         "/oauth2/token", IResult (
+         settings.TokenPath,
+         IResult (
             HttpContext httpContext,
             IEnumerable<IGrantTypeHandler> grantTypeHandlers
          ) =>
