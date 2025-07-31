@@ -1,5 +1,6 @@
 namespace Stackage.OAuth2.Fake.Tests.Services;
 
+using Moq;
 using NUnit.Framework;
 using Stackage.OAuth2.Fake.Model;
 using Stackage.OAuth2.Fake.Model.Authorization;
@@ -108,15 +109,18 @@ public class TokenGeneratorTests
 
    private static TokenGenerator CreateGenerator(
       JsonWebKeyCache? jsonWebKeyCache = null,
+      IUserStore? userStore = null,
       Settings? settings = null,
       AuthorizationCache<RefreshAuthorization>? authorizationCache = null)
    {
       jsonWebKeyCache ??= new JsonWebKeyCache();
+      userStore ??= Mock.Of<IUserStore>();
       settings ??= new Settings();
       authorizationCache ??= new AuthorizationCache<RefreshAuthorization>();
 
       return new TokenGenerator(
          jsonWebKeyCache,
+         userStore,
          settings,
          authorizationCache);
    }

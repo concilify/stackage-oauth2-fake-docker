@@ -1,7 +1,9 @@
 namespace Stackage.OAuth2.Fake.Endpoints;
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
@@ -145,6 +147,37 @@ public static class InternalEndpoints
             return TypedResults.Ok();
          });
 
+      app.MapPost(
+         "/.internal/seed/user",
+         (
+            [FromBody] SeedUserRequest? request,
+            IUserStore userStore
+         ) =>
+         {
+            if (request == null)
+            {
+               return Error.InvalidRequest("The request body was missing");
+            }
+
+            if (request.Subject == null)
+            {
+               return Error.InvalidRequest("The subject property was missing");
+            }
+
+            if (request.Claims == null)
+            {
+               return Error.InvalidRequest("The claims property was missing");
+            }
+
+            var user = new User(
+               request.Subject,
+               [..request.Claims.Select(c => new Claim(c.Key, c.Value))]);
+
+            userStore.Add(user);
+
+            return TypedResults.Ok();
+         });
+
       app.MapGet("/.internal/history/requests", (CapturedRequestCache capturedRequestCache) =>
       {
          var response = capturedRequestCache.GetAll().Reverse();
@@ -198,5 +231,12 @@ public static class InternalEndpoints
       [property: JsonPropertyName("subject")] string? Subject)
    {
       public static ValueTask<SeedRefreshTokenRequest?> BindAsync(HttpContext context) => BindAsync<SeedRefreshTokenRequest>(context);
+   }
+
+   private record SeedUserRequest(
+      [property: JsonPropertyName("subject")] string? Subject,
+      [property: JsonPropertyName("claims")] IDictionary<string, string>? Claims)
+   {
+      public static ValueTask<SeedUserRequest?> BindAsync(HttpContext context) => BindAsync<SeedUserRequest>(context);
    }
 }
