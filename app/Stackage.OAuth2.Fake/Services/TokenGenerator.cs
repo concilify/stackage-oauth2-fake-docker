@@ -29,29 +29,41 @@ public class TokenGenerator : ITokenGenerator
 
    public TokenResponse Generate(IAuthorization authorization)
    {
-      var claims = new List<Claim>
+      var accessTokenClaims = new List<Claim>
       {
          new(JwtRegisteredClaimNames.Sub, authorization.Subject)
       };
 
       if (authorization is IAuthorizationWithClaims authorizationWithClaims)
       {
-         claims.AddRange(authorizationWithClaims.Claims);
+         accessTokenClaims.AddRange(authorizationWithClaims.Claims);
       }
 
       if (!authorization.Scope.IsEmpty)
       {
-         claims.Add(new Claim("scope", authorization.Scope));
+         accessTokenClaims.Add(new Claim("scope", authorization.Scope));
       }
 
       var response = new TokenResponse
       {
-         AccessToken = Generate(claims, TokenExpirySecs),
+         AccessToken = Generate(accessTokenClaims, TokenExpirySecs),
          ExpiresInSeconds = TokenExpirySecs
       };
 
       if (!authorization.Scope.IsEmpty)
       {
+         if (authorization.Scope.Contains("openid"))
+         {
+            var idTokenClaims = new List<Claim>
+            {
+               new(JwtRegisteredClaimNames.Sub, authorization.Subject)
+            };
+
+            var idToken = Generate(idTokenClaims, TokenExpirySecs);
+
+            response = response with { IdToken = idToken };
+         }
+
          if (authorization.Scope.Contains("offline_access"))
          {
             var refreshToken = Guid.NewGuid().ToString();

@@ -89,6 +89,14 @@ public class get_token_with_offline_access_scope
    }
 
    [Test]
+   public async Task response_content_should_not_contain_id_token()
+   {
+      var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
+
+      Assert.That(tokenResponse.IdToken, Is.Null);
+   }
+
+   [Test]
    public async Task response_content_should_contain_refresh_token()
    {
       var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
