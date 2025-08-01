@@ -1,4 +1,4 @@
-namespace Stackage.OAuth2.Fake.OutsideIn.Tests.Scenarios.OAuth2.Token.DeviceCode;
+namespace Stackage.OAuth2.Fake.OutsideIn.Tests.Scenarios.OAuth2.Token.AuthorizationCode;
 
 using System;
 using System.Collections.Generic;
@@ -10,7 +10,7 @@ using NUnit.Framework;
 using Stackage.OAuth2.Fake.OutsideIn.Tests.Model;
 
 // ReSharper disable once InconsistentNaming
-public class get_device_token_without_offline_access_scope
+public class get_token_with_openid_scope
 {
    private HttpResponseMessage? _httpResponse;
 
@@ -25,15 +25,15 @@ public class get_device_token_without_offline_access_scope
 
       var openIdConfigurationResponse = await httpClient.GetWellKnownOpenIdConfigurationAsync();
 
-      var deviceAuthorizationResponse = await httpClient.StartDeviceAuthorizationAsync(
+      var authorizationResponse = await httpClient.StartAuthorizationAsync(
          openIdConfigurationResponse,
-         scopes: ["any_scope"]);
+         scopes: ["any_scope", "openid"]);
 
       var content = new FormUrlEncodedContent(new Dictionary<string, string>
       {
          ["client_id"] = "AnyClientId",
-         ["grant_type"] = "urn:ietf:params:oauth:grant-type:device_code",
-         ["device_code"] = deviceAuthorizationResponse.DeviceCode,
+         ["grant_type"] = "authorization_code",
+         ["code"] = authorizationResponse.Code
       });
 
       _httpResponse = await httpClient.PostAsync(
@@ -85,7 +85,17 @@ public class get_device_token_without_offline_access_scope
       var scope = tokenResponse.ParseClaim("scope");
 
       Assert.That(scope, Is.Not.Null);
-      Assert.That(scope!.Value, Is.EqualTo("any_scope"));
+      Assert.That(scope!.Value, Is.EqualTo("any_scope openid"));
+   }
+
+   [Test]
+   public async Task response_content_should_contain_id_token_with_sub()
+   {
+      var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
+
+      var jwtSecurityToken = tokenResponse.ParseIdTokenAsJwtSecurityToken();
+
+      Assert.That(jwtSecurityToken.Subject, Is.EqualTo("default-subject"));
    }
 
    [Test]
@@ -101,7 +111,7 @@ public class get_device_token_without_offline_access_scope
    {
       var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
 
-      Assert.That(tokenResponse.Scope, Is.EqualTo("any_scope"));
+      Assert.That(tokenResponse.Scope, Is.EqualTo("any_scope openid"));
    }
 
    [Test]

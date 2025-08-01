@@ -10,7 +10,7 @@ using NUnit.Framework;
 using Stackage.OAuth2.Fake.OutsideIn.Tests.Model;
 
 // ReSharper disable once InconsistentNaming
-public class create_token_without_offline_access_scope
+public class create_token_without_openid_or_offline_access_scope
 {
    private HttpResponseMessage? _httpResponse;
 
@@ -76,6 +76,14 @@ public class create_token_without_offline_access_scope
 
       Assert.That(scope, Is.Not.Null);
       Assert.That(scope!.Value, Is.EqualTo("any_scope"));
+   }
+
+   [Test]
+   public async Task response_content_should_not_contain_id_token()
+   {
+      var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
+
+      Assert.That(tokenResponse.IdToken, Is.Null);
    }
 
    [Test]

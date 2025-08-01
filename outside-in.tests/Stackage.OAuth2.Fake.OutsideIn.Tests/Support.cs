@@ -181,9 +181,20 @@ public static class Support
       Assert.That(securityToken, Is.InstanceOf<JwtSecurityToken>());
    }
 
-   public static JwtSecurityToken ParseJwtSecurityToken(this TokenResponse tokenResponse)
+   public static JwtSecurityToken ParseJwtSecurityToken(this TokenResponse tokenResponse, Func<TokenResponse, string>? tokenAccessor = null)
    {
-      var securityToken = new JwtSecurityTokenHandler().ReadToken(tokenResponse.AccessToken);
+      tokenAccessor ??= token => token.AccessToken;
+
+      var securityToken = new JwtSecurityTokenHandler().ReadToken(tokenAccessor(tokenResponse));
+
+      Assert.That(securityToken, Is.InstanceOf<JwtSecurityToken>());
+
+      return (JwtSecurityToken)securityToken;
+   }
+
+   public static JwtSecurityToken ParseIdTokenAsJwtSecurityToken(this TokenResponse tokenResponse)
+   {
+      var securityToken = new JwtSecurityTokenHandler().ReadToken(tokenResponse.IdToken);
 
       Assert.That(securityToken, Is.InstanceOf<JwtSecurityToken>());
 

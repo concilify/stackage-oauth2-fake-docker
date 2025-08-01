@@ -1,44 +1,34 @@
-namespace Stackage.OAuth2.Fake.OutsideIn.Tests.Scenarios.OAuth2.Token.DeviceCode;
+namespace Stackage.OAuth2.Fake.OutsideIn.Tests.Scenarios.Internal.CreateToken;
 
 using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Json;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Stackage.OAuth2.Fake.OutsideIn.Tests.Model;
 
 // ReSharper disable once InconsistentNaming
-public class get_device_token_with_offline_access_scope
+public class create_token_with_openid_scope
 {
    private HttpResponseMessage? _httpResponse;
 
    [OneTimeSetUp]
    public async Task setup_before_all_tests()
    {
-      using var handler = new HttpClientHandler();
-      handler.AllowAutoRedirect = false;
-
-      var httpClient = new HttpClient(handler);
+      using var httpClient = new HttpClient();
       httpClient.BaseAddress = new Uri(Configuration.AppUrl);
 
-      var openIdConfigurationResponse = await httpClient.GetWellKnownOpenIdConfigurationAsync();
-
-      var deviceAuthorizationResponse = await httpClient.StartDeviceAuthorizationAsync(
-         openIdConfigurationResponse,
-         scopes: ["any_scope", "offline_access"]);
-
-      var content = new FormUrlEncodedContent(new Dictionary<string, string>
+      var body = new
       {
-         ["client_id"] = "AnyClientId",
-         ["grant_type"] = "urn:ietf:params:oauth:grant-type:device_code",
-         ["device_code"] = deviceAuthorizationResponse.DeviceCode,
-      });
+         scope = "any_scope openid",
+         claims = new { }
+      };
 
-      _httpResponse = await httpClient.PostAsync(
-         openIdConfigurationResponse.TokenEndpoint,
-         content);
+      var content = JsonContent.Create(body);
+
+      _httpResponse = await httpClient.PostAsync(".internal/create-token", content);
    }
 
    [Test]
@@ -85,23 +75,25 @@ public class get_device_token_with_offline_access_scope
       var scope = tokenResponse.ParseClaim("scope");
 
       Assert.That(scope, Is.Not.Null);
-      Assert.That(scope!.Value, Is.EqualTo("any_scope offline_access"));
+      Assert.That(scope!.Value, Is.EqualTo("any_scope openid"));
    }
 
    [Test]
-   public async Task response_content_should_not_contain_id_token()
+   public async Task response_content_should_contain_id_token_with_sub()
    {
       var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
 
-      Assert.That(tokenResponse.IdToken, Is.Null);
+      var jwtSecurityToken = tokenResponse.ParseIdTokenAsJwtSecurityToken();
+
+      Assert.That(jwtSecurityToken.Subject, Is.EqualTo("default-subject"));
    }
 
    [Test]
-   public async Task response_content_should_contain_refresh_token()
+   public async Task response_content_should_not_contain_refresh_token()
    {
       var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
 
-      Assert.That(Guid.TryParse(tokenResponse.RefreshToken, out _), Is.True);
+      Assert.That(tokenResponse.RefreshToken, Is.Null);
    }
 
    [Test]
@@ -109,7 +101,7 @@ public class get_device_token_with_offline_access_scope
    {
       var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
 
-      Assert.That(tokenResponse.Scope, Is.EqualTo("any_scope offline_access"));
+      Assert.That(tokenResponse.Scope, Is.EqualTo("any_scope openid"));
    }
 
    [Test]
