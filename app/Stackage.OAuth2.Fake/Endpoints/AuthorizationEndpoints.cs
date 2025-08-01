@@ -3,6 +3,7 @@ namespace Stackage.OAuth2.Fake.Endpoints;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
 using Stackage.OAuth2.Fake.Model;
 using Stackage.OAuth2.Fake.Model.Authorization;
 using Stackage.OAuth2.Fake.Services;
@@ -11,14 +12,15 @@ public static class AuthorizationEndpoints
 {
    public static void MapAuthorizationEndpoints(this WebApplication app)
    {
+      var settings = app.Services.GetRequiredService<Settings>();
+
       app.MapGet(
-         "/oauth2/authorize",
+         settings.AuthorizationPath,
          (
             [FromQuery(Name = "state")] string state,
             [FromQuery(Name = "redirect_uri")] string redirectUri,
             [FromQuery(Name = "scope")] string? scope,
-            AuthorizationCache<UserAuthorization> authorizationCache,
-            Settings settings
+            AuthorizationCache<UserAuthorization> authorizationCache
          ) =>
          {
             var authorization = authorizationCache.Add(() => UserAuthorization.Create((Scope?)scope ?? Scope.Empty));
@@ -31,11 +33,10 @@ public static class AuthorizationEndpoints
          });
 
       app.MapPost(
-         "/oauth2/device/authorize",
+         settings.DeviceAuthorizationPath,
          (
             [FromForm(Name = "scope")] string? scope,
-            AuthorizationCache<DeviceAuthorization> authorizationCache,
-            Settings settings
+            AuthorizationCache<DeviceAuthorization> authorizationCache
          ) =>
          {
             var authorization = authorizationCache.Add(() => DeviceAuthorization.Create((Scope?)scope ?? Scope.Empty));
