@@ -8,6 +8,8 @@ public record UserAuthorization(string Code, Scope Scope) : IAuthorizationWithCo
 
    public string Subject => _subject ?? throw new InvalidOperationException($"{nameof(UserAuthorization)} has not been authorized.");
 
+   public int? TokenExpirySeconds => null;
+
    public bool IsAuthorized => _subject != null;
 
    public void Authorize(string subject)

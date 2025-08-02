@@ -5,4 +5,6 @@ public interface IAuthorization
    Scope Scope { get; }
 
    string Subject { get; }
+
+   int? TokenExpirySeconds { get; }
 }

@@ -10,6 +10,8 @@ public record DeviceAuthorization(string DeviceCode, string UserCode, Scope Scop
 
    public string Subject => _subject ?? throw new InvalidOperationException($"{nameof(DeviceAuthorization)} has not been authorized.");
 
+   public int? TokenExpirySeconds => null;
+
    public bool IsAuthorized => _subject != null;
 
    public void Authorize(string subject)
