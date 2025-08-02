@@ -11,8 +11,6 @@ using Stackage.OAuth2.Fake.Model.Authorization;
 
 public class TokenGenerator : ITokenGenerator
 {
-   private const int TokenExpirySecs = 20 * 60;
-
    private readonly JsonWebKeyCache _jsonWebKeyCache;
    private readonly Settings _settings;
    private readonly AuthorizationCache<RefreshAuthorization> _authorizationCache;
@@ -44,10 +42,12 @@ public class TokenGenerator : ITokenGenerator
          accessTokenClaims.Add(new Claim("scope", authorization.Scope));
       }
 
+      var expirySeconds = authorization.TokenExpirySeconds ?? _settings.DefaultTokenExpirySeconds;
+
       var response = new TokenResponse
       {
-         AccessToken = Generate(accessTokenClaims, TokenExpirySecs),
-         ExpiresInSeconds = TokenExpirySecs
+         AccessToken = Generate(accessTokenClaims, expirySeconds),
+         ExpiresInSeconds = expirySeconds
       };
 
       if (!authorization.Scope.IsEmpty)
@@ -59,7 +59,7 @@ public class TokenGenerator : ITokenGenerator
                new(JwtRegisteredClaimNames.Sub, authorization.Subject)
             };
 
-            var idToken = Generate(idTokenClaims, TokenExpirySecs);
+            var idToken = Generate(idTokenClaims, expirySeconds);
 
             response = response with { IdToken = idToken };
          }
@@ -94,6 +94,11 @@ public class TokenGenerator : ITokenGenerator
          Expires = utcNow.AddSeconds(expirySeconds),
          SigningCredentials = signingCredentials
       };
+
+      if (expirySeconds <= 0)
+      {
+         tokenDescriptor.NotBefore = utcNow.AddSeconds(expirySeconds).AddMilliseconds(-1);
+      }
 
       var tokenHandler = new JwtSecurityTokenHandler();
 

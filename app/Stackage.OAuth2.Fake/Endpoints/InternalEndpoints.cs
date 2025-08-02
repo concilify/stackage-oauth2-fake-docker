@@ -43,6 +43,7 @@ public static class InternalEndpoints
             var authorization = new InternalAuthorization(
                Scope: (Scope?)request.Scope ?? Scope.Empty,
                Subject: request.Subject ?? settings.DefaultSubject,
+               TokenExpirySeconds: request.TokenExpirySeconds,
                Claims: claims);
 
             var response = tokenGenerator.Generate(authorization);
@@ -54,6 +55,7 @@ public static class InternalEndpoints
    private record CreateTokenRequest(
       [property: JsonPropertyName("subject")] string? Subject,
       [property: JsonPropertyName("scope")] string? Scope,
+      [property: JsonPropertyName("tokenExpirySeconds")] int? TokenExpirySeconds,
       [property: JsonPropertyName("claims")] JsonObject? Claims)
    {
       public static ValueTask<CreateTokenRequest?> BindAsync(HttpContext context)

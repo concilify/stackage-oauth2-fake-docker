@@ -4,6 +4,8 @@ public record RefreshAuthorization(string RefreshToken, Scope Scope, string Subj
 {
    public string Code => RefreshToken;
 
+   public int? TokenExpirySeconds => null;
+
    public static RefreshAuthorization Create(string refreshToken, IAuthorization authorization)
    {
       return new RefreshAuthorization(refreshToken, authorization.Scope, authorization.Subject);
