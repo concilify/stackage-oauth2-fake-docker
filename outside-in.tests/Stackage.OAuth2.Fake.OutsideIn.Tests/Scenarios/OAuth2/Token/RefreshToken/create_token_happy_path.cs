@@ -25,7 +25,7 @@ public class create_token_happy_path
 
       var openIdConfigurationResponse = await httpClient.GetWellKnownOpenIdConfigurationAsync();
 
-      var tokenResponse = await httpClient.CreateTokenAsync(
+      var tokenResponse = await httpClient.InternalCreateTokenAsync(
          scopes: ["offline_access"]);
 
       var content = new FormUrlEncodedContent(new Dictionary<string, string>

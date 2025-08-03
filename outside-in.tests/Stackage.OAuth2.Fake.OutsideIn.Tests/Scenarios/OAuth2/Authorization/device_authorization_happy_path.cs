@@ -88,4 +88,11 @@ public class device_authorization_happy_path
 
       Assert.That(deviceAuthorizationResponse.Interval, Is.EqualTo(5));
    }
+
+   [Test]
+   public void METHOD()
+   {
+      // can get device_code from internal
+      Assert.Fail();
+   }
 }

@@ -51,4 +51,11 @@ public class user_authorization_happy_path
       Assert.That(Guid.TryParse(queryString["code"], out _), Is.True);
       Assert.That(queryString["state"], Is.EqualTo("AnyState"));
    }
+
+   [Test]
+   public void METHOD()
+   {
+      // can get authorization_code from internal
+      Assert.Fail();
+   }
 }

@@ -90,4 +90,11 @@ public class get_token_happy_path
 
       Assert.That(tokenResponse.ExpiresIn, Is.EqualTo(1200));
    }
+
+   [Test]
+   public void METHOD()
+   {
+      // get refresh_token using internal endpoint
+      Assert.Fail();
+   }
 }

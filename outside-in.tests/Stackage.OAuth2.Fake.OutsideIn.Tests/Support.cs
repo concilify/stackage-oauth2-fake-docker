@@ -139,7 +139,7 @@ public static class Support
       return await httpResponse.ParseAsync<TokenResponse>();
    }
 
-   public static async Task<TokenResponse> CreateTokenAsync(
+   public static async Task<TokenResponse> InternalCreateTokenAsync(
       this HttpClient httpClient,
       string[]? scopes = null)
    {
