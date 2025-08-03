@@ -45,10 +45,12 @@ public class TokenGenerator : ITokenGenerator
          accessTokenClaims.Add(new Claim("scope", authorization.Scope));
       }
 
+      var expirySeconds = authorization.TokenExpirySeconds ?? _settings.DefaultTokenExpirySeconds;
+
       var response = new TokenResponse
       {
-         AccessToken = Generate(accessTokenClaims, authorization.TokenExpirySeconds),
-         ExpiresInSeconds = authorization.TokenExpirySeconds
+         AccessToken = Generate(accessTokenClaims, expirySeconds),
+         ExpiresInSeconds = expirySeconds
       };
 
       if (!authorization.Scope.IsEmpty)
@@ -72,7 +74,7 @@ public class TokenGenerator : ITokenGenerator
                idTokenClaims.AddRange(user.GetClaims(profileClaims));
             }
 
-            var idToken = Generate(idTokenClaims, authorization.TokenExpirySeconds);
+            var idToken = Generate(idTokenClaims, expirySeconds);
 
             response = response with { IdToken = idToken };
          }
@@ -108,10 +110,9 @@ public class TokenGenerator : ITokenGenerator
          SigningCredentials = signingCredentials
       };
 
-      // TODO: Add tests for -ve expiry
       if (expirySeconds <= 0)
       {
-         tokenDescriptor.NotBefore = utcNow.AddSeconds(expirySeconds - 1);
+         tokenDescriptor.NotBefore = utcNow.AddSeconds(expirySeconds).AddMilliseconds(-1);
       }
 
       var tokenHandler = new JwtSecurityTokenHandler();

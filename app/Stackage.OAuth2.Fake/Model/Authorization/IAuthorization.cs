@@ -7,5 +7,5 @@ public interface IAuthorization
 
    string Subject { get; }
 
-   int TokenExpirySeconds { get; }
+   int? TokenExpirySeconds { get; }
 }

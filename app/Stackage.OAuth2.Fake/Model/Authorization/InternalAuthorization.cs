@@ -6,5 +6,5 @@ using System.Security.Claims;
 public record InternalAuthorization(
    Scope Scope,
    string Subject,
-   int TokenExpirySeconds,
+   int? TokenExpirySeconds,
    IEnumerable<Claim> Claims) : IAuthorizationWithClaims;

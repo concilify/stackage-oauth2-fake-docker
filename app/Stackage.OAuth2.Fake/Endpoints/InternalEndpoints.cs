@@ -17,8 +17,6 @@ using Stackage.OAuth2.Fake.Services;
 
 public static class InternalEndpoints
 {
-   private const int DefaultTokenExpirySeconds = 20 * 60;
-
    public static void MapInternalEndpoints(this WebApplication app)
    {
       app.MapGet("/.internal/health", () => Results.Ok());
@@ -50,7 +48,7 @@ public static class InternalEndpoints
             var authorization = new InternalAuthorization(
                Scope: (Scope?)request.Scope ?? Scope.Empty,
                Subject: request.Subject ?? settings.DefaultSubject,
-               TokenExpirySeconds: request.TokenExpirySeconds ?? DefaultTokenExpirySeconds,
+               TokenExpirySeconds: request.TokenExpirySeconds,
                Claims: claims);
 
             // TODO: Need to be able to create expired token (eg. pass -ve expiry seconds)

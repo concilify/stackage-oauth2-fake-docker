@@ -21,4 +21,7 @@ public record Settings
 
    [ConfigurationKeyName("DEFAULT_SUBJECT")]
    public string DefaultSubject { get; init; } = string.Empty;
+
+   [ConfigurationKeyName("DEFAULT_TOKEN_EXPIRY_SECONDS")]
+   public int DefaultTokenExpirySeconds { get; init; } = 20 * 60;
 }
