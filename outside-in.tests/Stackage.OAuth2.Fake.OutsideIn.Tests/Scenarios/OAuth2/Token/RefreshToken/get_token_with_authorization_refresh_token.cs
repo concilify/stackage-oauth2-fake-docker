@@ -1,4 +1,4 @@
-namespace Stackage.OAuth2.Fake.OutsideIn.Tests.Scenarios.OAuth2.Token.DeviceCode;
+namespace Stackage.OAuth2.Fake.OutsideIn.Tests.Scenarios.OAuth2.Token.RefreshToken;
 
 using System;
 using System.Collections.Generic;
@@ -10,7 +10,7 @@ using NUnit.Framework;
 using Stackage.OAuth2.Fake.OutsideIn.Tests.Model;
 
 // ReSharper disable once InconsistentNaming
-public class get_device_token_without_openid_or_offline_access_scope
+public class get_token_with_authorization_refresh_token
 {
    private HttpResponseMessage? _httpResponse;
 
@@ -25,15 +25,19 @@ public class get_device_token_without_openid_or_offline_access_scope
 
       var openIdConfigurationResponse = await httpClient.GetWellKnownOpenIdConfigurationAsync();
 
-      var deviceAuthorizationResponse = await httpClient.StartDeviceAuthorizationAsync(
+      var authorizationResponse = await httpClient.StartAuthorizationAsync(
          openIdConfigurationResponse,
-         scopes: ["any_scope"]);
+         scopes: ["offline_access"]);
+
+      var tokenResponse = await httpClient.ExchangeAuthorizationCodeAsync(
+         openIdConfigurationResponse,
+         authorizationResponse.Code);
 
       var content = new FormUrlEncodedContent(new Dictionary<string, string>
       {
          ["client_id"] = "AnyClientId",
-         ["grant_type"] = "urn:ietf:params:oauth:grant-type:device_code",
-         ["device_code"] = deviceAuthorizationResponse.DeviceCode,
+         ["grant_type"] = "refresh_token",
+         ["refresh_token"] = tokenResponse.RefreshToken ?? string.Empty,
       });
 
       _httpResponse = await httpClient.PostAsync(
@@ -85,23 +89,15 @@ public class get_device_token_without_openid_or_offline_access_scope
       var scope = tokenResponse.ParseClaim("scope");
 
       Assert.That(scope, Is.Not.Null);
-      Assert.That(scope!.Value, Is.EqualTo("any_scope"));
+      Assert.That(scope!.Value, Is.EqualTo("offline_access"));
    }
 
    [Test]
-   public async Task response_content_should_not_contain_id_token()
+   public async Task response_content_should_contain_refresh_token()
    {
       var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
 
-      Assert.That(tokenResponse.IdToken, Is.Null);
-   }
-
-   [Test]
-   public async Task response_content_should_not_contain_refresh_token()
-   {
-      var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
-
-      Assert.That(tokenResponse.RefreshToken, Is.Null);
+      Assert.That(Guid.TryParse(tokenResponse.RefreshToken, out _), Is.True);
    }
 
    [Test]
@@ -109,7 +105,7 @@ public class get_device_token_without_openid_or_offline_access_scope
    {
       var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
 
-      Assert.That(tokenResponse.Scope, Is.EqualTo("any_scope"));
+      Assert.That(tokenResponse.Scope, Is.EqualTo("offline_access"));
    }
 
    [Test]

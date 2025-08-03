@@ -1,4 +1,4 @@
-namespace Stackage.OAuth2.Fake.OutsideIn.Tests.Scenarios.OAuth2.Token.RefreshToken;
+namespace Stackage.OAuth2.Fake.OutsideIn.Tests.Scenarios.OAuth2.Token.DeviceCode;
 
 using System;
 using System.Collections.Generic;
@@ -10,29 +10,27 @@ using NUnit.Framework;
 using Stackage.OAuth2.Fake.OutsideIn.Tests.Model;
 
 // ReSharper disable once InconsistentNaming
-public class create_token_happy_path
+public class get_token_with_openid_scope
 {
    private HttpResponseMessage? _httpResponse;
 
    [OneTimeSetUp]
    public async Task setup_before_all_tests()
    {
-      using var handler = new HttpClientHandler();
-      handler.AllowAutoRedirect = false;
-
-      var httpClient = new HttpClient(handler);
+      using var httpClient = new HttpClient();
       httpClient.BaseAddress = new Uri(Configuration.AppUrl);
 
       var openIdConfigurationResponse = await httpClient.GetWellKnownOpenIdConfigurationAsync();
 
-      var tokenResponse = await httpClient.CreateTokenAsync(
-         scopes: ["offline_access"]);
+      var deviceAuthorizationResponse = await httpClient.StartDeviceAuthorizationAsync(
+         openIdConfigurationResponse,
+         scopes: ["any_scope", "openid"]);
 
       var content = new FormUrlEncodedContent(new Dictionary<string, string>
       {
          ["client_id"] = "AnyClientId",
-         ["grant_type"] = "refresh_token",
-         ["refresh_token"] = tokenResponse.RefreshToken ?? string.Empty,
+         ["grant_type"] = "urn:ietf:params:oauth:grant-type:device_code",
+         ["device_code"] = deviceAuthorizationResponse.DeviceCode,
       });
 
       _httpResponse = await httpClient.PostAsync(
@@ -84,15 +82,25 @@ public class create_token_happy_path
       var scope = tokenResponse.ParseClaim("scope");
 
       Assert.That(scope, Is.Not.Null);
-      Assert.That(scope!.Value, Is.EqualTo("offline_access"));
+      Assert.That(scope!.Value, Is.EqualTo("any_scope openid"));
    }
 
    [Test]
-   public async Task response_content_should_contain_refresh_token()
+   public async Task response_content_should_contain_id_token_with_sub()
    {
       var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
 
-      Assert.That(Guid.TryParse(tokenResponse.RefreshToken, out _), Is.True);
+      var jwtSecurityToken = tokenResponse.ParseIdTokenAsJwtSecurityToken();
+
+      Assert.That(jwtSecurityToken.Subject, Is.EqualTo("default-subject"));
+   }
+
+   [Test]
+   public async Task response_content_should_not_contain_refresh_token()
+   {
+      var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
+
+      Assert.That(tokenResponse.RefreshToken, Is.Null);
    }
 
    [Test]
@@ -100,7 +108,7 @@ public class create_token_happy_path
    {
       var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
 
-      Assert.That(tokenResponse.Scope, Is.EqualTo("offline_access"));
+      Assert.That(tokenResponse.Scope, Is.EqualTo("any_scope openid"));
    }
 
    [Test]
