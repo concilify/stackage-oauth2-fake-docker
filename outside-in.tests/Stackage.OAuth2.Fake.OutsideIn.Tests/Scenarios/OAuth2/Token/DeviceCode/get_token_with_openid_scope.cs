@@ -10,7 +10,7 @@ using NUnit.Framework;
 using Stackage.OAuth2.Fake.OutsideIn.Tests.Model;
 
 // ReSharper disable once InconsistentNaming
-public class get_device_token_happy_path
+public class get_token_with_openid_scope
 {
    private HttpResponseMessage? _httpResponse;
 
@@ -22,7 +22,9 @@ public class get_device_token_happy_path
 
       var openIdConfigurationResponse = await httpClient.GetWellKnownOpenIdConfigurationAsync();
 
-      var deviceAuthorizationResponse = await httpClient.StartDeviceAuthorizationAsync(openIdConfigurationResponse);
+      var deviceAuthorizationResponse = await httpClient.StartDeviceAuthorizationAsync(
+         openIdConfigurationResponse,
+         scopes: ["any_scope", "openid"]);
 
       var content = new FormUrlEncodedContent(new Dictionary<string, string>
       {
@@ -73,6 +75,43 @@ public class get_device_token_happy_path
    }
 
    [Test]
+   public async Task response_content_should_contain_access_token_with_scope()
+   {
+      var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
+
+      var scope = tokenResponse.ParseClaim("scope");
+
+      Assert.That(scope, Is.Not.Null);
+      Assert.That(scope!.Value, Is.EqualTo("any_scope openid"));
+   }
+
+   [Test]
+   public async Task response_content_should_contain_id_token_with_sub()
+   {
+      var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
+
+      var jwtSecurityToken = tokenResponse.ParseIdTokenAsJwtSecurityToken();
+
+      Assert.That(jwtSecurityToken.Subject, Is.EqualTo("default-subject"));
+   }
+
+   [Test]
+   public async Task response_content_should_not_contain_refresh_token()
+   {
+      var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
+
+      Assert.That(tokenResponse.RefreshToken, Is.Null);
+   }
+
+   [Test]
+   public async Task response_content_should_contain_scope()
+   {
+      var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
+
+      Assert.That(tokenResponse.Scope, Is.EqualTo("any_scope openid"));
+   }
+
+   [Test]
    public async Task response_content_should_contain_token_type()
    {
       var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
@@ -86,12 +125,5 @@ public class get_device_token_happy_path
       var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
 
       Assert.That(tokenResponse.ExpiresIn, Is.EqualTo(1200));
-   }
-
-   [Test]
-   public void METHOD()
-   {
-      // get refresh_token using internal endpoint
-      Assert.Fail();
    }
 }

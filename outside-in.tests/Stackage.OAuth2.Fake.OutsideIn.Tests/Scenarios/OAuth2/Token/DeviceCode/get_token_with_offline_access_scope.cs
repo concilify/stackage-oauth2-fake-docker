@@ -10,17 +10,14 @@ using NUnit.Framework;
 using Stackage.OAuth2.Fake.OutsideIn.Tests.Model;
 
 // ReSharper disable once InconsistentNaming
-public class get_device_token_with_offline_access_scope
+public class get_token_with_offline_access_scope
 {
    private HttpResponseMessage? _httpResponse;
 
    [OneTimeSetUp]
    public async Task setup_before_all_tests()
    {
-      using var handler = new HttpClientHandler();
-      handler.AllowAutoRedirect = false;
-
-      var httpClient = new HttpClient(handler);
+      using var httpClient = new HttpClient();
       httpClient.BaseAddress = new Uri(Configuration.AppUrl);
 
       var openIdConfigurationResponse = await httpClient.GetWellKnownOpenIdConfigurationAsync();

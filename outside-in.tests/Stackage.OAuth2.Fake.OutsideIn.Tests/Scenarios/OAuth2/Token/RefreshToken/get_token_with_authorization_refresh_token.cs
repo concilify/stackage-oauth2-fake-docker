@@ -10,7 +10,7 @@ using NUnit.Framework;
 using Stackage.OAuth2.Fake.OutsideIn.Tests.Model;
 
 // ReSharper disable once InconsistentNaming
-public class create_token_happy_path
+public class get_token_with_authorization_refresh_token
 {
    private HttpResponseMessage? _httpResponse;
 
@@ -25,8 +25,13 @@ public class create_token_happy_path
 
       var openIdConfigurationResponse = await httpClient.GetWellKnownOpenIdConfigurationAsync();
 
-      var tokenResponse = await httpClient.InternalCreateTokenAsync(
+      var authorizationResponse = await httpClient.StartAuthorizationAsync(
+         openIdConfigurationResponse,
          scopes: ["offline_access"]);
+
+      var tokenResponse = await httpClient.ExchangeAuthorizationCodeAsync(
+         openIdConfigurationResponse,
+         authorizationResponse.Code);
 
       var content = new FormUrlEncodedContent(new Dictionary<string, string>
       {
