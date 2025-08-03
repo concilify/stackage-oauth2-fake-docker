@@ -9,7 +9,7 @@ using NUnit.Framework;
 using Stackage.OAuth2.Fake.OutsideIn.Tests.Model;
 
 // ReSharper disable once InconsistentNaming
-public class get_device_token_without_starting_flow
+public class get_token_with_missing_device_code
 {
    private HttpResponseMessage? _httpResponse;
 
@@ -25,7 +25,6 @@ public class get_device_token_without_starting_flow
       {
          ["client_id"] = "AnyClientId",
          ["grant_type"] = "urn:ietf:params:oauth:grant-type:device_code",
-         ["device_code"] = "UnrecognisedDeviceCode",
       });
 
       _httpResponse = await httpClient.PostAsync(
@@ -44,7 +43,7 @@ public class get_device_token_without_starting_flow
    {
       var errorResponse = await _httpResponse!.ParseAsync<ErrorResponse>();
 
-      Assert.That(errorResponse.Error, Is.EqualTo("invalid_grant"));
+      Assert.That(errorResponse.Error, Is.EqualTo("invalid_request"));
    }
 
    [Test]
@@ -52,6 +51,6 @@ public class get_device_token_without_starting_flow
    {
       var errorResponse = await _httpResponse!.ParseAsync<ErrorResponse>();
 
-      Assert.That(errorResponse.ErrorDescription, Is.EqualTo("The given device_code was not found"));
+      Assert.That(errorResponse.ErrorDescription, Is.EqualTo("The device_code parameter was missing"));
    }
 }
