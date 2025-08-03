@@ -87,7 +87,7 @@ public static class InternalEndpoints
          });
 
       app.MapPost(
-         "/.internal/seed/refresh-token",
+         "/.internal/refresh-token",
          (
             [FromBody] SeedRefreshTokenRequest? request,
             Settings settings,

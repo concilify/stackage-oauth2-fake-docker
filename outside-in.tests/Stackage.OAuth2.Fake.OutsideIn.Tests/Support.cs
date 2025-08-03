@@ -162,6 +162,36 @@ public static class Support
       return await httpResponse.ParseAsync<TokenResponse>();
    }
 
+   public static async Task SeedRefreshTokenAsync(
+      this HttpClient httpClient,
+      string refreshToken,
+      string[]? scopes = null,
+      string? subject = null)
+   {
+      scopes ??= [];
+
+      var body = new JsonObject
+      {
+         ["refreshToken"] = refreshToken
+      };
+
+      if (scopes.Length != 0)
+      {
+         body["scope"] = string.Join(" ", scopes);
+      }
+
+      if (subject != null)
+      {
+         body["subject"] = subject;
+      }
+
+      var content = JsonContent.Create(body);
+
+      var httpResponse = await httpClient.PostAsync(".internal/refresh-token", content);
+
+      httpResponse.EnsureSuccessStatusCode();
+   }
+
    public static void AssertAccessTokenIsSigned(
       this TokenResponse tokenResponse,
       JsonWebKey jsonWebKey)
