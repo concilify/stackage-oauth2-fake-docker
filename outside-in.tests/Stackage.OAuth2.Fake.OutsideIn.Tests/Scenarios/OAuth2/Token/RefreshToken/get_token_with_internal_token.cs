@@ -22,7 +22,7 @@ public class get_token_with_internal_token
 
       var openIdConfigurationResponse = await httpClient.GetWellKnownOpenIdConfigurationAsync();
 
-      var tokenResponse = await httpClient.InternalCreateTokenAsync(
+      var tokenResponse = await httpClient.CreateTokenAsync(
          scopes: ["offline_access"]);
 
       var content = new FormUrlEncodedContent(new Dictionary<string, string>
