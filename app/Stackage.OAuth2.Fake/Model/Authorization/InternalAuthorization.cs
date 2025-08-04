@@ -7,4 +7,7 @@ public record InternalAuthorization(
    Scope Scope,
    string Subject,
    int? TokenExpirySeconds,
-   IEnumerable<Claim> Claims) : IAuthorizationWithClaims;
+   IEnumerable<Claim> Claims) : IAuthorizationWithClaims
+{
+   public bool IsAuthenticated => true;
+}

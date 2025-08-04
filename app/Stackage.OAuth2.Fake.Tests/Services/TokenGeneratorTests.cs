@@ -1,5 +1,6 @@
 namespace Stackage.OAuth2.Fake.Tests.Services;
 
+using System;
 using NUnit.Framework;
 using Stackage.OAuth2.Fake.Model;
 using Stackage.OAuth2.Fake.Model.Authorization;
@@ -8,6 +9,18 @@ using Stackage.OAuth2.Fake.Tests.Stubs;
 
 public class TokenGeneratorTests
 {
+   [Test]
+   public void throws_exception_when_unauthorized()
+   {
+      var testSubject = CreateGenerator();
+
+      var authorization = AuthorizationStub.Unauthenticated();
+
+      Assert.That(
+         () => testSubject.Generate(authorization),
+         Throws.InstanceOf<InvalidOperationException>().With.Message.EqualTo("IAuthorizationProxy has not been authenticated."));
+   }
+
    [Test]
    public void response_scope_is_null_when_scope_is_empty()
    {
