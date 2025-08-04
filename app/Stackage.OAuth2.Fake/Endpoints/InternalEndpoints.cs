@@ -51,7 +51,6 @@ public static class InternalEndpoints
                TokenExpirySeconds: request.TokenExpirySeconds,
                Claims: claims);
 
-            // TODO: Need to be able to create expired token (eg. pass -ve expiry seconds)
             var response = tokenGenerator.Generate(authorization);
 
             return TypedResults.Json(response, statusCode: 200);
