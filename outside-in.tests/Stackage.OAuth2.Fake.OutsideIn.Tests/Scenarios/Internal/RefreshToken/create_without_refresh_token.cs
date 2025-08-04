@@ -1,4 +1,4 @@
-namespace Stackage.OAuth2.Fake.OutsideIn.Tests.Scenarios.Internal.Authorization;
+namespace Stackage.OAuth2.Fake.OutsideIn.Tests.Scenarios.Internal.RefreshToken;
 
 using System;
 using System.Net;
@@ -9,7 +9,7 @@ using NUnit.Framework;
 using Stackage.OAuth2.Fake.OutsideIn.Tests.Model;
 
 // ReSharper disable once InconsistentNaming
-public class create_without_code
+public class create_without_refresh_token
 {
    private HttpResponseMessage? _httpResponse;
 
@@ -21,7 +21,7 @@ public class create_without_code
 
       var content = JsonContent.Create(new { });
 
-      _httpResponse = await httpClient.PostAsync(".internal/authorization", content);
+      _httpResponse = await httpClient.PostAsync(".internal/refresh-token", content);
    }
 
    [Test]
@@ -43,6 +43,6 @@ public class create_without_code
    {
       var errorResponse = await _httpResponse!.ParseAsync<ErrorResponse>();
 
-      Assert.That(errorResponse.ErrorDescription, Is.EqualTo("The code property was missing"));
+      Assert.That(errorResponse.ErrorDescription, Is.EqualTo("The refreshToken property was missing"));
    }
 }

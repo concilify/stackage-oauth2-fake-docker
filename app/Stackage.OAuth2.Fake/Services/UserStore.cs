@@ -34,7 +34,7 @@ public class UserStore : IUserStore
    {
       var configurationUsers = usersSection.Get<List<ConfigurationUser>>() ?? [];
 
-      return configurationUsers.Select(u => new User(u.Subject, [..ParseClaims(u.ClaimsSection)]));
+      return configurationUsers.Select(u => new User(u.Subject, [.. ParseClaims(u.ClaimsSection)]));
    }
 
    private static IEnumerable<Claim> ParseClaims(IConfigurationSection claimsSection)

@@ -36,12 +36,33 @@ public class ScopeTests
       Assert.That(testSubject.ToString(), Is.EqualTo(testCase.ExpectedScope));
    }
 
+   [TestCaseSource(nameof(ScopeArrayTestCases))]
+   public void explicit_array_cast_creates_scope_with_expected_properties(ScopeArrayTestCase testCase)
+   {
+      var testSubject = (Scope)testCase.GivenScopes;
+
+      Assert.That(testSubject, Is.EqualTo(testCase.ExpectedScopes));
+      Assert.That(testSubject.IsEmpty, Is.EqualTo(testCase.ExpectedScopes.Length == 0));
+      Assert.That((string)testSubject, Is.EqualTo(testCase.ExpectedScope));
+      Assert.That(testSubject.ToString(), Is.EqualTo(testCase.ExpectedScope));
+   }
+
    [Test]
    public void explicit_case_of_null_string_returns_null()
    {
       string? nullString = null;
 
       var testSubject = (Scope?)nullString;
+
+      Assert.That(testSubject, Is.Null);
+   }
+
+   [Test]
+   public void explicit_case_of_null_string_array_returns_null()
+   {
+      string[]? nullStrings = null;
+
+      var testSubject = (Scope?)nullStrings;
 
       Assert.That(testSubject, Is.Null);
    }
@@ -73,8 +94,40 @@ public class ScopeTests
       ];
    }
 
+   private static TestCaseData[] ScopeArrayTestCases()
+   {
+      return
+      [
+         new TestCaseData(new ScopeArrayTestCase(
+            GivenScopes: [],
+            ExpectedScope: string.Empty,
+            ExpectedScopes: []))
+            .SetName("Empty"),
+         new TestCaseData(new ScopeArrayTestCase(
+            GivenScopes: ["single_item"],
+            ExpectedScope: "single_item",
+            ExpectedScopes: ["single_item"]))
+            .SetName("Single scope"),
+         new TestCaseData(new ScopeArrayTestCase(
+            GivenScopes: ["first_item", "second_item"],
+            ExpectedScope: "first_item second_item",
+            ExpectedScopes: ["first_item", "second_item"]))
+            .SetName("Two scopes"),
+         new TestCaseData(new ScopeArrayTestCase(
+            GivenScopes: [" first_item ", Environment.NewLine, " second_item "],
+            ExpectedScope: "first_item second_item",
+            ExpectedScopes: ["first_item", "second_item"]))
+            .SetName("Two scopes w/ whitespace"),
+      ];
+   }
+
    public record ScopeTestCase(
       string GivenScope,
+      string ExpectedScope,
+      string[] ExpectedScopes);
+
+   public record ScopeArrayTestCase(
+      string[] GivenScopes,
       string ExpectedScope,
       string[] ExpectedScopes);
 }

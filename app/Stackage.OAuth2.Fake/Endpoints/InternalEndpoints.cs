@@ -76,7 +76,7 @@ public static class InternalEndpoints
 
             var authorization = new UserAuthorization(
                request.Code,
-               (Scope?)request.Scope ?? Scope.Empty);
+               (Scope?)request.Scopes ?? Scope.Empty);
 
             authorization.Authenticate(request.Subject ?? settings.DefaultSubject);
 
@@ -104,8 +104,8 @@ public static class InternalEndpoints
 
             var response = new
             {
-               refresh_token = authorization.Code,
-               scope = authorization.Scope.ToString(),
+               code = authorization.Code,
+               scopes = authorization.Scope.ToArray(),
                subject = authorization.Subject
             };
 
@@ -132,7 +132,7 @@ public static class InternalEndpoints
 
             var authorization = new RefreshAuthorization(
                request.RefreshToken,
-               (Scope?)request.Scope ?? Scope.Empty,
+               (Scope?)request.Scopes ?? Scope.Empty,
                request.Subject ?? settings.DefaultSubject);
 
             authorizationCache.Add(authorization);
@@ -160,7 +160,7 @@ public static class InternalEndpoints
             var response = new
             {
                refresh_token = authorization.RefreshToken,
-               scope = authorization.Scope.ToString(),
+               scopes = authorization.Scope.ToArray(),
                subject = authorization.Subject
             };
 
@@ -191,7 +191,7 @@ public static class InternalEndpoints
 
             var user = new User(
                request.Subject,
-               [..request.Claims.Select(c => new Claim(c.Key, c.Value))]);
+               [.. request.Claims.Select(c => new Claim(c.Key, c.Value))]);
 
             userStore.Add(user);
 
@@ -239,7 +239,7 @@ public static class InternalEndpoints
 
    private record PostAuthorizationRequest(
       [property: JsonPropertyName("code")] string? Code,
-      [property: JsonPropertyName("scope")] string? Scope,
+      [property: JsonPropertyName("scopes")] string[]? Scopes,
       [property: JsonPropertyName("subject")] string? Subject)
    {
       public static ValueTask<PostAuthorizationRequest?> BindAsync(HttpContext context) => BindAsync<PostAuthorizationRequest>(context);
@@ -247,7 +247,7 @@ public static class InternalEndpoints
 
    private record PostRefreshTokenRequest(
       [property: JsonPropertyName("refreshToken")] string? RefreshToken,
-      [property: JsonPropertyName("scope")] string? Scope,
+      [property: JsonPropertyName("scopes")] string[]? Scopes,
       [property: JsonPropertyName("subject")] string? Subject)
    {
       public static ValueTask<PostRefreshTokenRequest?> BindAsync(HttpContext context) => BindAsync<PostRefreshTokenRequest>(context);

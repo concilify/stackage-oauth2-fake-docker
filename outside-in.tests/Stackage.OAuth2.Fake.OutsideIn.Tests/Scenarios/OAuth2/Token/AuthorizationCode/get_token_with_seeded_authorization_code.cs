@@ -78,6 +78,17 @@ public class get_token_with_seeded_authorization_code
    }
 
    [Test]
+   public async Task response_content_should_contain_access_token_with_scope()
+   {
+      var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
+
+      var scope = tokenResponse.ParseClaim("scope");
+
+      Assert.That(scope, Is.Not.Null);
+      Assert.That(scope!.Value, Is.EqualTo("offline_access"));
+   }
+
+   [Test]
    public async Task response_content_should_contain_token_type()
    {
       var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
