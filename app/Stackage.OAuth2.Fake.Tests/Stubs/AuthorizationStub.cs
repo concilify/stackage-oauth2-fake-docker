@@ -8,6 +8,15 @@ public static class AuthorizationStub
 {
    public static IAuthorization Valid() => With();
 
+   public static IAuthorization Unauthenticated()
+   {
+      var mock = new Mock<IAuthorization>();
+
+      mock.Setup(m => m.IsAuthenticated).Returns(false);
+
+      return mock.Object;
+   }
+
    public static IAuthorization With(
       Scope? scope = null,
       string? subject = null)
@@ -18,6 +27,7 @@ public static class AuthorizationStub
       var mock = new Mock<IAuthorization>();
 
       mock.Setup(m => m.Scope).Returns(scope);
+      mock.Setup(m => m.IsAuthenticated).Returns(true);
       mock.Setup(m => m.Subject).Returns(subject);
 
       return mock.Object;

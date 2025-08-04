@@ -4,17 +4,15 @@ using System;
 
 public record UserAuthorization(string Code, Scope Scope) : IAuthorizationWithCode
 {
-   private string? _subject;
+   public bool IsAuthenticated => Subject != null;
 
-   public string Subject => _subject ?? throw new InvalidOperationException($"{nameof(UserAuthorization)} has not been authorized.");
+   public string? Subject { get; private set; }
 
    public int? TokenExpirySeconds => null;
 
-   public bool IsAuthorized => _subject != null;
-
-   public void Authorize(string subject)
+   public void Authenticate(string subject)
    {
-      _subject = subject;
+      Subject = subject;
    }
 
    public static UserAuthorization Create(Scope scope)

@@ -79,7 +79,7 @@ public static class InternalEndpoints
                request.Code,
                (Scope?)request.Scope ?? Scope.Empty);
 
-            authorization.Authorize(request.Subject ?? settings.DefaultSubject);
+            authorization.Authenticate(request.Subject ?? settings.DefaultSubject);
 
             authorizationCache.Add(authorization);
 

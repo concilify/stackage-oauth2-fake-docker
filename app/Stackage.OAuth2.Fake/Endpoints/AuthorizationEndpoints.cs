@@ -27,7 +27,7 @@ public static class AuthorizationEndpoints
 
             // This would normally redirect to an intermediate URL to allow the user to logon, but the code returned here
             // can be used immediately with the /oauth2/token endpoint using grant type authorization_code
-            authorization.Authorize(settings.DefaultSubject);
+            authorization.Authenticate(settings.DefaultSubject);
 
             return TypedResults.Redirect($"{redirectUri}?code={authorization.Code}&state={state}");
          });
@@ -43,7 +43,7 @@ public static class AuthorizationEndpoints
 
             // This would normally need the user to visit the verification URL to allow the user to logon, but the code returned
             // here can be used immediately with the /oauth2/token endpoint using grant type urn:ietf:params:oauth:grant-type:device_code
-            authorization.Authorize(settings.DefaultSubject);
+            authorization.Authenticate(settings.DefaultSubject);
 
             var response = new
             {
