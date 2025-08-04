@@ -162,6 +162,36 @@ public static class Support
       return await httpResponse.ParseAsync<TokenResponse>();
    }
 
+   public static async Task SeedAuthorizationAsync(
+      this HttpClient httpClient,
+      string code,
+      string[]? scopes = null,
+      string? subject = null)
+   {
+      scopes ??= [];
+
+      var body = new JsonObject
+      {
+         ["code"] = code
+      };
+
+      if (scopes.Length != 0)
+      {
+         body["scope"] = string.Join(" ", scopes);
+      }
+
+      if (subject != null)
+      {
+         body["subject"] = subject;
+      }
+
+      var content = JsonContent.Create(body);
+
+      var httpResponse = await httpClient.PostAsync(".internal/authorization", content);
+
+      httpResponse.EnsureSuccessStatusCode();
+   }
+
    public static async Task SeedRefreshTokenAsync(
       this HttpClient httpClient,
       string refreshToken,

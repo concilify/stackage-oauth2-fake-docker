@@ -58,9 +58,9 @@ public static class InternalEndpoints
          });
 
       app.MapPost(
-         "/.internal/seed/user-token",
+         "/.internal/authorization",
          (
-            [FromBody] SeedUserTokenRequest? request,
+            [FromBody] PostAuthorizationRequest? request,
             Settings settings,
             AuthorizationCache<UserAuthorization> authorizationCache
          ) =>
@@ -86,10 +86,37 @@ public static class InternalEndpoints
             return TypedResults.Ok();
          });
 
+      app.MapGet(
+         "/.internal/authorization",
+         (
+            [FromQuery(Name = "code")] string? code,
+            AuthorizationCache<UserAuthorization> authorizationCache
+         ) =>
+         {
+            if (code == null)
+            {
+               return Error.InvalidRequest("The code parameter was missing");
+            }
+
+            if (!authorizationCache.TryGet(code, out var authorization))
+            {
+               return Error.InvalidRequest("The given code was not found");
+            }
+
+            var response = new
+            {
+               refresh_token = authorization.Code,
+               scope = authorization.Scope.ToString(),
+               subject = authorization.Subject
+            };
+
+            return TypedResults.Json(response, statusCode: 200);
+         });
+
       app.MapPost(
          "/.internal/refresh-token",
          (
-            [FromBody] SeedRefreshTokenRequest? request,
+            [FromBody] PostRefreshTokenRequest? request,
             Settings settings,
             AuthorizationCache<RefreshAuthorization> authorizationCache
          ) =>
@@ -115,10 +142,9 @@ public static class InternalEndpoints
          });
 
       app.MapGet(
-         "/.internal/verify/refresh-token",
+         "/.internal/refresh-token",
          (
             [FromQuery(Name = "refresh_token")] string? refreshToken,
-            [FromQuery(Name = "subject")] string? subject,
             AuthorizationCache<RefreshAuthorization> authorizationCache
          ) =>
          {
@@ -127,22 +153,19 @@ public static class InternalEndpoints
                return Error.InvalidRequest("The refresh_token parameter was missing");
             }
 
-            if (subject == null)
-            {
-               return Error.InvalidRequest("The subject parameter was missing");
-            }
-
             if (!authorizationCache.TryGet(refreshToken, out var authorization))
             {
                return Error.InvalidRequest("The given refresh_token was not found");
             }
 
-            if (authorization.Subject != subject)
+            var response = new
             {
-               return TypedResults.Conflict(new { error = "subject_mismatch" });
-            }
+               refresh_token = authorization.RefreshToken,
+               scope = authorization.Scope.ToString(),
+               subject = authorization.Subject
+            };
 
-            return TypedResults.Ok();
+            return TypedResults.Json(response, statusCode: 200);
          });
 
       app.MapPost(
@@ -215,20 +238,20 @@ public static class InternalEndpoints
       public static ValueTask<CreateTokenRequest?> BindAsync(HttpContext context) => BindAsync<CreateTokenRequest>(context);
    }
 
-   private record SeedUserTokenRequest(
+   private record PostAuthorizationRequest(
       [property: JsonPropertyName("code")] string? Code,
       [property: JsonPropertyName("scope")] string? Scope,
       [property: JsonPropertyName("subject")] string? Subject)
    {
-      public static ValueTask<SeedUserTokenRequest?> BindAsync(HttpContext context) => BindAsync<SeedUserTokenRequest>(context);
+      public static ValueTask<PostAuthorizationRequest?> BindAsync(HttpContext context) => BindAsync<PostAuthorizationRequest>(context);
    }
 
-   private record SeedRefreshTokenRequest(
+   private record PostRefreshTokenRequest(
       [property: JsonPropertyName("refreshToken")] string? RefreshToken,
       [property: JsonPropertyName("scope")] string? Scope,
       [property: JsonPropertyName("subject")] string? Subject)
    {
-      public static ValueTask<SeedRefreshTokenRequest?> BindAsync(HttpContext context) => BindAsync<SeedRefreshTokenRequest>(context);
+      public static ValueTask<PostRefreshTokenRequest?> BindAsync(HttpContext context) => BindAsync<PostRefreshTokenRequest>(context);
    }
 
    private record SeedUserRequest(
