@@ -23,7 +23,7 @@ public class create_token_with_explicit_subject_and_scope
       var body = new
       {
          subject = "explicit-subject",
-         scope = "first_token second_token",
+         scopes = new[] { "first_token", "second_token" },
          claims = new
          {
             custom_claim = "custom-value"

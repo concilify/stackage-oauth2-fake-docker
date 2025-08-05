@@ -152,7 +152,7 @@ public static class Support
 
       if (scopes.Length != 0)
       {
-         body["scope"] = string.Join(" ", scopes);
+         body["scopes"] = new JsonArray(scopes.Select(s => (JsonNode)s).ToArray());
       }
 
       var content = JsonContent.Create(body);
