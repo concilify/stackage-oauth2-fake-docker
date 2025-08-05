@@ -27,6 +27,11 @@ public class TokenGenerator : ITokenGenerator
 
    public TokenResponse Generate(IAuthorization authorization)
    {
+      if (!authorization.IsAuthenticated)
+      {
+         throw new InvalidOperationException($"{authorization.GetType().Name} has not been authenticated.");
+      }
+
       var accessTokenClaims = new List<Claim>
       {
          new(JwtRegisteredClaimNames.Sub, authorization.Subject)

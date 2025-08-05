@@ -1,6 +1,5 @@
 namespace Stackage.OAuth2.Fake.Tests.Model.Authorization;
 
-using System;
 using NUnit.Framework;
 using Stackage.OAuth2.Fake.Model;
 using Stackage.OAuth2.Fake.Model.Authorization;
@@ -8,37 +7,37 @@ using Stackage.OAuth2.Fake.Model.Authorization;
 public class UserAuthorizationTests
 {
    [Test]
-   public void is_authorized_is_initially_false()
+   public void is_authenticated_is_initially_false()
    {
       var testSubject = CreateAuthorization();
 
-      Assert.That(testSubject.IsAuthorized, Is.False);
+      Assert.That(testSubject.IsAuthenticated, Is.False);
    }
 
    [Test]
-   public void subject_throws_exception_initially()
+   public void subject_is_initially_null()
    {
       var testSubject = CreateAuthorization();
 
-      Assert.Throws<InvalidOperationException>(() => _ = testSubject.Subject);
+      Assert.That(testSubject.Subject, Is.Null);
    }
 
    [Test]
-   public void is_authorized_is_true_after_authorize()
+   public void is_authenticated_is_true_after_authenticate()
    {
       var testSubject = CreateAuthorization();
 
-      testSubject.Authorize("AnySubject");
+      testSubject.Authenticate("AnySubject");
 
-      Assert.That(testSubject.IsAuthorized, Is.True);
+      Assert.That(testSubject.IsAuthenticated, Is.True);
    }
 
    [Test]
-   public void subject_is_available_after_authorize()
+   public void subject_is_available_after_authenticate()
    {
       var testSubject = CreateAuthorization();
 
-      testSubject.Authorize("AnySubject");
+      testSubject.Authenticate("AnySubject");
 
       Assert.That(testSubject.Subject, Is.EqualTo("AnySubject"));
    }
