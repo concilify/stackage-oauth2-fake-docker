@@ -147,8 +147,6 @@ public static class InternalEndpoints
             return authorizationCache.TryAdd(authorization)
                ? TypedResults.Ok()
                : Error.InvalidRequest("The given refreshToken already exists");
-
-            return TypedResults.Ok();
          });
 
       app.MapGet(
@@ -200,6 +198,7 @@ public static class InternalEndpoints
       [property: JsonPropertyName("tokenExpirySeconds")] int? TokenExpirySeconds,
       [property: JsonPropertyName("claims")] JsonObject? Claims)
    {
+      // ReSharper disable once UnusedMember.Local
       public static ValueTask<CreateTokenRequest?> BindAsync(HttpContext context) => BindAsync<CreateTokenRequest>(context);
    }
 
@@ -208,6 +207,7 @@ public static class InternalEndpoints
       [property: JsonPropertyName("scopes")] string[]? Scopes,
       [property: JsonPropertyName("subject")] string? Subject)
    {
+      // ReSharper disable once UnusedMember.Local
       public static ValueTask<PostAuthorizationRequest?> BindAsync(HttpContext context) => BindAsync<PostAuthorizationRequest>(context);
    }
 
@@ -216,6 +216,7 @@ public static class InternalEndpoints
       [property: JsonPropertyName("scopes")] string[]? Scopes,
       [property: JsonPropertyName("subject")] string? Subject)
    {
+      // ReSharper disable once UnusedMember.Local
       public static ValueTask<PostRefreshTokenRequest?> BindAsync(HttpContext context) => BindAsync<PostRefreshTokenRequest>(context);
    }
 }
