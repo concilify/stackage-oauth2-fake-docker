@@ -20,7 +20,7 @@ public class create_happy_path
 
       var body = new
       {
-         refreshToken = "SomeRefreshToken"
+         refreshToken = Guid.NewGuid().ToString()
       };
 
       var content = JsonContent.Create(body);

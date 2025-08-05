@@ -86,9 +86,9 @@ public static class InternalEndpoints
 
             authorization.Authenticate(request.Subject ?? settings.DefaultSubject);
 
-            authorizationCache.Add(authorization);
-
-            return TypedResults.Ok();
+            return authorizationCache.TryAdd(authorization)
+               ? TypedResults.Ok()
+               : Error.InvalidRequest("The given code already exists");
          });
 
       app.MapGet(
@@ -144,7 +144,9 @@ public static class InternalEndpoints
                (Scope?)request.Scopes ?? Scope.Empty,
                request.Subject ?? settings.DefaultSubject);
 
-            authorizationCache.Add(authorization);
+            return authorizationCache.TryAdd(authorization)
+               ? TypedResults.Ok()
+               : Error.InvalidRequest("The given refreshToken already exists");
 
             return TypedResults.Ok();
          });
