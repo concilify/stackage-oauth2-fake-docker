@@ -21,6 +21,13 @@ public static class InternalEndpoints
    {
       app.MapGet("/.internal/health", () => Results.Ok());
 
+      app.MapInternalCreateTokenEndpoint();
+      app.MapInternalAuthorizationEndpoints();
+      app.MapInternalRefreshTokenEndpoints();
+   }
+
+   private static void MapInternalCreateTokenEndpoint(this WebApplication app)
+   {
       app.MapPost(
          "/.internal/create-token",
          (
@@ -46,7 +53,7 @@ public static class InternalEndpoints
             }
 
             var authorization = new InternalAuthorization(
-               Scope: (Scope?)request.Scope ?? Scope.Empty,
+               Scope: (Scope?)request.Scopes ?? Scope.Empty,
                Subject: request.Subject ?? settings.DefaultSubject,
                TokenExpirySeconds: request.TokenExpirySeconds,
                Claims: claims);
@@ -56,6 +63,54 @@ public static class InternalEndpoints
             return TypedResults.Json(response, statusCode: 200);
          });
 
+      app.MapPost(
+         "/.internal/seed/user",
+         (
+            [FromBody] SeedUserRequest? request,
+            IUserStore userStore
+         ) =>
+         {
+            if (request == null)
+            {
+               return Error.InvalidRequest("The request body was missing");
+            }
+
+            if (request.Subject == null)
+            {
+               return Error.InvalidRequest("The subject property was missing");
+            }
+
+            if (request.Claims == null)
+            {
+               return Error.InvalidRequest("The claims property was missing");
+            }
+
+            var user = new User(
+               request.Subject,
+               [.. request.Claims.Select(c => new Claim(c.Key, c.Value))]);
+
+            userStore.Add(user);
+
+            return TypedResults.Ok();
+         });
+
+      app.MapGet("/.internal/history/requests", (CapturedRequestCache capturedRequestCache) =>
+      {
+         var response = capturedRequestCache.GetAll().Reverse();
+
+         return TypedResults.Json(response, statusCode: 200);
+      });
+
+      app.MapDelete("/.internal/history", async (CapturedRequestCache capturedRequestCache) =>
+      {
+         await capturedRequestCache.ClearAsync();
+
+         return TypedResults.Ok();
+      });
+   }
+
+   private static void MapInternalAuthorizationEndpoints(this WebApplication app)
+   {
       app.MapPost(
          "/.internal/authorization",
          (
@@ -111,7 +166,10 @@ public static class InternalEndpoints
 
             return TypedResults.Json(response, statusCode: 200);
          });
+   }
 
+   private static void MapInternalRefreshTokenEndpoints(this WebApplication app)
+   {
       app.MapPost(
          "/.internal/refresh-token",
          (
@@ -166,51 +224,6 @@ public static class InternalEndpoints
 
             return TypedResults.Json(response, statusCode: 200);
          });
-
-      app.MapPost(
-         "/.internal/seed/user",
-         (
-            [FromBody] SeedUserRequest? request,
-            IUserStore userStore
-         ) =>
-         {
-            if (request == null)
-            {
-               return Error.InvalidRequest("The request body was missing");
-            }
-
-            if (request.Subject == null)
-            {
-               return Error.InvalidRequest("The subject property was missing");
-            }
-
-            if (request.Claims == null)
-            {
-               return Error.InvalidRequest("The claims property was missing");
-            }
-
-            var user = new User(
-               request.Subject,
-               [.. request.Claims.Select(c => new Claim(c.Key, c.Value))]);
-
-            userStore.Add(user);
-
-            return TypedResults.Ok();
-         });
-
-      app.MapGet("/.internal/history/requests", (CapturedRequestCache capturedRequestCache) =>
-      {
-         var response = capturedRequestCache.GetAll().Reverse();
-
-         return TypedResults.Json(response, statusCode: 200);
-      });
-
-      app.MapDelete("/.internal/history", async (CapturedRequestCache capturedRequestCache) =>
-      {
-         await capturedRequestCache.ClearAsync();
-
-         return TypedResults.Ok();
-      });
    }
 
    private static ValueTask<T?> BindAsync<T>(HttpContext context)
@@ -230,7 +243,7 @@ public static class InternalEndpoints
 
    private record CreateTokenRequest(
       [property: JsonPropertyName("subject")] string? Subject,
-      [property: JsonPropertyName("scope")] string? Scope,
+      [property: JsonPropertyName("scopes")] string[]? Scopes,
       [property: JsonPropertyName("tokenExpirySeconds")] int? TokenExpirySeconds,
       [property: JsonPropertyName("claims")] JsonObject? Claims)
    {

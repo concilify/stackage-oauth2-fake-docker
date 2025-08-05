@@ -12,6 +12,7 @@ using Stackage.OAuth2.Fake.OutsideIn.Tests.Model;
 // ReSharper disable once InconsistentNaming
 public class get_token_with_seeded_authorization_code
 {
+   private string? _code;
    private HttpResponseMessage? _httpResponse;
 
    [OneTimeSetUp]
@@ -25,15 +26,17 @@ public class get_token_with_seeded_authorization_code
 
       var openIdConfigurationResponse = await httpClient.GetWellKnownOpenIdConfigurationAsync();
 
+      _code = Guid.NewGuid().ToString();
+
       await httpClient.SeedAuthorizationAsync(
-         code: "SomeAuthorizationCode",
+         code: _code,
          scopes: ["offline_access"]);
 
       var content = new FormUrlEncodedContent(new Dictionary<string, string>
       {
          ["client_id"] = "AnyClientId",
          ["grant_type"] = "authorization_code",
-         ["code"] = "SomeAuthorizationCode"
+         ["code"] = _code
       });
 
       _httpResponse = await httpClient.PostAsync(
