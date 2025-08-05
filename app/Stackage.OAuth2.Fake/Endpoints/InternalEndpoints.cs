@@ -41,7 +41,7 @@ public static class InternalEndpoints
             }
 
             var authorization = new InternalAuthorization(
-               Scope: (Scope?)request.Scope ?? Scope.Empty,
+               Scope: (Scope?)request.Scopes ?? Scope.Empty,
                Subject: request.Subject ?? settings.DefaultSubject,
                TokenExpirySeconds: request.TokenExpirySeconds,
                Claims: claims);
@@ -54,7 +54,7 @@ public static class InternalEndpoints
 
    private record CreateTokenRequest(
       [property: JsonPropertyName("subject")] string? Subject,
-      [property: JsonPropertyName("scope")] string? Scope,
+      [property: JsonPropertyName("scopes")] string[]? Scopes,
       [property: JsonPropertyName("tokenExpirySeconds")] int? TokenExpirySeconds,
       [property: JsonPropertyName("claims")] JsonObject? Claims)
    {
