@@ -143,23 +143,50 @@ public static class Support
       this HttpClient httpClient,
       string[]? scopes = null)
    {
-      scopes ??= [];
-
       var body = new JsonObject
       {
          ["claims"] = new JsonObject()
       };
 
-      if (scopes.Length != 0)
-      {
-         body["scopes"] = new JsonArray(scopes.Select(s => (JsonNode)s).ToArray());
-      }
+      body.AddScopes(scopes);
 
-      var content = JsonContent.Create(body);
-
-      var httpResponse = await httpClient.PostAsync(".internal/create-token", content);
+      var httpResponse = await httpClient.PostAsync(".internal/create-token", body);
 
       return await httpResponse.ParseAsync<TokenResponse>();
+   }
+
+   public static async Task SeedAuthorizationAsync(
+      this HttpClient httpClient,
+      string code,
+      string[]? scopes = null,
+      string? subject = null)
+   {
+      var body = new JsonObject
+      {
+         ["code"] = code
+      };
+
+      body.AddScopes(scopes);
+      body.AddSubject(subject);
+
+      await httpClient.PostAsync(".internal/authorization", body);
+   }
+
+   public static async Task SeedRefreshTokenAsync(
+      this HttpClient httpClient,
+      string refreshToken,
+      string[]? scopes = null,
+      string? subject = null)
+   {
+      var body = new JsonObject
+      {
+         ["refreshToken"] = refreshToken
+      };
+
+      body.AddScopes(scopes);
+      body.AddSubject(subject);
+
+      await httpClient.PostAsync(".internal/refresh-token", body);
    }
 
    public static void AssertAccessTokenIsSigned(
@@ -213,5 +240,41 @@ public static class Support
       var jwtSecurityToken = tokenResponse.ParseJwtSecurityToken();
 
       return jwtSecurityToken.Claims.SingleOrDefault(c => c.Type == name);
+   }
+
+   private static async Task<HttpResponseMessage> PostAsync(
+      this HttpClient httpClient,
+      string path,
+      JsonObject body)
+   {
+      var content = JsonContent.Create(body);
+
+      var httpResponse = await httpClient.PostAsync(path, content);
+
+      httpResponse.EnsureSuccessStatusCode();
+
+      return httpResponse;
+   }
+
+   private static void AddScopes(
+      this JsonObject body,
+      string[]? scopes = null)
+   {
+      scopes ??= [];
+
+      if (scopes.Length != 0)
+      {
+         body["scopes"] = new JsonArray(scopes.Select(s => (JsonNode)s).ToArray());
+      }
+   }
+
+   private static void AddSubject(
+      this JsonObject body,
+      string? subject = null)
+   {
+      if (subject != null)
+      {
+         body["subject"] = subject;
+      }
    }
 }

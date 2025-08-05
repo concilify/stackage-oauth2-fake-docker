@@ -12,6 +12,11 @@ public class AuthorizationCache<TAuthorization>
 
    public int Count => _authorizations.Count;
 
+   public bool TryAdd(TAuthorization authorization)
+   {
+      return _authorizations.TryAdd(authorization.Code, authorization);
+   }
+
    public TAuthorization Add(Func<TAuthorization> authorizationFactory)
    {
       var authorization = authorizationFactory();
