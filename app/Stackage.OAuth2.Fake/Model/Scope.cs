@@ -30,10 +30,15 @@ public record Scope : IEnumerable<string>
    [return: NotNullIfNotNull(nameof(scope))]
    public static explicit operator Scope?(string? scope) => scope != null ? new Scope(ParseTokens(scope)) : null;
 
+   [return: NotNullIfNotNull(nameof(scopes))]
+   public static explicit operator Scope?(string[]? scopes) => scopes != null ? new Scope(TrimTokens(scopes)) : null;
+
    public override string ToString() => string.Join(" ", _tokens);
 
-   private static ImmutableSortedSet<string> ParseTokens(string scope)
+   private static ImmutableSortedSet<string> TrimTokens(IEnumerable<string> scopes)
    {
-      return scope.Split(' ').Where(s => !string.IsNullOrWhiteSpace(s)).ToImmutableSortedSet();
+      return scopes.Select(s => s.Trim()).Where(s => !string.IsNullOrWhiteSpace(s)).ToImmutableSortedSet();
    }
+
+   private static ImmutableSortedSet<string> ParseTokens(string scope) => TrimTokens(scope.Split(" "));
 }
