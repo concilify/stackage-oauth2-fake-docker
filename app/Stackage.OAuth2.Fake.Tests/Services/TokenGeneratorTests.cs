@@ -10,7 +10,7 @@ using Stackage.OAuth2.Fake.Tests.Stubs;
 public class TokenGeneratorTests
 {
    [Test]
-   public void throws_exception_when_unauthorized()
+   public void throws_exception_when_unauthenticated()
    {
       var testSubject = CreateGenerator();
 
