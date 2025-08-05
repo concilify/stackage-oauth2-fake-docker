@@ -143,21 +143,14 @@ public static class Support
       this HttpClient httpClient,
       string[]? scopes = null)
    {
-      scopes ??= [];
-
       var body = new JsonObject
       {
          ["claims"] = new JsonObject()
       };
 
-      if (scopes.Length != 0)
-      {
-         body["scopes"] = new JsonArray(scopes.Select(s => (JsonNode)s).ToArray());
-      }
+      body.AddScopes(scopes);
 
-      var content = JsonContent.Create(body);
-
-      var httpResponse = await httpClient.PostAsync(".internal/create-token", content);
+      var httpResponse = await httpClient.PostAsync(".internal/create-token", body);
 
       return await httpResponse.ParseAsync<TokenResponse>();
    }
@@ -168,28 +161,15 @@ public static class Support
       string[]? scopes = null,
       string? subject = null)
    {
-      scopes ??= [];
-
       var body = new JsonObject
       {
          ["code"] = code
       };
 
-      if (scopes.Length != 0)
-      {
-         body["scopes"] = new JsonArray(scopes.Select(s => (JsonNode)s).ToArray());
-      }
+      body.AddScopes(scopes);
+      body.AddSubject(subject);
 
-      if (subject != null)
-      {
-         body["subject"] = subject;
-      }
-
-      var content = JsonContent.Create(body);
-
-      var httpResponse = await httpClient.PostAsync(".internal/authorization", content);
-
-      httpResponse.EnsureSuccessStatusCode();
+      await httpClient.PostAsync(".internal/authorization", body);
    }
 
    public static async Task SeedRefreshTokenAsync(
@@ -198,28 +178,15 @@ public static class Support
       string[]? scopes = null,
       string? subject = null)
    {
-      scopes ??= [];
-
       var body = new JsonObject
       {
          ["refreshToken"] = refreshToken
       };
 
-      if (scopes.Length != 0)
-      {
-         body["scopes"] = new JsonArray(scopes.Select(s => (JsonNode)s).ToArray());
-      }
+      body.AddScopes(scopes);
+      body.AddSubject(subject);
 
-      if (subject != null)
-      {
-         body["subject"] = subject;
-      }
-
-      var content = JsonContent.Create(body);
-
-      var httpResponse = await httpClient.PostAsync(".internal/refresh-token", content);
-
-      httpResponse.EnsureSuccessStatusCode();
+      await httpClient.PostAsync(".internal/refresh-token", body);
    }
 
    public static void AssertAccessTokenIsSigned(
@@ -273,5 +240,41 @@ public static class Support
       var jwtSecurityToken = tokenResponse.ParseJwtSecurityToken();
 
       return jwtSecurityToken.Claims.SingleOrDefault(c => c.Type == name);
+   }
+
+   private static async Task<HttpResponseMessage> PostAsync(
+      this HttpClient httpClient,
+      string path,
+      JsonObject body)
+   {
+      var content = JsonContent.Create(body);
+
+      var httpResponse = await httpClient.PostAsync(path, content);
+
+      httpResponse.EnsureSuccessStatusCode();
+
+      return httpResponse;
+   }
+
+   private static void AddScopes(
+      this JsonObject body,
+      string[]? scopes = null)
+   {
+      scopes ??= [];
+
+      if (scopes.Length != 0)
+      {
+         body["scopes"] = new JsonArray(scopes.Select(s => (JsonNode)s).ToArray());
+      }
+   }
+
+   private static void AddSubject(
+      this JsonObject body,
+      string? subject = null)
+   {
+      if (subject != null)
+      {
+         body["subject"] = subject;
+      }
    }
 }
