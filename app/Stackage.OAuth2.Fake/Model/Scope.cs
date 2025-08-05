@@ -31,14 +31,14 @@ public record Scope : IEnumerable<string>
    public static explicit operator Scope?(string? scope) => scope != null ? new Scope(ParseTokens(scope)) : null;
 
    [return: NotNullIfNotNull(nameof(scopes))]
-   public static explicit operator Scope?(string[]? scopes) => scopes != null ? new Scope(CleanTokens(scopes)) : null;
+   public static explicit operator Scope?(string[]? scopes) => scopes != null ? new Scope(TrimTokens(scopes)) : null;
 
    public override string ToString() => string.Join(" ", _tokens);
 
-   private static ImmutableSortedSet<string> CleanTokens(IEnumerable<string> scopes)
+   private static ImmutableSortedSet<string> TrimTokens(IEnumerable<string> scopes)
    {
       return scopes.Select(s => s.Trim()).Where(s => !string.IsNullOrWhiteSpace(s)).ToImmutableSortedSet();
    }
 
-   private static ImmutableSortedSet<string> ParseTokens(string scope) => CleanTokens(scope.Split(" "));
+   private static ImmutableSortedSet<string> ParseTokens(string scope) => TrimTokens(scope.Split(" "));
 }
