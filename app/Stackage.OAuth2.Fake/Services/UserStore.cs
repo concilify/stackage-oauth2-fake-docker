@@ -1,26 +1,35 @@
 namespace Stackage.OAuth2.Fake.Services;
 
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Security.Claims;
+using System.Text.Json.Nodes;
 using Microsoft.Extensions.Configuration;
 using Stackage.OAuth2.Fake.Model;
 
 public class UserStore : IUserStore
 {
-   private readonly IDictionary<string, User> _users;
+   private readonly Dictionary<string, User> _users;
 
-   public UserStore(IConfiguration configuration)
+   public UserStore(
+      IConfiguration configuration,
+      IClaimsParser claimsParser)
    {
       var usersSection = configuration.GetSection("Users");
 
-      _users = ParseUsers(usersSection).ToDictionary(u => u.Subject);
+      _users = ParseUsers(usersSection, claimsParser).ToDictionary(u => u.Subject);
    }
 
-   public void Add(User user)
+   public bool TryAdd(User user)
    {
-      _users.Add(user.Subject, user);
+      return _users.TryAdd(user.Subject, user);
+   }
+
+   public IReadOnlyList<User> GetAll()
+   {
+      return _users.Values.ToList();
    }
 
    public bool TryGet(
@@ -30,18 +39,32 @@ public class UserStore : IUserStore
       return _users.TryGetValue(subject, out user);
    }
 
-   private static IEnumerable<User> ParseUsers(IConfigurationSection usersSection)
+   private static IEnumerable<User> ParseUsers(
+      IConfigurationSection usersSection,
+      IClaimsParser claimsParser)
    {
       var configurationUsers = usersSection.Get<List<ConfigurationUser>>() ?? [];
 
-      return configurationUsers.Select(u => new User(u.Subject, [.. ParseClaims(u.ClaimsSection)]));
+      return configurationUsers.Select(u => new User(u.Subject, ParseClaims(u.ClaimsSection, claimsParser)));
    }
 
-   private static IEnumerable<Claim> ParseClaims(IConfigurationSection claimsSection)
+   private static ImmutableArray<Claim> ParseClaims(
+         IConfigurationSection claimsSection,
+         IClaimsParser claimsParser)
    {
-      return claimsSection.GetChildren()
-         .Where(c => c.Value != null)
-         .Select(c => new Claim(c.Key, c.Value!));
+      var claimsObject = new JsonObject();
+
+      foreach (var claim in claimsSection.GetChildren())
+      {
+         claimsObject.Add(claim.Key, claim.Value);
+      }
+
+      if (claimsParser.TryParse(claimsObject, out var claims))
+      {
+         return claims;
+      }
+
+      return ImmutableArray<Claim>.Empty;
    }
 
    private record ConfigurationUser(

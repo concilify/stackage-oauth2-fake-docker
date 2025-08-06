@@ -4,9 +4,9 @@ using System;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using Stackage.OAuth2.Fake.OutsideIn.Tests.Scenarios.Internal.RefreshToken.Model;
 
 // ReSharper disable once InconsistentNaming
 public class get_happy_path
@@ -65,9 +65,4 @@ public class get_happy_path
 
       Assert.That(refreshTokenResponse.Subject, Is.EqualTo("SomeSubject"));
    }
-
-   private record RefreshTokenResponse(
-      [property: JsonPropertyName("refresh_token")] string RefreshToken,
-      [property: JsonPropertyName("scopes")] string[] Scopes,
-      [property: JsonPropertyName("subject")] string Subject);
 }

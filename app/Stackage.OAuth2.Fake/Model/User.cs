@@ -14,7 +14,7 @@ public record User(string Subject, ImmutableArray<Claim> Claims)
          names,
          claim => claim.Type,
          name => name,
-         (claim, name) => new Claim(name, claim.Value),
+         (claim, _) => claim,
          StringComparer.InvariantCultureIgnoreCase);
    }
 }

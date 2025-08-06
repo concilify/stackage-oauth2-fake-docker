@@ -44,17 +44,20 @@ public class UserStoreTests
    }
 
    [Test]
-   public void try_get_returns_user_with_claims_when_claims_exists()
+   public void try_get_returns_user_with_multiple_claims_when_multiple_claims_exists()
    {
       var users = new Dictionary<string, string?>
       {
-         ["Users:0:Subject"] = "existing-subject",
-         ["Users:0:Claims:Nickname"] = "any-nickname",
-         ["Users:0:Claims:Picture"] = "any-picture"
+         ["Users:0:Subject"] = "existing-subject"
       };
 
+      var claimsParser = ClaimsParserStub.Returns(
+         new Claim("nickname", "any-nickname"),
+         new Claim("picture", "any-picture"));
+
       var testSubject = CreateStore(
-         configuration: ConfigurationStub.With(users));
+         configuration: ConfigurationStub.With(users),
+         claimsParser: claimsParser);
 
       testSubject.TryGet("existing-subject", out var user);
 
@@ -72,10 +75,14 @@ public class UserStoreTests
    }
 
    private static UserStore CreateStore(
-      IConfiguration? configuration = null)
+      IConfiguration? configuration = null,
+      IClaimsParser? claimsParser = null)
    {
       configuration ??= ConfigurationStub.Empty();
+      claimsParser ??= ClaimsParserStub.Valid();
 
-      return new UserStore(configuration);
+      return new UserStore(
+         configuration,
+         claimsParser);
    }
 }

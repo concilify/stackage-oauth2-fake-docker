@@ -16,12 +16,15 @@
         "USERS__0__SUBJECT": "user-a-subject",
         "USERS__0__CLAIMS__NICKNAME": "User A Nickname",
         "USERS__0__CLAIMS__PICTURE": "user-a-picture",
-        "USERS__1__SUBJECT": "auth0|new_user_id",
-        "USERS__1__CLAIMS__NICKNAME": "new_user_nickname",
-        "USERS__1__CLAIMS__PICTURE": "new_user_picture_url",
-        "USERS__2__SUBJECT": "auth0|existing_user_id",
-        "USERS__2__CLAIMS__NICKNAME": "existing_user_nickname",
-        "USERS__2__CLAIMS__PICTURE": "existing_user_picture_url"
+        "USERS__1__SUBJECT": "user-b-subject",
+        "USERS__1__CLAIMS__NICKNAME": "User B Nickname",
+        "USERS__1__CLAIMS__PICTURE": "user-b-picture",
+        "USERS__2__SUBJECT": "auth0|new_user_id",
+        "USERS__2__CLAIMS__NICKNAME": "new_user_nickname",
+        "USERS__2__CLAIMS__PICTURE": "new_user_picture_url",
+        "USERS__3__SUBJECT": "auth0|existing_user_id",
+        "USERS__3__CLAIMS__NICKNAME": "existing_user_nickname",
+        "USERS__3__CLAIMS__PICTURE": "existing_user_picture_url"
       }
     }
   }
