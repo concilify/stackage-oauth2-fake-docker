@@ -118,7 +118,7 @@ public class ClaimsParserTests
    [TestCase("NICKNAME", "nickname")]
    [TestCase("Nickname", "nickname")]
    [TestCase("PICTURE", "picture")]
-   [TestCase("Picture",  "picture")]
+   [TestCase("Picture", "picture")]
    public void try_parse_normalises_known_claim_name(string name, string expectedName)
    {
       var testSubject = CreateParser();
