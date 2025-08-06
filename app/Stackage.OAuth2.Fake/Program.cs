@@ -10,6 +10,8 @@ using Stackage.OAuth2.Fake.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddSingleton<IUserStore, UserStore>();
+
 builder.Services.AddSingleton(builder.Configuration.Get<Settings>()!);
 builder.Services.AddSingleton<AuthorizationCache<UserAuthorization>>();
 builder.Services.AddSingleton<AuthorizationCache<DeviceAuthorization>>();

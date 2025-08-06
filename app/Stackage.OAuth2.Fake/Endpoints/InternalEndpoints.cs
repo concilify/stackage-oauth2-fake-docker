@@ -1,6 +1,7 @@
 namespace Stackage.OAuth2.Fake.Endpoints;
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -20,6 +21,7 @@ public static class InternalEndpoints
       app.MapInternalCreateTokenEndpoint();
       app.MapInternalAuthorizationEndpoints();
       app.MapInternalRefreshTokenEndpoints();
+      app.MapInternalUsersEndpoints();
    }
 
    private static void MapInternalCreateTokenEndpoint(this WebApplication app)
@@ -177,6 +179,78 @@ public static class InternalEndpoints
          });
    }
 
+   private static void MapInternalUsersEndpoints(this WebApplication app)
+   {
+      app.MapPost(
+         "/.internal/users",
+         (
+            [FromBody] PostUserRequest? request,
+            [FromServices] IClaimsParser claimsParser,
+            IUserStore userStore
+         ) =>
+         {
+            if (request == null)
+            {
+               return Error.InvalidRequest("The request body was missing");
+            }
+
+            if (request.Subject == null)
+            {
+               return Error.InvalidRequest("The subject property was missing");
+            }
+
+            if (request.Claims == null)
+            {
+               return Error.InvalidRequest("The claims property was missing");
+            }
+
+            if (!claimsParser.TryParse(request.Claims, out var claims))
+            {
+               return Error.InvalidRequest("The claims property must contain string properties or string array properties");
+            }
+
+            var user = new User(request.Subject, claims);
+
+            return userStore.TryAdd(user)
+               ? TypedResults.Ok()
+               : Error.InvalidRequest("The given subject already exists");
+         });
+
+      app.MapGet(
+         "/.internal/users",
+         (
+            [FromQuery(Name = "subject")] string? subject,
+            IUserStore userStore
+         ) =>
+         {
+            IReadOnlyList<User> users;
+
+            if (subject == null)
+            {
+               users = userStore.GetAll();
+            }
+            else
+            {
+               if (!userStore.TryGet(subject, out var user))
+               {
+                  return Error.InvalidRequest("The given subject was not found");
+               }
+
+               users = [user];
+            }
+
+            var response = users
+               .Select(u => new
+               {
+                  subject = u.Subject,
+                  claims = u.Claims.ToDictionary(c => c.Type, c => c.Value)
+               })
+               .ToArray();
+
+            return TypedResults.Json(response, statusCode: 200);
+         });
+   }
+
    private static ValueTask<T?> BindAsync<T>(HttpContext context)
       where T : class
    {
@@ -218,5 +292,13 @@ public static class InternalEndpoints
    {
       // ReSharper disable once UnusedMember.Local
       public static ValueTask<PostRefreshTokenRequest?> BindAsync(HttpContext context) => BindAsync<PostRefreshTokenRequest>(context);
+   }
+
+   private record PostUserRequest(
+      [property: JsonPropertyName("subject")] string? Subject,
+      [property: JsonPropertyName("claims")] JsonObject? Claims)
+   {
+      // ReSharper disable once UnusedMember.Local
+      public static ValueTask<PostUserRequest?> BindAsync(HttpContext context) => BindAsync<PostUserRequest>(context);
    }
 }
