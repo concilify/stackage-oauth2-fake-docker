@@ -65,7 +65,7 @@ public class get_with_known_claims
    }
 
    [Test]
-   public async Task response_content_should_contain_claims()
+   public async Task response_content_should_contain_normalized_claims()
    {
       var usersResponse = await _httpResponse!.ParseAsync<UsersResponse>();
 

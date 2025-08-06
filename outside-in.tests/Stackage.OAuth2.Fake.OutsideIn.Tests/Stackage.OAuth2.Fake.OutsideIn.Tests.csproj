@@ -24,8 +24,4 @@
     </None>
   </ItemGroup>
 
-  <ItemGroup>
-    <Compile Remove="Scenarios\Internal\Users\create_with_non_string_claim.cs" />
-  </ItemGroup>
-
 </Project>
