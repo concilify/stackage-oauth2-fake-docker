@@ -12,15 +12,18 @@ using Stackage.OAuth2.Fake.Model.Authorization;
 public class TokenGenerator : ITokenGenerator
 {
    private readonly JsonWebKeyCache _jsonWebKeyCache;
+   private readonly IUserStore _userStore;
    private readonly Settings _settings;
    private readonly AuthorizationCache<RefreshAuthorization> _authorizationCache;
 
    public TokenGenerator(
       JsonWebKeyCache jsonWebKeyCache,
+      IUserStore userStore,
       Settings settings,
       AuthorizationCache<RefreshAuthorization> authorizationCache)
    {
       _jsonWebKeyCache = jsonWebKeyCache;
+      _userStore = userStore;
       _settings = settings;
       _authorizationCache = authorizationCache;
    }
@@ -63,6 +66,18 @@ public class TokenGenerator : ITokenGenerator
             {
                new(JwtRegisteredClaimNames.Sub, authorization.Subject)
             };
+
+            if (authorization.Scope.Contains("profile") && _userStore.TryGet(authorization.Subject, out var user))
+            {
+               string[] profileClaims =
+               [
+                  JwtRegisteredClaimNames.Name,
+                  JwtRegisteredClaimNames.Nickname,
+                  JwtRegisteredClaimNames.Picture,
+               ];
+
+               idTokenClaims.AddRange(user.GetClaims(profileClaims));
+            }
 
             var idToken = Generate(idTokenClaims, expirySeconds);
 
