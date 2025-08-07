@@ -62,7 +62,7 @@ public class create_token_with_negative_expiry_seconds
    {
       var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
 
-      var jwtSecurityToken = tokenResponse.ParseJwtSecurityToken();
+      var jwtSecurityToken = tokenResponse.ParseAccessTokenAsJwtSecurityToken();
 
       Assert.That(jwtSecurityToken.Subject, Is.EqualTo("default-subject"));
    }
@@ -72,7 +72,7 @@ public class create_token_with_negative_expiry_seconds
    {
       var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
 
-      var jwtSecurityToken = tokenResponse.ParseJwtSecurityToken();
+      var jwtSecurityToken = tokenResponse.ParseAccessTokenAsJwtSecurityToken();
 
       Assert.That(jwtSecurityToken.ValidTo, Is.LessThan(DateTime.UtcNow));
    }
@@ -82,7 +82,7 @@ public class create_token_with_negative_expiry_seconds
    {
       var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
 
-      var jwtSecurityToken = tokenResponse.ParseJwtSecurityToken();
+      var jwtSecurityToken = tokenResponse.ParseAccessTokenAsJwtSecurityToken();
 
       Assert.That(jwtSecurityToken.IssuedAt, Is.EqualTo(DateTime.UtcNow).Within(TimeSpan.FromSeconds(1)));
       Assert.That(jwtSecurityToken.ValidFrom, Is.EqualTo(jwtSecurityToken.IssuedAt.AddSeconds(-120)).Within(TimeSpan.FromMilliseconds(100)));

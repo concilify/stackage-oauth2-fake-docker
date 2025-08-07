@@ -1,13 +1,16 @@
 namespace Stackage.OAuth2.Fake.OutsideIn.Tests.Scenarios.Internal.CreateToken;
 
 using System;
+using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json.Nodes;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Primitives;
 using NUnit.Framework;
+using Shouldly;
 using Stackage.OAuth2.Fake.OutsideIn.Tests.Model;
 
 // ReSharper disable once InconsistentNaming
@@ -67,43 +70,29 @@ public class create_token_with_explicit_string_array_claims
    {
       var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
 
-      var jwtSecurityToken = tokenResponse.ParseJwtSecurityToken();
+      var jwtSecurityToken = tokenResponse.ParseAccessTokenAsJwtSecurityToken();
 
       Assert.That(jwtSecurityToken.Subject, Is.EqualTo("default-subject"));
    }
 
    [Test]
-   public async Task response_content_should_contain_access_token_with_claim_a()
+   public async Task response_content_should_contain_access_token_with_claims()
    {
       var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
 
-      var claims = tokenResponse.ParseClaims("http://oauth2.fake/claim-a");
+      var claims = tokenResponse.ParseAccessTokenClaims(
+         "http://oauth2.fake/claim-a",
+         "http://oauth2.fake/claim-b",
+         "http://oauth2.fake/claim-c");
 
-      Assert.That(claims.Count, Is.EqualTo(2));
-      Assert.That(claims[0].Value, Is.EqualTo("claim-a-one"));
-      Assert.That(claims[1].Value, Is.EqualTo("claim-a-two"));
-   }
+      var expectedClaims = new Dictionary<string, StringValues>
+      {
+         ["http://oauth2.fake/claim-a"] = new(["claim-a-one", "claim-a-two"]),
+         ["http://oauth2.fake/claim-b"] = "claim-b-single",
+         ["http://oauth2.fake/claim-c"] = "claim-c-single"
+      };
 
-   [Test]
-   public async Task response_content_should_contain_access_token_with_claim_b()
-   {
-      var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
-
-      var claims = tokenResponse.ParseClaims("http://oauth2.fake/claim-b");
-
-      Assert.That(claims.Count, Is.EqualTo(1));
-      Assert.That(claims[0].Value, Is.EqualTo("claim-b-single"));
-   }
-
-   [Test]
-   public async Task response_content_should_contain_access_token_with_claim_c()
-   {
-      var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
-
-      var claims = tokenResponse.ParseClaims("http://oauth2.fake/claim-c");
-
-      Assert.That(claims.Count, Is.EqualTo(1));
-      Assert.That(claims[0].Value, Is.EqualTo("claim-c-single"));
+      claims.ShouldBeEquivalentTo(expectedClaims);
    }
 
    [Test]

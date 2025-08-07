@@ -76,7 +76,7 @@ public class get_token_with_authorization_refresh_token
    {
       var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
 
-      var jwtSecurityToken = tokenResponse.ParseJwtSecurityToken();
+      var jwtSecurityToken = tokenResponse.ParseAccessTokenAsJwtSecurityToken();
 
       Assert.That(jwtSecurityToken.Subject, Is.EqualTo("default-subject"));
    }
@@ -86,7 +86,7 @@ public class get_token_with_authorization_refresh_token
    {
       var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
 
-      var scope = tokenResponse.ParseClaim("scope");
+      var scope = tokenResponse.ParseAccessTokenClaim("scope");
 
       Assert.That(scope, Is.Not.Null);
       Assert.That(scope!.Value, Is.EqualTo("offline_access"));

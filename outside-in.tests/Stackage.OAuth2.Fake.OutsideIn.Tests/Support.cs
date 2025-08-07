@@ -11,6 +11,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Primitives;
 using Microsoft.IdentityModel.Tokens;
 using NUnit.Framework;
 using Stackage.OAuth2.Fake.OutsideIn.Tests.Model;
@@ -224,7 +225,7 @@ public static class Support
       Assert.That(securityToken, Is.InstanceOf<JwtSecurityToken>());
    }
 
-   public static JwtSecurityToken ParseJwtSecurityToken(this TokenResponse tokenResponse)
+   public static JwtSecurityToken ParseAccessTokenAsJwtSecurityToken(this TokenResponse tokenResponse)
    {
       var securityToken = new JwtSecurityTokenHandler().ReadToken(tokenResponse.AccessToken);
 
@@ -242,16 +243,21 @@ public static class Support
       return (JwtSecurityToken)securityToken;
    }
 
-   public static IReadOnlyList<Claim> ParseClaims(this TokenResponse tokenResponse, string name)
+   public static IDictionary<string, StringValues> ParseAccessTokenClaims(this TokenResponse tokenResponse, params string[] names)
    {
-      var jwtSecurityToken = tokenResponse.ParseJwtSecurityToken();
+      var jwtSecurityToken = tokenResponse.ParseAccessTokenAsJwtSecurityToken();
 
-      return jwtSecurityToken.Claims.Where(c => c.Type == name).ToList();
+      return jwtSecurityToken.Claims
+         .Where(c => names.Contains(c.Type))
+         .GroupBy(c => c.Type)
+         .ToDictionary(
+            c => c.Key,
+            claims => new StringValues(claims.Select(c => c.Value).ToArray()));
    }
 
-   public static Claim? ParseClaim(this TokenResponse tokenResponse, string name)
+   public static Claim? ParseAccessTokenClaim(this TokenResponse tokenResponse, string name)
    {
-      var jwtSecurityToken = tokenResponse.ParseJwtSecurityToken();
+      var jwtSecurityToken = tokenResponse.ParseAccessTokenAsJwtSecurityToken();
 
       return jwtSecurityToken.Claims.SingleOrDefault(c => c.Type == name);
    }
