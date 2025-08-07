@@ -247,12 +247,7 @@ public static class Support
    {
       var jwtSecurityToken = tokenResponse.ParseAccessTokenAsJwtSecurityToken();
 
-      return jwtSecurityToken.Claims
-         .Where(c => names.Contains(c.Type))
-         .GroupBy(c => c.Type)
-         .ToDictionary(
-            c => c.Key,
-            claims => new StringValues(claims.Select(c => c.Value).ToArray()));
+      return ParseClaims(jwtSecurityToken, names);
    }
 
    public static Claim? ParseAccessTokenClaim(this TokenResponse tokenResponse, string name)
@@ -262,13 +257,11 @@ public static class Support
       return jwtSecurityToken.Claims.SingleOrDefault(c => c.Type == name);
    }
 
-   public static IDictionary<string, string> ParseIdTokenClaims(this TokenResponse tokenResponse, params string[] names)
+   public static IDictionary<string, StringValues> ParseIdTokenClaims(this TokenResponse tokenResponse, params string[] names)
    {
       var jwtSecurityToken = tokenResponse.ParseIdTokenAsJwtSecurityToken();
 
-      return jwtSecurityToken.Claims
-         .Where(c => names.Contains(c.Type))
-         .ToDictionary(c => c.Type, c => c.Value);
+      return ParseClaims(jwtSecurityToken, names);
    }
 
    private static async Task<HttpResponseMessage> PostAsync(
@@ -313,5 +306,15 @@ public static class Support
       {
          body["subject"] = subject;
       }
+   }
+
+   private static IDictionary<string, StringValues> ParseClaims(JwtSecurityToken jwtSecurityToken, params string[] names)
+   {
+      return jwtSecurityToken.Claims
+         .Where(c => names.Contains(c.Type))
+         .GroupBy(c => c.Type)
+         .ToDictionary(
+            c => c.Key,
+            claims => new StringValues(claims.Select(c => c.Value).ToArray()));
    }
 }

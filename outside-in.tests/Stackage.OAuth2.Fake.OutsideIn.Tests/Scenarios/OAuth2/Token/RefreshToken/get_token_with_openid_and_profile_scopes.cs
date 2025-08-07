@@ -6,6 +6,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Primitives;
 using NUnit.Framework;
 using Shouldly;
 using Stackage.OAuth2.Fake.OutsideIn.Tests.Model;
@@ -85,7 +86,7 @@ public class get_token_with_openid_and_profile_scopes
    {
       var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
 
-      var jwtSecurityToken = tokenResponse.ParseJwtSecurityToken();
+      var jwtSecurityToken = tokenResponse.ParseAccessTokenAsJwtSecurityToken();
 
       Assert.That(jwtSecurityToken.Subject, Is.EqualTo(_subject));
    }
@@ -95,7 +96,7 @@ public class get_token_with_openid_and_profile_scopes
    {
       var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
 
-      var scope = tokenResponse.ParseClaim("scope");
+      var scope = tokenResponse.ParseAccessTokenClaim("scope");
 
       Assert.That(scope, Is.Not.Null);
       Assert.That(tokenResponse.Scope, Is.EqualTo("openid profile"));
@@ -112,13 +113,13 @@ public class get_token_with_openid_and_profile_scopes
    }
 
    [Test]
-   public async Task response_content_should_contain_id_token_with_additional_claims()
+   public async Task response_content_should_contain_id_token_with_claims()
    {
       var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
 
       var claims = tokenResponse.ParseIdTokenClaims("name", "nickname", "picture");
 
-      var expectedClaims = new Dictionary<string, string>
+      var expectedClaims = new Dictionary<string, StringValues>
       {
          [JwtRegisteredClaimNames.Name] = $"{_subject}-name",
          [JwtRegisteredClaimNames.Nickname] = $"{_subject}-nickname",
