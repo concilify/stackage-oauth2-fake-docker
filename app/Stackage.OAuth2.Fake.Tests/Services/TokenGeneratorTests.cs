@@ -1,6 +1,7 @@
 namespace Stackage.OAuth2.Fake.Tests.Services;
 
 using System;
+using Moq;
 using NUnit.Framework;
 using Stackage.OAuth2.Fake.Model;
 using Stackage.OAuth2.Fake.Model.Authorization;
@@ -82,6 +83,16 @@ public class TokenGeneratorTests
    }
 
    [Test]
+   public void METHOD()
+   {
+      // id token
+      // does profile scope alone do anything??? or ordering?
+      // claims added / not added
+      // profile claims missing
+      Assert.Fail();
+   }
+
+   [Test]
    public void authorization_cache_is_not_added_to_when_scope_is_not_offline_access()
    {
       var authorizationCache = new AuthorizationCache<RefreshAuthorization>();
@@ -121,15 +132,18 @@ public class TokenGeneratorTests
 
    private static TokenGenerator CreateGenerator(
       JsonWebKeyCache? jsonWebKeyCache = null,
+      IUserStore? userStore = null,
       Settings? settings = null,
       AuthorizationCache<RefreshAuthorization>? authorizationCache = null)
    {
       jsonWebKeyCache ??= new JsonWebKeyCache();
+      userStore ??= Mock.Of<IUserStore>();
       settings ??= new Settings();
       authorizationCache ??= new AuthorizationCache<RefreshAuthorization>();
 
       return new TokenGenerator(
          jsonWebKeyCache,
+         userStore,
          settings,
          authorizationCache);
    }
