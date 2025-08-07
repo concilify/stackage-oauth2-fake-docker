@@ -1,12 +1,15 @@
 namespace Stackage.OAuth2.Fake.OutsideIn.Tests.Scenarios.Internal.CreateToken;
 
 using System;
+using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Primitives;
 using NUnit.Framework;
+using Shouldly;
 using Stackage.OAuth2.Fake.OutsideIn.Tests.Model;
 
 // ReSharper disable once InconsistentNaming
@@ -64,7 +67,7 @@ public class create_token_without_explicit_subject_and_scope
    {
       var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
 
-      var jwtSecurityToken = tokenResponse.ParseJwtSecurityToken();
+      var jwtSecurityToken = tokenResponse.ParseAccessTokenAsJwtSecurityToken();
 
       Assert.That(jwtSecurityToken.Subject, Is.EqualTo("default-subject"));
    }
@@ -74,20 +77,24 @@ public class create_token_without_explicit_subject_and_scope
    {
       var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
 
-      var claim = tokenResponse.ParseClaim("scope");
+      var claim = tokenResponse.ParseAccessTokenClaim("scope");
 
       Assert.That(claim, Is.Null);
    }
 
    [Test]
-   public async Task response_content_should_contain_access_token_with_custom_claim()
+   public async Task response_content_should_contain_access_token_with_claims()
    {
       var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
 
-      var claims = tokenResponse.ParseClaims("custom_claim");
+      var claims = tokenResponse.ParseAccessTokenClaims("custom_claim");
 
-      Assert.That(claims.Count, Is.EqualTo(1));
-      Assert.That(claims[0].Value, Is.EqualTo("custom-value"));
+      var expectedClaims = new Dictionary<string, StringValues>
+      {
+         ["custom_claim"] = "custom-value"
+      };
+
+      claims.ShouldBeEquivalentTo(expectedClaims);
    }
 
    [Test]
