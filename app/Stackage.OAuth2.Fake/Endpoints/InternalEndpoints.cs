@@ -18,10 +18,13 @@ public static class InternalEndpoints
 {
    public static void MapInternalEndpoints(this WebApplication app)
    {
+      app.MapGet("/.internal/health", () => TypedResults.Ok());
+
       app.MapInternalCreateTokenEndpoint();
       app.MapInternalAuthorizationEndpoints();
       app.MapInternalRefreshTokenEndpoints();
       app.MapInternalUsersEndpoints();
+      app.MapInternalHistoryEndpoints();
    }
 
    private static void MapInternalCreateTokenEndpoint(this WebApplication app)
@@ -249,6 +252,23 @@ public static class InternalEndpoints
 
             return TypedResults.Json(response, statusCode: 200);
          });
+   }
+
+   private static void MapInternalHistoryEndpoints(this WebApplication app)
+   {
+      app.MapGet("/.internal/history/requests", (CapturedRequestCache capturedRequestCache) =>
+      {
+         var response = capturedRequestCache.GetAll().Reverse();
+
+         return TypedResults.Json(response, statusCode: 200);
+      });
+
+      app.MapDelete("/.internal/history", async (CapturedRequestCache capturedRequestCache) =>
+      {
+         await capturedRequestCache.ClearAsync();
+
+         return TypedResults.Ok();
+      });
    }
 
    private static ValueTask<T?> BindAsync<T>(HttpContext context)
