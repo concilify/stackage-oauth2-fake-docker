@@ -190,6 +190,22 @@ public static class Support
       await PostAsync(httpClient, ".internal/refresh-token", body);
    }
 
+   public static async Task SeedUserAsync(
+      this HttpClient httpClient,
+      string subject,
+      IDictionary<string, string> claims)
+   {
+      var body = new
+      {
+         subject,
+         claims
+      };
+
+      var content = JsonContent.Create(body);
+
+      await PostAsync(httpClient, ".internal/users", content);
+   }
+
    public static void AssertAccessTokenIsSigned(
       this TokenResponse tokenResponse,
       JsonWebKey jsonWebKey)
@@ -231,12 +247,7 @@ public static class Support
    {
       var jwtSecurityToken = tokenResponse.ParseAccessTokenAsJwtSecurityToken();
 
-      return jwtSecurityToken.Claims
-         .Where(c => names.Contains(c.Type))
-         .GroupBy(c => c.Type)
-         .ToDictionary(
-            c => c.Key,
-            claims => new StringValues(claims.Select(c => c.Value).ToArray()));
+      return ParseClaims(jwtSecurityToken, names);
    }
 
    public static Claim? ParseAccessTokenClaim(this TokenResponse tokenResponse, string name)
@@ -244,6 +255,13 @@ public static class Support
       var jwtSecurityToken = tokenResponse.ParseAccessTokenAsJwtSecurityToken();
 
       return jwtSecurityToken.Claims.SingleOrDefault(c => c.Type == name);
+   }
+
+   public static IDictionary<string, StringValues> ParseIdTokenClaims(this TokenResponse tokenResponse, params string[] names)
+   {
+      var jwtSecurityToken = tokenResponse.ParseIdTokenAsJwtSecurityToken();
+
+      return ParseClaims(jwtSecurityToken, names);
    }
 
    private static async Task<HttpResponseMessage> PostAsync(
@@ -288,5 +306,15 @@ public static class Support
       {
          body["subject"] = subject;
       }
+   }
+
+   private static IDictionary<string, StringValues> ParseClaims(JwtSecurityToken jwtSecurityToken, params string[] names)
+   {
+      return jwtSecurityToken.Claims
+         .Where(c => names.Contains(c.Type))
+         .GroupBy(c => c.Type)
+         .ToDictionary(
+            c => c.Key,
+            claims => new StringValues(claims.Select(c => c.Value).ToArray()));
    }
 }
