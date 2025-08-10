@@ -31,7 +31,7 @@ public class get_token_with_openid_and_profile_scopes
 
       await httpClient.SeedRefreshTokenAsync(
          refreshToken: _refreshToken,
-         scopes: ["openid", "profile" ],
+         scopes: ["openid", "profile"],
          subject: _subject);
 
       await httpClient.SeedUserAsync(

@@ -34,7 +34,7 @@ public class get_token_with_openid_and_profile_scopes
 
       await httpClient.SeedAuthorizationAsync(
          code: _code,
-         scopes: ["openid", "profile" ],
+         scopes: ["openid", "profile"],
          subject: _subject);
 
       await httpClient.SeedUserAsync(
