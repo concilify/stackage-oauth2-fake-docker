@@ -11,6 +11,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Primitives;
 using Microsoft.IdentityModel.Tokens;
 using NUnit.Framework;
 using Stackage.OAuth2.Fake.OutsideIn.Tests.Model;
@@ -150,7 +151,7 @@ public static class Support
 
       body.AddScopes(scopes);
 
-      var httpResponse = await httpClient.PostAsync(".internal/create-token", body);
+      var httpResponse = await PostAsync(httpClient, ".internal/create-token", body);
 
       return await httpResponse.ParseAsync<TokenResponse>();
    }
@@ -169,7 +170,7 @@ public static class Support
       body.AddScopes(scopes);
       body.AddSubject(subject);
 
-      await httpClient.PostAsync(".internal/authorization", body);
+      await PostAsync(httpClient, ".internal/authorization", body);
    }
 
    public static async Task SeedRefreshTokenAsync(
@@ -186,7 +187,7 @@ public static class Support
       body.AddScopes(scopes);
       body.AddSubject(subject);
 
-      await httpClient.PostAsync(".internal/refresh-token", body);
+      await PostAsync(httpClient, ".internal/refresh-token", body);
    }
 
    public static void AssertAccessTokenIsSigned(
@@ -208,11 +209,9 @@ public static class Support
       Assert.That(securityToken, Is.InstanceOf<JwtSecurityToken>());
    }
 
-   public static JwtSecurityToken ParseJwtSecurityToken(this TokenResponse tokenResponse, Func<TokenResponse, string>? tokenAccessor = null)
+   public static JwtSecurityToken ParseAccessTokenAsJwtSecurityToken(this TokenResponse tokenResponse)
    {
-      tokenAccessor ??= token => token.AccessToken;
-
-      var securityToken = new JwtSecurityTokenHandler().ReadToken(tokenAccessor(tokenResponse));
+      var securityToken = new JwtSecurityTokenHandler().ReadToken(tokenResponse.AccessToken);
 
       Assert.That(securityToken, Is.InstanceOf<JwtSecurityToken>());
 
@@ -228,27 +227,40 @@ public static class Support
       return (JwtSecurityToken)securityToken;
    }
 
-   public static IReadOnlyList<Claim> ParseClaims(this TokenResponse tokenResponse, string name)
+   public static IDictionary<string, StringValues> ParseAccessTokenClaims(this TokenResponse tokenResponse, params string[] names)
    {
-      var jwtSecurityToken = tokenResponse.ParseJwtSecurityToken();
+      var jwtSecurityToken = tokenResponse.ParseAccessTokenAsJwtSecurityToken();
 
-      return jwtSecurityToken.Claims.Where(c => c.Type == name).ToList();
+      return jwtSecurityToken.Claims
+         .Where(c => names.Contains(c.Type))
+         .GroupBy(c => c.Type)
+         .ToDictionary(
+            c => c.Key,
+            claims => new StringValues(claims.Select(c => c.Value).ToArray()));
    }
 
-   public static Claim? ParseClaim(this TokenResponse tokenResponse, string name)
+   public static Claim? ParseAccessTokenClaim(this TokenResponse tokenResponse, string name)
    {
-      var jwtSecurityToken = tokenResponse.ParseJwtSecurityToken();
+      var jwtSecurityToken = tokenResponse.ParseAccessTokenAsJwtSecurityToken();
 
       return jwtSecurityToken.Claims.SingleOrDefault(c => c.Type == name);
    }
 
    private static async Task<HttpResponseMessage> PostAsync(
-      this HttpClient httpClient,
+      HttpClient httpClient,
       string path,
       JsonObject body)
    {
       var content = JsonContent.Create(body);
 
+      return await PostAsync(httpClient, path, content);
+   }
+
+   private static async Task<HttpResponseMessage> PostAsync(
+      HttpClient httpClient,
+      string path,
+      JsonContent content)
+   {
       var httpResponse = await httpClient.PostAsync(path, content);
 
       httpResponse.EnsureSuccessStatusCode();
