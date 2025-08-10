@@ -134,8 +134,8 @@ public class TokenGeneratorTests
          Subject: "the-subject",
          Claims: [
             new Claim("name", "name-claim"),
-            new  Claim("nickname", "nickname-claim"),
-            new  Claim("picture", "picture-claim")
+            new Claim("nickname", "nickname-claim"),
+            new Claim("picture", "picture-claim")
          ]);
       var userStore = UserStoreStub.Returns(user);
 
@@ -226,8 +226,8 @@ public class TokenGeneratorTests
          Subject: "the-subject",
          Claims: [
             new Claim("name", "name-claim"),
-            new  Claim("nickname", "nickname-claim"),
-            new  Claim("picture", "picture-claim")
+            new Claim("nickname", "nickname-claim"),
+            new Claim("picture", "picture-claim")
          ]);
       var userStore = UserStoreStub.Returns(user);
 
