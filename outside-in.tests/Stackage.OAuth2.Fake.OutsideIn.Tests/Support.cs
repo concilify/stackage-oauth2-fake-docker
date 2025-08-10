@@ -7,9 +7,11 @@ using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Security.Claims;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Threading.Tasks;
+using System.Web;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Primitives;
 using Microsoft.IdentityModel.Tokens;
@@ -262,6 +264,17 @@ public static class Support
       var jwtSecurityToken = tokenResponse.ParseIdTokenAsJwtSecurityToken();
 
       return ParseClaims(jwtSecurityToken, names);
+   }
+
+   public static IDictionary<string, string?> ParseQueryString(this JsonNode request)
+   {
+      var bodyBytes = Convert.FromBase64String(request["bodyBase64"]?.GetValue<string>() ?? string.Empty);
+
+      var queryString = HttpUtility.ParseQueryString(Encoding.UTF8.GetString(bodyBytes));
+
+      return queryString.AllKeys
+         .OfType<string>()
+         .ToDictionary(key => key, key => queryString[key]);
    }
 
    private static async Task<HttpResponseMessage> PostAsync(
