@@ -1,8 +1,12 @@
 namespace Stackage.OAuth2.Fake.Tests;
 
+using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Primitives;
 
 public static class Support
 {
@@ -16,5 +20,15 @@ public static class Support
       }
 
       return response;
+   }
+
+   public static IDictionary<string, StringValues> ParseClaims(this JwtSecurityToken jwtSecurityToken, params string[] names)
+   {
+      return jwtSecurityToken.Claims
+         .Where(c => names.Contains(c.Type))
+         .GroupBy(c => c.Type)
+         .ToDictionary(
+            c => c.Key,
+            claims => new StringValues(claims.Select(c => c.Value).ToArray()));
    }
 }
