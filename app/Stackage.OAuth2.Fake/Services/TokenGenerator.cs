@@ -50,6 +50,8 @@ public class TokenGenerator : ITokenGenerator
          accessTokenClaims.Add(new Claim("scope", authorization.Scope));
       }
 
+      // TODO: audience is resource from orig request
+
       var expirySeconds = authorization.TokenExpirySeconds ?? _settings.DefaultTokenExpirySeconds;
 
       var response = new TokenResponse
@@ -65,6 +67,7 @@ public class TokenGenerator : ITokenGenerator
             var idTokenClaims = new List<Claim>
             {
                new(JwtRegisteredClaimNames.Sub, authorization.Subject)
+               // TODO: aud is client_id
             };
 
             if (authorization.Scope.Contains("profile") && _userStore.TryGet(authorization.Subject, out var user))
@@ -112,7 +115,7 @@ public class TokenGenerator : ITokenGenerator
          Issuer = _settings.IssuerUrl,
          Subject = identity,
          Expires = utcNow.AddSeconds(expirySeconds),
-         SigningCredentials = signingCredentials
+         SigningCredentials = signingCredentials,
       };
 
       if (expirySeconds <= 0)

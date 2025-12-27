@@ -6,6 +6,8 @@ public record DeviceAuthorization(string DeviceCode, string UserCode, Scope Scop
 {
    public string Code => DeviceCode;
 
+   // TODO: Audience?
+
    public bool IsAuthenticated => Subject != null;
 
    public string? Subject { get; private set; }

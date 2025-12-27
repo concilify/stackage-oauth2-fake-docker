@@ -212,19 +212,26 @@ public static class Support
       this TokenResponse tokenResponse,
       JsonWebKey jsonWebKey)
    {
-      var parameters = new TokenValidationParameters
-      {
-         IssuerSigningKey = jsonWebKey,
-         ValidIssuer = Configuration.IssuerUrl,
-         ValidateAudience = false
-      };
+      // TODO: aud
+      AssertTokenIsSigned(tokenResponse.AccessToken, jsonWebKey, "foo");
+   }
 
-      new JwtSecurityTokenHandler().ValidateToken(
-         tokenResponse.AccessToken,
-         parameters,
-         out var securityToken);
+   public static void AssertIdTokenIsSigned(
+      this TokenResponse tokenResponse,
+      JsonWebKey jsonWebKey)
+   {
+      // TODO: aud
+      // TODO: verify token not null
+      AssertTokenIsSigned(tokenResponse.IdToken, jsonWebKey, "foo");
+   }
 
-      Assert.That(securityToken, Is.InstanceOf<JwtSecurityToken>());
+   public static void AssertRefreshTokenIsSigned(
+      this TokenResponse tokenResponse,
+      JsonWebKey jsonWebKey)
+   {
+      // TODO: aud
+      // TODO: verify token not null
+      AssertTokenIsSigned(tokenResponse.RefreshToken, jsonWebKey, "foo");
    }
 
    public static JwtSecurityToken ParseAccessTokenAsJwtSecurityToken(this TokenResponse tokenResponse)
@@ -298,6 +305,27 @@ public static class Support
 
       return httpResponse;
    }
+
+   private static void AssertTokenIsSigned(
+      string token,
+      JsonWebKey jsonWebKey,
+      string audience)
+   {
+      var parameters = new TokenValidationParameters
+      {
+         IssuerSigningKey = jsonWebKey,
+         ValidIssuer = Configuration.IssuerUrl,
+         ValidAudience = audience
+      };
+
+      new JwtSecurityTokenHandler().ValidateToken(
+         token,
+         parameters,
+         out var securityToken);
+
+      Assert.That(securityToken, Is.InstanceOf<JwtSecurityToken>());
+   }
+
 
    private static void AddScopes(
       this JsonObject body,

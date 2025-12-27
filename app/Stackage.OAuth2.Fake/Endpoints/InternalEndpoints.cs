@@ -55,7 +55,9 @@ public static class InternalEndpoints
 
             var authorization = new InternalAuthorization(
                Scope: (Scope?)request.Scopes ?? Scope.Empty,
+               // TODO: Not sure DefaultSubject is relevant here
                Subject: request.Subject ?? settings.DefaultSubject,
+               // TODO: optional audience
                TokenExpirySeconds: request.TokenExpirySeconds,
                Claims: claims);
 

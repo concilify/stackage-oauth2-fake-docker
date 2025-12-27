@@ -6,6 +6,7 @@ using System.Security.Claims;
 public record InternalAuthorization(
    Scope Scope,
    string Subject,
+   // TODO: optional audience
    int? TokenExpirySeconds,
    ImmutableArray<Claim> Claims) : IAuthorizationWithClaims
 {

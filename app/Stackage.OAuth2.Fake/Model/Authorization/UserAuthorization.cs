@@ -4,6 +4,8 @@ using System;
 
 public record UserAuthorization(string Code, Scope Scope) : IAuthorizationWithCode
 {
+   // TODO: Audience?
+
    public bool IsAuthenticated => Subject != null;
 
    public string? Subject { get; private set; }
