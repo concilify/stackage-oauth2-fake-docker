@@ -22,6 +22,7 @@ public class create_token_without_openid_or_offline_access_scope
 
       var body = new
       {
+         subject = "arbitrary-subject",
          scopes = new[] { "any_scope" },
          claims = new { }
       };
@@ -64,7 +65,7 @@ public class create_token_without_openid_or_offline_access_scope
 
       var jwtSecurityToken = tokenResponse.ParseAccessTokenAsJwtSecurityToken();
 
-      Assert.That(jwtSecurityToken.Subject, Is.EqualTo("default-subject"));
+      Assert.That(jwtSecurityToken.Subject, Is.EqualTo("arbitrary-subject"));
    }
 
    [Test]

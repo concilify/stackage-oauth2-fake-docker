@@ -20,7 +20,13 @@ public class create_token_without_explicit_claims
       using var httpClient = new HttpClient();
       httpClient.BaseAddress = new Uri(Configuration.AppUrl);
 
-      var content = JsonContent.Create(new { claims = new { } });
+      var body = new
+      {
+         subject = "arbitrary-subject",
+         claims = new { }
+      };
+
+      var content = JsonContent.Create(body);
 
       _httpResponse = await httpClient.PostAsync(".internal/create-token", content);
    }
@@ -58,7 +64,7 @@ public class create_token_without_explicit_claims
 
       var jwtSecurityToken = tokenResponse.ParseAccessTokenAsJwtSecurityToken();
 
-      Assert.That(jwtSecurityToken.Subject, Is.EqualTo("default-subject"));
+      Assert.That(jwtSecurityToken.Subject, Is.EqualTo("arbitrary-subject"));
    }
 
    [Test]

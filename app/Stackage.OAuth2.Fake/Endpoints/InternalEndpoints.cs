@@ -34,13 +34,17 @@ public static class InternalEndpoints
          (
             [FromBody] CreateTokenRequest? request,
             [FromServices] IClaimsParser claimsParser,
-            Settings settings,
             ITokenGenerator tokenGenerator
          ) =>
          {
             if (request == null)
             {
                return Error.InvalidRequest("The request body was missing");
+            }
+
+            if (request.Subject == null)
+            {
+               return Error.InvalidRequest("The subject property was missing");
             }
 
             if (request.Claims == null)
@@ -55,7 +59,7 @@ public static class InternalEndpoints
 
             var authorization = new InternalAuthorization(
                Scope: (Scope?)request.Scopes ?? Scope.Empty,
-               Subject: request.Subject ?? settings.DefaultSubject,
+               Subject: request.Subject,
                TokenExpirySeconds: request.TokenExpirySeconds,
                Claims: claims);
 

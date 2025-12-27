@@ -22,6 +22,7 @@ public class create_token_with_positive_expiry_seconds
 
       var body = new
       {
+         subject = "arbitrary-subject",
          tokenExpirySeconds = 120,
          claims = new { }
       };
@@ -64,7 +65,7 @@ public class create_token_with_positive_expiry_seconds
 
       var jwtSecurityToken = tokenResponse.ParseAccessTokenAsJwtSecurityToken();
 
-      Assert.That(jwtSecurityToken.Subject, Is.EqualTo("default-subject"));
+      Assert.That(jwtSecurityToken.Subject, Is.EqualTo("arbitrary-subject"));
    }
 
    [Test]
