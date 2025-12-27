@@ -67,7 +67,12 @@ public class UserStore : IUserStore
       return ImmutableArray<Claim>.Empty;
    }
 
-   private record ConfigurationUser(
-      string Subject,
-      [property: ConfigurationKeyName("Claims")] IConfigurationSection ClaimsSection);
+   // Following the upgrade to .NET 10, a primary constructor cannot be used as the binding fails
+   private record ConfigurationUser
+   {
+      public required string Subject { get; init; }
+
+      [ConfigurationKeyName("Claims")]
+      public required IConfigurationSection ClaimsSection { get; init; }
+   }
 }
