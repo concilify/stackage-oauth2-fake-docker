@@ -17,10 +17,10 @@ public static class AuthorizationEndpoints
       app.MapGet(
          settings.AuthorizationPath,
          (
-            AuthorizationCache<UserAuthorization> authorizationCache,
             [FromQuery(Name = "state")] string state,
             [FromQuery(Name = "redirect_uri")] string redirectUri,
-            [FromQuery(Name = "scope")] string? scope = null) =>
+            [FromQuery(Name = "scope")] string? scope,
+            AuthorizationCache<UserAuthorization> authorizationCache) =>
          {
             var authorization = authorizationCache.Add(() => UserAuthorization.Create((Scope?)scope ?? Scope.Empty));
 
@@ -34,8 +34,8 @@ public static class AuthorizationEndpoints
       app.MapPost(
          settings.DeviceAuthorizationPath,
          (
-            AuthorizationCache<DeviceAuthorization> authorizationCache,
-            [FromForm(Name = "scope")] string? scope = null) =>
+            [FromForm(Name = "scope")] string? scope,
+            AuthorizationCache<DeviceAuthorization> authorizationCache) =>
          {
             var authorization = authorizationCache.Add(() => DeviceAuthorization.Create((Scope?)scope ?? Scope.Empty));
 
