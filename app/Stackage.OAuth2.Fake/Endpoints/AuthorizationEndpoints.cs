@@ -41,22 +41,31 @@ public static class AuthorizationEndpoints
             // RFC 6749 Section 3.1: response_type is REQUIRED
             if (string.IsNullOrEmpty(responseType))
             {
-               return Results.Redirect($"{redirectUri}?error=invalid_request&error_description=The+response_type+parameter+is+required" +
-                  (string.IsNullOrEmpty(state) ? "" : $"&state={Uri.EscapeDataString(state)}"));
+               return Results.Redirect(BuildErrorRedirectUri(
+                  redirectUri, 
+                  "invalid_request", 
+                  "The response_type parameter is required", 
+                  state));
             }
 
             // RFC 6749 Section 3.1.1: For authorization code flow, response_type must be "code"
             if (responseType != "code")
             {
-               return Results.Redirect($"{redirectUri}?error=unsupported_response_type&error_description=The+response_type+must+be+code" +
-                  (string.IsNullOrEmpty(state) ? "" : $"&state={Uri.EscapeDataString(state)}"));
+               return Results.Redirect(BuildErrorRedirectUri(
+                  redirectUri, 
+                  "unsupported_response_type", 
+                  "The response_type must be code", 
+                  state));
             }
 
             // RFC 6749 Section 3.1: client_id is REQUIRED
             if (string.IsNullOrEmpty(clientId))
             {
-               return Results.Redirect($"{redirectUri}?error=invalid_request&error_description=The+client_id+parameter+is+required" +
-                  (string.IsNullOrEmpty(state) ? "" : $"&state={Uri.EscapeDataString(state)}"));
+               return Results.Redirect(BuildErrorRedirectUri(
+                  redirectUri, 
+                  "invalid_request", 
+                  "The client_id parameter is required", 
+                  state));
             }
 
             var authorization = authorizationCache.Add(() => UserAuthorization.Create((Scope?)scope ?? Scope.Empty));
@@ -65,8 +74,7 @@ public static class AuthorizationEndpoints
             // can be used immediately with the /oauth2/token endpoint using grant type authorization_code
             authorization.Authenticate(settings.DefaultSubject);
 
-            return TypedResults.Redirect($"{redirectUri}?code={authorization.Code}" +
-               (string.IsNullOrEmpty(state) ? "" : $"&state={Uri.EscapeDataString(state)}"));
+            return TypedResults.Redirect(BuildSuccessRedirectUri(redirectUri, authorization.Code, state));
          });
 
       app.MapPost(
@@ -102,5 +110,25 @@ public static class AuthorizationEndpoints
             return TypedResults.Json(response);
          })
          .DisableAntiforgery();
+   }
+
+   private static string BuildErrorRedirectUri(string redirectUri, string error, string errorDescription, string? state)
+   {
+      var uri = $"{redirectUri}?error={error}&error_description={Uri.EscapeDataString(errorDescription)}";
+      if (!string.IsNullOrEmpty(state))
+      {
+         uri += $"&state={Uri.EscapeDataString(state)}";
+      }
+      return uri;
+   }
+
+   private static string BuildSuccessRedirectUri(string redirectUri, string code, string? state)
+   {
+      var uri = $"{redirectUri}?code={code}";
+      if (!string.IsNullOrEmpty(state))
+      {
+         uri += $"&state={Uri.EscapeDataString(state)}";
+      }
+      return uri;
    }
 }
