@@ -33,6 +33,7 @@ public static class TokenEndpoint
             }
 
             return grantTypeHandler.Handle(httpContext.Request);
-         });
+         })
+         .DisableAntiforgery();
    }
 }

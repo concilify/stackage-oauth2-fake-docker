@@ -23,6 +23,8 @@ public class AuthorizationEndpointsTests
 
       var requestQuery = new Dictionary<string, string?>
       {
+         ["response_type"] = "code",
+         ["client_id"] = "AnyClientId",
          ["state"] = "AnyState",
          ["redirect_uri"] = "http://any-host/callback"
       };
@@ -32,6 +34,93 @@ public class AuthorizationEndpointsTests
       Assert.That(httpResponse.StatusCode, Is.EqualTo(HttpStatusCode.Redirect));
 
       Assert.That(httpResponse.Headers.Location?.AbsoluteUri, Does.StartWith("http://any-host/callback"));
+      Assert.That(httpResponse.Headers.Location?.Query, Does.Contain("state=AnyState"));
+   }
+
+   [Test]
+   public async Task authorize_returns_error_when_redirect_uri_is_missing()
+   {
+      var factory = new OAuth2FakeWebApplicationFactory();
+      factory.ClientOptions.AllowAutoRedirect = false;
+
+      var httpClient = factory.CreateClient();
+
+      var requestQuery = new Dictionary<string, string?>
+      {
+         ["response_type"] = "code",
+         ["client_id"] = "AnyClientId",
+         ["state"] = "AnyState"
+      };
+
+      var httpResponse = await httpClient.GetAsync(QueryHelpers.AddQueryString("oauth2/authorize", requestQuery));
+
+      Assert.That(httpResponse.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
+   }
+
+   [Test]
+   public async Task authorize_redirects_with_error_when_response_type_is_missing()
+   {
+      var factory = new OAuth2FakeWebApplicationFactory();
+      factory.ClientOptions.AllowAutoRedirect = false;
+
+      var httpClient = factory.CreateClient();
+
+      var requestQuery = new Dictionary<string, string?>
+      {
+         ["client_id"] = "AnyClientId",
+         ["state"] = "AnyState",
+         ["redirect_uri"] = "http://any-host/callback"
+      };
+
+      var httpResponse = await httpClient.GetAsync(QueryHelpers.AddQueryString("oauth2/authorize", requestQuery));
+
+      Assert.That(httpResponse.StatusCode, Is.EqualTo(HttpStatusCode.Redirect));
+      Assert.That(httpResponse.Headers.Location?.Query, Does.Contain("error=invalid_request"));
+      Assert.That(httpResponse.Headers.Location?.Query, Does.Contain("state=AnyState"));
+   }
+
+   [Test]
+   public async Task authorize_redirects_with_error_when_response_type_is_invalid()
+   {
+      var factory = new OAuth2FakeWebApplicationFactory();
+      factory.ClientOptions.AllowAutoRedirect = false;
+
+      var httpClient = factory.CreateClient();
+
+      var requestQuery = new Dictionary<string, string?>
+      {
+         ["response_type"] = "token",
+         ["client_id"] = "AnyClientId",
+         ["state"] = "AnyState",
+         ["redirect_uri"] = "http://any-host/callback"
+      };
+
+      var httpResponse = await httpClient.GetAsync(QueryHelpers.AddQueryString("oauth2/authorize", requestQuery));
+
+      Assert.That(httpResponse.StatusCode, Is.EqualTo(HttpStatusCode.Redirect));
+      Assert.That(httpResponse.Headers.Location?.Query, Does.Contain("error=unsupported_response_type"));
+      Assert.That(httpResponse.Headers.Location?.Query, Does.Contain("state=AnyState"));
+   }
+
+   [Test]
+   public async Task authorize_redirects_with_error_when_client_id_is_missing()
+   {
+      var factory = new OAuth2FakeWebApplicationFactory();
+      factory.ClientOptions.AllowAutoRedirect = false;
+
+      var httpClient = factory.CreateClient();
+
+      var requestQuery = new Dictionary<string, string?>
+      {
+         ["response_type"] = "code",
+         ["state"] = "AnyState",
+         ["redirect_uri"] = "http://any-host/callback"
+      };
+
+      var httpResponse = await httpClient.GetAsync(QueryHelpers.AddQueryString("oauth2/authorize", requestQuery));
+
+      Assert.That(httpResponse.StatusCode, Is.EqualTo(HttpStatusCode.Redirect));
+      Assert.That(httpResponse.Headers.Location?.Query, Does.Contain("error=invalid_request"));
       Assert.That(httpResponse.Headers.Location?.Query, Does.Contain("state=AnyState"));
    }
 

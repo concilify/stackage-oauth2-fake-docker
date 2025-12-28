@@ -59,6 +59,7 @@ public static class Support
       var requestQuery = new Dictionary<string, string?>
       {
          ["response_type"] = "code",
+         ["client_id"] = "AnyClientId",
          ["state"] = "AnyState",
          ["redirect_uri"] = "http://any-host/callback"
       };

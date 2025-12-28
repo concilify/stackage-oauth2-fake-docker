@@ -24,7 +24,7 @@ public class user_authorization_happy_path
       var openIdConfigurationResponse = await httpClient.GetWellKnownOpenIdConfigurationAsync();
 
       var authorizationUri =
-         $"{openIdConfigurationResponse.AuthorizationEndpoint}?response_type=code&state=AnyState&redirect_uri=http://any-host/callback";
+         $"{openIdConfigurationResponse.AuthorizationEndpoint}?response_type=code&client_id=AnyClientId&state=AnyState&redirect_uri=http://any-host/callback";
 
       _httpResponse = await httpClient.GetAsync(authorizationUri);
    }
