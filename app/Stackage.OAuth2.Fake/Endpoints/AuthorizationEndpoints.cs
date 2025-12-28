@@ -72,10 +72,17 @@ public static class AuthorizationEndpoints
       app.MapPost(
          settings.DeviceAuthorizationPath,
          (
+            [FromForm(Name = "client_id")] string? clientId,
             [FromForm(Name = "scope")] string? scope,
             AuthorizationCache<DeviceAuthorization> authorizationCache
          ) =>
          {
+            // RFC 8628 Section 3.1: client_id is REQUIRED
+            if (string.IsNullOrEmpty(clientId))
+            {
+               return Error.InvalidRequest("The client_id parameter is required");
+            }
+
             var authorization = authorizationCache.Add(() => DeviceAuthorization.Create((Scope?)scope ?? Scope.Empty));
 
             // This would normally need the user to visit the verification URL to allow the user to logon, but the code returned

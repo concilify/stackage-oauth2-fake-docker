@@ -140,13 +140,30 @@ public class AuthorizationEndpointsTests
 
       var httpResponse = await httpClient.PostAsync(
          authorizePath,
-         new FormUrlEncodedContent(new Dictionary<string, string?>()));
+         new FormUrlEncodedContent(new Dictionary<string, string?>
+         {
+            ["client_id"] = "AnyClientId"
+         }));
 
       Assert.That(httpResponse.StatusCode, Is.EqualTo(HttpStatusCode.OK));
 
       var deviceAuthorizationResponse = await httpResponse!.ParseAsync<DeviceAuthorizationResponse>();
 
       Assert.That(deviceAuthorizationResponse.VerificationUri, Is.EqualTo($"/{verifyPath}"));
+   }
+
+   [Test]
+   public async Task device_authorize_returns_error_when_client_id_is_missing()
+   {
+      var factory = new OAuth2FakeWebApplicationFactory();
+
+      var httpClient = factory.CreateClient();
+
+      var httpResponse = await httpClient.PostAsync(
+         "oauth2/device/authorize",
+         new FormUrlEncodedContent(new Dictionary<string, string?>()));
+
+      Assert.That(httpResponse.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
    }
 
    private record DeviceAuthorizationResponse(
