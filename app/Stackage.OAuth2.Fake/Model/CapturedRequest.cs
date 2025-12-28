@@ -41,4 +41,4 @@ public record CapturedRequest(
 
       return memoryStream.ToArray();
    }
-};
+}

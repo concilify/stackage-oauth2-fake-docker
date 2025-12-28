@@ -23,7 +23,7 @@ public class create_token_with_openid_scope
       var body = new
       {
          scopes = new[] { "any_scope", "openid" },
-         claims = new { }
+         claims = new { },
       };
 
       var content = JsonContent.Create(body);

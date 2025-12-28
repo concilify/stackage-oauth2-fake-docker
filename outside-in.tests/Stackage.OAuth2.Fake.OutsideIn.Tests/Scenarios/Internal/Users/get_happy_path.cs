@@ -30,8 +30,8 @@ public class get_happy_path
          claims = new
          {
             claim_a = "claim-a",
-            claim_b = "claim-b"
-         }
+            claim_b = "claim-b",
+         },
       };
 
       var content = JsonContent.Create(body);
@@ -71,7 +71,7 @@ public class get_happy_path
       var expectedClaims = new Dictionary<string, string>
       {
          ["claim_a"] = "claim-a",
-         ["claim_b"] = "claim-b"
+         ["claim_b"] = "claim-b",
       };
 
       usersResponse[0].Claims.ShouldBeEquivalentTo(expectedClaims);

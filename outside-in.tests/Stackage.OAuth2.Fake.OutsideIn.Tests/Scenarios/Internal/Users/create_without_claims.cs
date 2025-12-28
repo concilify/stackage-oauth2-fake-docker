@@ -21,7 +21,7 @@ public class create_without_claims
 
       var body = new
       {
-         subject = Guid.NewGuid().ToString()
+         subject = Guid.NewGuid().ToString(),
       };
 
       var content = JsonContent.Create(body);

@@ -21,7 +21,7 @@ public class create_without_subject
 
       var body = new
       {
-         claims = new { }
+         claims = new { },
       };
 
       var content = JsonContent.Create(body);

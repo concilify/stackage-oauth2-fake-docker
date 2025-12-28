@@ -33,7 +33,7 @@ public class get_token_with_offline_access_scope
       {
          ["client_id"] = "AnyClientId",
          ["grant_type"] = "authorization_code",
-         ["code"] = authorizationResponse.Code
+         ["code"] = authorizationResponse.Code,
       });
 
       _httpResponse = await httpClient.PostAsync(

@@ -30,7 +30,7 @@ public class UserStoreTests
       var users = new Dictionary<string, string?>
       {
          ["Users:0:Subject"] = "existing-subject",
-         ["Users:0:Claims:Nickname"] = "any-nickname"
+         ["Users:0:Claims:Nickname"] = "any-nickname",
       };
 
       var testSubject = CreateStore(
@@ -48,7 +48,7 @@ public class UserStoreTests
    {
       var users = new Dictionary<string, string?>
       {
-         ["Users:0:Subject"] = "existing-subject"
+         ["Users:0:Subject"] = "existing-subject",
       };
 
       var claimsParser = ClaimsParserStub.Returns(
