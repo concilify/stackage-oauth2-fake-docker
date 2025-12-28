@@ -49,7 +49,7 @@ public class AuthorizationEndpointsTests
       {
          ["response_type"] = "code",
          ["client_id"] = "AnyClientId",
-         ["state"] = "AnyState"
+         ["state"] = "AnyState",
       };
 
       var httpResponse = await httpClient.GetAsync(QueryHelpers.AddQueryString("oauth2/authorize", requestQuery));
@@ -69,7 +69,7 @@ public class AuthorizationEndpointsTests
       {
          ["client_id"] = "AnyClientId",
          ["state"] = "AnyState",
-         ["redirect_uri"] = "http://any-host/callback"
+         ["redirect_uri"] = "http://any-host/callback",
       };
 
       var httpResponse = await httpClient.GetAsync(QueryHelpers.AddQueryString("oauth2/authorize", requestQuery));
@@ -92,7 +92,7 @@ public class AuthorizationEndpointsTests
          ["response_type"] = "token",
          ["client_id"] = "AnyClientId",
          ["state"] = "AnyState",
-         ["redirect_uri"] = "http://any-host/callback"
+         ["redirect_uri"] = "http://any-host/callback",
       };
 
       var httpResponse = await httpClient.GetAsync(QueryHelpers.AddQueryString("oauth2/authorize", requestQuery));
@@ -114,7 +114,7 @@ public class AuthorizationEndpointsTests
       {
          ["response_type"] = "code",
          ["state"] = "AnyState",
-         ["redirect_uri"] = "http://any-host/callback"
+         ["redirect_uri"] = "http://any-host/callback",
       };
 
       var httpResponse = await httpClient.GetAsync(QueryHelpers.AddQueryString("oauth2/authorize", requestQuery));

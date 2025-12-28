@@ -23,7 +23,7 @@ public class device_authorization_missing_client_id
 
       var content = new FormUrlEncodedContent(new Dictionary<string, string>
       {
-         ["scope"] = "openid"
+         ["scope"] = "openid",
       });
 
       _httpResponse = await httpClient.PostAsync(
