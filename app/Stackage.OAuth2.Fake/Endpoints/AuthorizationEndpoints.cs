@@ -114,7 +114,7 @@ public static class AuthorizationEndpoints
 
    private static string BuildErrorRedirectUri(string redirectUri, string error, string errorDescription, string? state)
    {
-      var uri = $"{redirectUri}?error={error}&error_description={Uri.EscapeDataString(errorDescription)}";
+      var uri = $"{redirectUri}?error={Uri.EscapeDataString(error)}&error_description={Uri.EscapeDataString(errorDescription)}";
       if (!string.IsNullOrEmpty(state))
       {
          uri += $"&state={Uri.EscapeDataString(state)}";
@@ -124,7 +124,7 @@ public static class AuthorizationEndpoints
 
    private static string BuildSuccessRedirectUri(string redirectUri, string code, string? state)
    {
-      var uri = $"{redirectUri}?code={code}";
+      var uri = $"{redirectUri}?code={Uri.EscapeDataString(code)}";
       if (!string.IsNullOrEmpty(state))
       {
          uri += $"&state={Uri.EscapeDataString(state)}";
