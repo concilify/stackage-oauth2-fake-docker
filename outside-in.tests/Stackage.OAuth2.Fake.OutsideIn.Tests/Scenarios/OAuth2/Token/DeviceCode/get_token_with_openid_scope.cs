@@ -86,6 +86,16 @@ public class get_token_with_openid_scope
    }
 
    [Test]
+   public async Task response_content_should_contain_id_token_signed_by_public_key()
+   {
+      var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
+
+      var jsonWebKeySet = await Support.GetJsonWebKeySetAsync();
+
+      tokenResponse.AssertIdTokenIsSigned(jsonWebKeySet.Keys[0]);
+   }
+
+   [Test]
    public async Task response_content_should_contain_id_token_with_sub()
    {
       var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
