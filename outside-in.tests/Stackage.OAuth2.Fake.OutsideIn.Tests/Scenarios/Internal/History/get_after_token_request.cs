@@ -6,8 +6,8 @@ using System.Net;
 using System.Net.Http;
 using System.Text.Json.Nodes;
 using System.Threading.Tasks;
-using Shouldly;
 using NUnit.Framework;
+using Shouldly;
 
 // ReSharper disable once InconsistentNaming
 public class get_after_token_request

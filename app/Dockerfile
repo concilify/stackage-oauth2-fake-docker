@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:8.0-alpine AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0-alpine AS build
 WORKDIR /build
 
 COPY ./Stackage.OAuth2.Fake/Stackage.OAuth2.Fake.csproj ./Stackage.OAuth2.Fake/Stackage.OAuth2.Fake.csproj
@@ -13,12 +13,12 @@ RUN dotnet publish --configuration Release --no-restore ./Stackage.OAuth2.Fake/S
 
 RUN dotnet test --configuration Release --no-restore ./Stackage.OAuth2.Fake.Tests/Stackage.OAuth2.Fake.Tests.csproj
 
-FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine
+FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine
 WORKDIR /app
 
 COPY LICENSE /usr/share/doc/stackage-oauth2-fake/LICENSE
 
-COPY --from=build /build/Stackage.OAuth2.Fake/bin/Release/net8.0/publish .
+COPY --from=build /build/Stackage.OAuth2.Fake/bin/Release/net10.0/publish .
 
 # Using the exec form of CMD allows SIGINT to be passed from container to app
 CMD ["dotnet", "Stackage.OAuth2.Fake.dll"]

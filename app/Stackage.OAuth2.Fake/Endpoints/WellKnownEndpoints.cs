@@ -15,8 +15,7 @@ public static class WellKnownEndpoints
          "/.well-known/openid-configuration",
          (
             Settings settings,
-            IEnumerable<IGrantTypeHandler> grantTypeHandlers
-         ) =>
+            IEnumerable<IGrantTypeHandler> grantTypeHandlers) =>
          {
             return TypedResults.Json(new
             {
@@ -42,8 +41,8 @@ public static class WellKnownEndpoints
                   use = jwk.Use,
                   kty = jwk.Kty,
                   n = jwk.N,
-                  e = jwk.E
-               })
+                  e = jwk.E,
+               }),
             });
          });
    }

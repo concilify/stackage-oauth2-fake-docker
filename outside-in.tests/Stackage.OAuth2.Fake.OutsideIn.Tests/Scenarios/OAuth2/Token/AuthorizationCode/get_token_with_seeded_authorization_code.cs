@@ -36,7 +36,7 @@ public class get_token_with_seeded_authorization_code
       {
          ["client_id"] = "AnyClientId",
          ["grant_type"] = "authorization_code",
-         ["code"] = _code
+         ["code"] = _code,
       });
 
       _httpResponse = await httpClient.PostAsync(

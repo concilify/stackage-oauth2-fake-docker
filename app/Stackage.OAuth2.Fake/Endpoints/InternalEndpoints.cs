@@ -35,8 +35,7 @@ public static class InternalEndpoints
             [FromBody] CreateTokenRequest? request,
             [FromServices] IClaimsParser claimsParser,
             Settings settings,
-            ITokenGenerator tokenGenerator
-         ) =>
+            ITokenGenerator tokenGenerator) =>
          {
             if (request == null)
             {
@@ -72,8 +71,7 @@ public static class InternalEndpoints
          (
             [FromBody] PostAuthorizationRequest? request,
             Settings settings,
-            AuthorizationCache<UserAuthorization> authorizationCache
-         ) =>
+            AuthorizationCache<UserAuthorization> authorizationCache) =>
          {
             if (request == null)
             {
@@ -100,8 +98,7 @@ public static class InternalEndpoints
          "/.internal/authorization",
          (
             [FromQuery(Name = "code")] string? code,
-            AuthorizationCache<UserAuthorization> authorizationCache
-         ) =>
+            AuthorizationCache<UserAuthorization> authorizationCache) =>
          {
             if (code == null)
             {
@@ -117,7 +114,7 @@ public static class InternalEndpoints
             {
                code = authorization.Code,
                scopes = authorization.Scope.ToArray(),
-               subject = authorization.Subject
+               subject = authorization.Subject,
             };
 
             return TypedResults.Json(response, statusCode: 200);
@@ -131,8 +128,7 @@ public static class InternalEndpoints
          (
             [FromBody] PostRefreshTokenRequest? request,
             Settings settings,
-            AuthorizationCache<RefreshAuthorization> authorizationCache
-         ) =>
+            AuthorizationCache<RefreshAuthorization> authorizationCache) =>
          {
             if (request == null)
             {
@@ -158,8 +154,7 @@ public static class InternalEndpoints
          "/.internal/refresh-token",
          (
             [FromQuery(Name = "refresh_token")] string? refreshToken,
-            AuthorizationCache<RefreshAuthorization> authorizationCache
-         ) =>
+            AuthorizationCache<RefreshAuthorization> authorizationCache) =>
          {
             if (refreshToken == null)
             {
@@ -175,7 +170,7 @@ public static class InternalEndpoints
             {
                refresh_token = authorization.RefreshToken,
                scopes = authorization.Scope.ToArray(),
-               subject = authorization.Subject
+               subject = authorization.Subject,
             };
 
             return TypedResults.Json(response, statusCode: 200);
@@ -189,8 +184,7 @@ public static class InternalEndpoints
          (
             [FromBody] PostUserRequest? request,
             [FromServices] IClaimsParser claimsParser,
-            IUserStore userStore
-         ) =>
+            IUserStore userStore) =>
          {
             if (request == null)
             {
@@ -223,8 +217,7 @@ public static class InternalEndpoints
          "/.internal/users",
          (
             [FromQuery(Name = "subject")] string? subject,
-            IUserStore userStore
-         ) =>
+            IUserStore userStore) =>
          {
             IReadOnlyList<User> users;
 
@@ -246,7 +239,7 @@ public static class InternalEndpoints
                .Select(u => new
                {
                   subject = u.Subject,
-                  claims = u.Claims.ToDictionary(c => c.Type, c => c.Value)
+                  claims = u.Claims.ToDictionary(c => c.Type, c => c.Value),
                })
                .ToArray();
 

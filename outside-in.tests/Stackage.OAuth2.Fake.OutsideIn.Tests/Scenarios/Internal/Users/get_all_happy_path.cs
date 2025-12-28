@@ -40,7 +40,7 @@ public class get_all_happy_path
          Claims: new Dictionary<string, string>
          {
             ["nickname"] = "User A Nickname",
-            ["picture"] = "user-a-picture"
+            ["picture"] = "user-a-picture",
          });
 
       var expectedUserB = new UsersResponse.User(
@@ -48,7 +48,7 @@ public class get_all_happy_path
          Claims: new Dictionary<string, string>
          {
             ["nickname"] = "User B Nickname",
-            ["picture"] = "user-b-picture"
+            ["picture"] = "user-b-picture",
          });
 
       // Can't use ShouldContain as it doesn't check for equivalence

@@ -23,7 +23,7 @@ public class create_token_with_offline_access_scope
       var body = new
       {
          scopes = new[] { "any_scope", "offline_access" },
-         claims = new { }
+         claims = new { },
       };
 
       var content = JsonContent.Create(body);

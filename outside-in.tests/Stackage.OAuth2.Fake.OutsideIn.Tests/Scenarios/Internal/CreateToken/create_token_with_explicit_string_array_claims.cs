@@ -31,7 +31,7 @@ public class create_token_with_explicit_string_array_claims
             ["http://oauth2.fake/claim-a"] = new JsonArray { "claim-a-one", "claim-a-two" },
             ["http://oauth2.fake/claim-b"] = new JsonArray { "claim-b-single" },
             ["http://oauth2.fake/claim-c"] = "claim-c-single",
-         }
+         },
       };
 
       var content = JsonContent.Create(body);
@@ -89,7 +89,7 @@ public class create_token_with_explicit_string_array_claims
       {
          ["http://oauth2.fake/claim-a"] = new(["claim-a-one", "claim-a-two"]),
          ["http://oauth2.fake/claim-b"] = "claim-b-single",
-         ["http://oauth2.fake/claim-c"] = "claim-c-single"
+         ["http://oauth2.fake/claim-c"] = "claim-c-single",
       };
 
       claims.ShouldBeEquivalentTo(expectedClaims);

@@ -21,7 +21,7 @@ public class create_with_duplicate_code
 
       var body = new
       {
-         code = Guid.NewGuid().ToString()
+         code = Guid.NewGuid().ToString(),
       };
 
       var content = JsonContent.Create(body);

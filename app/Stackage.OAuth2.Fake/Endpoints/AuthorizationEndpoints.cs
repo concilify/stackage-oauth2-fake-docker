@@ -23,8 +23,7 @@ public static class AuthorizationEndpoints
             [FromQuery(Name = "state")] string? state,
             [FromQuery(Name = "redirect_uri")] string? redirectUri,
             [FromQuery(Name = "scope")] string? scope,
-            AuthorizationCache<UserAuthorization> authorizationCache
-         ) =>
+            AuthorizationCache<UserAuthorization> authorizationCache) =>
          {
             // RFC 6749 Section 4.1.2.1: If the request fails due to a missing, invalid, or mismatching
             // redirection URI, the authorization server SHOULD inform the resource owner of the error
@@ -34,7 +33,7 @@ public static class AuthorizationEndpoints
                return Results.BadRequest(new
                {
                   error = "invalid_request",
-                  error_description = "The redirect_uri parameter is required"
+                  error_description = "The redirect_uri parameter is required",
                });
             }
 
@@ -42,9 +41,9 @@ public static class AuthorizationEndpoints
             if (string.IsNullOrEmpty(responseType))
             {
                return Results.Redirect(BuildErrorRedirectUri(
-                  redirectUri, 
-                  "invalid_request", 
-                  "The response_type parameter is required", 
+                  redirectUri,
+                  "invalid_request",
+                  "The response_type parameter is required",
                   state));
             }
 
@@ -52,9 +51,9 @@ public static class AuthorizationEndpoints
             if (responseType != "code")
             {
                return Results.Redirect(BuildErrorRedirectUri(
-                  redirectUri, 
-                  "unsupported_response_type", 
-                  "The response_type must be code", 
+                  redirectUri,
+                  "unsupported_response_type",
+                  "The response_type must be code",
                   state));
             }
 
@@ -62,9 +61,9 @@ public static class AuthorizationEndpoints
             if (string.IsNullOrEmpty(clientId))
             {
                return Results.Redirect(BuildErrorRedirectUri(
-                  redirectUri, 
-                  "invalid_request", 
-                  "The client_id parameter is required", 
+                  redirectUri,
+                  "invalid_request",
+                  "The client_id parameter is required",
                   state));
             }
 
@@ -82,8 +81,7 @@ public static class AuthorizationEndpoints
          (
             [FromForm(Name = "client_id")] string? clientId,
             [FromForm(Name = "scope")] string? scope,
-            AuthorizationCache<DeviceAuthorization> authorizationCache
-         ) =>
+            AuthorizationCache<DeviceAuthorization> authorizationCache) =>
          {
             // RFC 8628 Section 3.1: client_id is REQUIRED
             if (string.IsNullOrEmpty(clientId))
@@ -104,7 +102,7 @@ public static class AuthorizationEndpoints
                verification_uri = $"{settings.IssuerUrl}{settings.DeviceVerificationPath}",
                verification_uri_complete = $"{settings.IssuerUrl}{settings.DeviceVerificationPath}?user_code={authorization.UserCode}",
                expires_in = 600,
-               interval = 5
+               interval = 5,
             };
 
             return TypedResults.Json(response);

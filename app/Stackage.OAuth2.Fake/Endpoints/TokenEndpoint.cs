@@ -17,8 +17,7 @@ public static class TokenEndpoint
          settings.TokenPath,
          IResult (
             HttpContext httpContext,
-            IEnumerable<IGrantTypeHandler> grantTypeHandlers
-         ) =>
+            IEnumerable<IGrantTypeHandler> grantTypeHandlers) =>
          {
             if (!httpContext.Request.Form.TryGetValue("grant_type", out var grantType))
             {
