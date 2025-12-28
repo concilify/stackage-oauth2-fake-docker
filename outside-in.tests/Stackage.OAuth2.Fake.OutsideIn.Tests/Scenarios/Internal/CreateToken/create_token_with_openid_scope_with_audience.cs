@@ -1,18 +1,17 @@
-namespace Stackage.OAuth2.Fake.OutsideIn.Tests.Scenarios.OAuth2.Token.RefreshToken;
+namespace Stackage.OAuth2.Fake.OutsideIn.Tests.Scenarios.Internal.CreateToken;
 
 using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Json;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Stackage.OAuth2.Fake.OutsideIn.Tests.Model;
 
 // ReSharper disable once InconsistentNaming
-public class get_token_with_seeded_refresh_token
+public class create_token_with_openid_scope_with_audience
 {
-   private string? _refreshToken;
    private HttpResponseMessage? _httpResponse;
 
    [OneTimeSetUp]
@@ -21,24 +20,17 @@ public class get_token_with_seeded_refresh_token
       using var httpClient = new HttpClient();
       httpClient.BaseAddress = new Uri(Configuration.AppUrl);
 
-      var openIdConfigurationResponse = await httpClient.GetWellKnownOpenIdConfigurationAsync();
-
-      _refreshToken = Guid.NewGuid().ToString();
-
-      await httpClient.SeedRefreshTokenAsync(
-         refreshToken: _refreshToken,
-         scopes: ["offline_access"]);
-
-      var content = new FormUrlEncodedContent(new Dictionary<string, string>
+      var body = new
       {
-         ["client_id"] = "AnyClientId",
-         ["grant_type"] = "refresh_token",
-         ["refresh_token"] = _refreshToken
-      });
+         subject = "arbitrary-subject",
+         audiences = new[] { "arbitrary-audience" },
+         scopes = new[] { "any_scope", "openid" },
+         claims = new { }
+      };
 
-      _httpResponse = await httpClient.PostAsync(
-         openIdConfigurationResponse.TokenEndpoint,
-         content);
+      var content = JsonContent.Create(body);
+
+      _httpResponse = await httpClient.PostAsync(".internal/create-token", content);
    }
 
    [Test]
@@ -74,7 +66,17 @@ public class get_token_with_seeded_refresh_token
 
       var jwtSecurityToken = tokenResponse.ParseAccessTokenAsJwtSecurityToken();
 
-      Assert.That(jwtSecurityToken.Subject, Is.EqualTo("default-subject"));
+      Assert.That(jwtSecurityToken.Subject, Is.EqualTo("arbitrary-subject"));
+   }
+
+   [Test]
+   public async Task response_content_should_contain_access_token_with_audiences()
+   {
+      var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
+
+      var jwtSecurityToken = tokenResponse.ParseAccessTokenAsJwtSecurityToken();
+
+      Assert.That(jwtSecurityToken.Audiences, Is.EqualTo(["arbitrary-audience"]));
    }
 
    [Test]
@@ -85,25 +87,46 @@ public class get_token_with_seeded_refresh_token
       var scope = tokenResponse.ParseAccessTokenClaim("scope");
 
       Assert.That(scope, Is.Not.Null);
-      Assert.That(scope!.Value, Is.EqualTo("offline_access"));
+      Assert.That(scope!.Value, Is.EqualTo("any_scope openid"));
    }
 
-   [Test]
-   public async Task response_content_should_contain_refresh_token()
-   {
-      var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
-
-      Assert.That(Guid.TryParse(tokenResponse.RefreshToken, out _), Is.True);
-   }
 
    [Test]
-   public async Task response_content_should_contain_refresh_token_signed_by_public_key()
+   public async Task response_content_should_contain_id_token_signed_by_public_key()
    {
       var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
 
       var jsonWebKeySet = await Support.GetJsonWebKeySetAsync();
 
-      tokenResponse.AssertRefreshTokenIsSigned(jsonWebKeySet.Keys[0]);
+      tokenResponse.AssertIdTokenIsSigned(jsonWebKeySet.Keys[0]);
+   }
+
+   [Test]
+   public async Task response_content_should_contain_id_token_with_sub()
+   {
+      var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
+
+      var jwtSecurityToken = tokenResponse.ParseIdTokenAsJwtSecurityToken();
+
+      Assert.That(jwtSecurityToken.Subject, Is.EqualTo("arbitrary-subject"));
+   }
+
+   [Test]
+   public async Task response_content_should_contain_id_token_with_audiences()
+   {
+      var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
+
+      var jwtSecurityToken = tokenResponse.ParseIdTokenAsJwtSecurityToken();
+
+      Assert.That(jwtSecurityToken.Audiences, Is.EqualTo(["arbitrary-audience"]));
+   }
+
+   [Test]
+   public async Task response_content_should_not_contain_refresh_token()
+   {
+      var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
+
+      Assert.That(tokenResponse.RefreshToken, Is.Null);
    }
 
    [Test]
@@ -111,7 +134,7 @@ public class get_token_with_seeded_refresh_token
    {
       var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
 
-      Assert.That(tokenResponse.Scope, Is.EqualTo("offline_access"));
+      Assert.That(tokenResponse.Scope, Is.EqualTo("any_scope openid"));
    }
 
    [Test]

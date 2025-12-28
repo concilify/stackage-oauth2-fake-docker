@@ -10,7 +10,7 @@ using NUnit.Framework;
 using Stackage.OAuth2.Fake.OutsideIn.Tests.Model;
 
 // ReSharper disable once InconsistentNaming
-public class create_token_with_openid_scope
+public class create_token_with_audiences
 {
    private HttpResponseMessage? _httpResponse;
 
@@ -23,7 +23,7 @@ public class create_token_with_openid_scope
       var body = new
       {
          subject = "arbitrary-subject",
-         scopes = new[] { "any_scope", "openid" },
+         audiences = new[] { "arbitrary-audience" },
          claims = new { }
       };
 
@@ -45,7 +45,7 @@ public class create_token_with_openid_scope
 
       var jsonWebKeySet = await Support.GetJsonWebKeySetAsync();
 
-      tokenResponse.AssertAccessTokenIsSigned(jsonWebKeySet.Keys[0]);
+      tokenResponse.AssertAccessTokenIsSigned(jsonWebKeySet.Keys[0], ["arbitrary-audience"]);
    }
 
    [Test]
@@ -69,51 +69,13 @@ public class create_token_with_openid_scope
    }
 
    [Test]
-   public async Task response_content_should_contain_access_token_with_scope()
+   public async Task response_content_should_contain_access_token_with_audiences()
    {
       var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
 
-      var scope = tokenResponse.ParseAccessTokenClaim("scope");
+      var jwtSecurityToken = tokenResponse.ParseAccessTokenAsJwtSecurityToken();
 
-      Assert.That(scope, Is.Not.Null);
-      Assert.That(scope!.Value, Is.EqualTo("any_scope openid"));
-   }
-
-
-   [Test]
-   public async Task response_content_should_contain_id_token_signed_by_public_key()
-   {
-      var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
-
-      var jsonWebKeySet = await Support.GetJsonWebKeySetAsync();
-
-      tokenResponse.AssertIdTokenIsSigned(jsonWebKeySet.Keys[0]);
-   }
-
-   [Test]
-   public async Task response_content_should_contain_id_token_with_sub()
-   {
-      var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
-
-      var jwtSecurityToken = tokenResponse.ParseIdTokenAsJwtSecurityToken();
-
-      Assert.That(jwtSecurityToken.Subject, Is.EqualTo("arbitrary-subject"));
-   }
-
-   [Test]
-   public async Task response_content_should_not_contain_refresh_token()
-   {
-      var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
-
-      Assert.That(tokenResponse.RefreshToken, Is.Null);
-   }
-
-   [Test]
-   public async Task response_content_should_contain_scope()
-   {
-      var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
-
-      Assert.That(tokenResponse.Scope, Is.EqualTo("any_scope openid"));
+      Assert.That(jwtSecurityToken.Audiences, Is.EqualTo(["arbitrary-audience"]));
    }
 
    [Test]
@@ -125,10 +87,18 @@ public class create_token_with_openid_scope
    }
 
    [Test]
-   public async Task response_content_should_contain_expires_in()
+   public async Task response_content_should_not_contain_id_token()
    {
       var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
 
-      Assert.That(tokenResponse.ExpiresIn, Is.EqualTo(1200));
+      Assert.That(tokenResponse.IdToken, Is.Null);
+   }
+
+   [Test]
+   public async Task response_content_should_not_contain_refresh_token()
+   {
+      var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
+
+      Assert.That(tokenResponse.RefreshToken, Is.Null);
    }
 }
