@@ -49,9 +49,14 @@ public class AuthorizationEndpointsTests
 
       var httpClient = factory.CreateClient();
 
+      var body = new Dictionary<string, string?>
+      {
+         ["valid-claim"] = "valid-claim-value",
+      };
+
       var httpResponse = await httpClient.PostAsync(
          authorizePath,
-         new FormUrlEncodedContent(new Dictionary<string, string?>()));
+         new FormUrlEncodedContent(body));
 
       Assert.That(httpResponse.StatusCode, Is.EqualTo(HttpStatusCode.OK));
 
