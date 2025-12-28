@@ -227,17 +227,6 @@ public static class Support
 
       AssertTokenIsSigned(tokenResponse.IdToken!, jsonWebKey, audiences);
    }
-
-   public static void AssertRefreshTokenIsSigned(
-      this TokenResponse tokenResponse,
-      JsonWebKey jsonWebKey,
-      string[]? audiences = null)
-   {
-      Assert.That(tokenResponse.RefreshToken, Is.Not.Null);
-
-      AssertTokenIsSigned(tokenResponse.RefreshToken!, jsonWebKey, audiences);
-   }
-
    public static JwtSecurityToken ParseAccessTokenAsJwtSecurityToken(this TokenResponse tokenResponse)
    {
       var securityToken = new JwtSecurityTokenHandler().ReadToken(tokenResponse.AccessToken);
@@ -330,7 +319,6 @@ public static class Support
 
       Assert.That(securityToken, Is.InstanceOf<JwtSecurityToken>());
    }
-
 
    private static void AddScopes(
       this JsonObject body,
