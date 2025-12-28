@@ -10,9 +10,8 @@ using NUnit.Framework;
 using Stackage.OAuth2.Fake.OutsideIn.Tests.Model;
 
 // ReSharper disable once InconsistentNaming
-public class get_token_with_seeded_authorization_code
+public class get_token_with_openid_scope_and_audience
 {
-   private string? _code;
    private HttpResponseMessage? _httpResponse;
 
    [OneTimeSetUp]
@@ -26,17 +25,16 @@ public class get_token_with_seeded_authorization_code
 
       var openIdConfigurationResponse = await httpClient.GetWellKnownOpenIdConfigurationAsync();
 
-      _code = Guid.NewGuid().ToString();
-
-      await httpClient.SeedAuthorizationAsync(
-         code: _code,
-         scopes: ["offline_access"]);
+      var authorizationResponse = await httpClient.StartAuthorizationAsync(
+         openIdConfigurationResponse,
+         scopes: ["any_scope", "openid"],
+         audience: "arbitrary-audience");
 
       var content = new FormUrlEncodedContent(new Dictionary<string, string>
       {
-         ["client_id"] = "AnyClientId",
+         ["client_id"] = "ArbitraryClientId",
          ["grant_type"] = "authorization_code",
-         ["code"] = _code,
+         ["code"] = authorizationResponse.Code,
       });
 
       _httpResponse = await httpClient.PostAsync(
@@ -57,7 +55,7 @@ public class get_token_with_seeded_authorization_code
 
       var jsonWebKeySet = await Support.GetJsonWebKeySetAsync();
 
-      tokenResponse.AssertAccessTokenIsSigned(jsonWebKeySet.Keys[0]);
+      tokenResponse.AssertAccessTokenIsSigned(jsonWebKeySet.Keys[0], ["arbitrary-audience"]);
    }
 
    [Test]
@@ -81,6 +79,16 @@ public class get_token_with_seeded_authorization_code
    }
 
    [Test]
+   public async Task response_content_should_contain_access_token_with_audience()
+   {
+      var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
+
+      var jwtSecurityToken = tokenResponse.ParseAccessTokenAsJwtSecurityToken();
+
+      Assert.That(jwtSecurityToken.Audiences, Is.EqualTo(["arbitrary-audience"]));
+   }
+
+   [Test]
    public async Task response_content_should_contain_access_token_with_scope()
    {
       var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
@@ -88,7 +96,53 @@ public class get_token_with_seeded_authorization_code
       var scope = tokenResponse.ParseAccessTokenClaim("scope");
 
       Assert.That(scope, Is.Not.Null);
-      Assert.That(scope!.Value, Is.EqualTo("offline_access"));
+      Assert.That(scope!.Value, Is.EqualTo("any_scope openid"));
+   }
+
+   [Test]
+   public async Task response_content_should_contain_id_token_signed_by_public_key()
+   {
+      var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
+
+      var jsonWebKeySet = await Support.GetJsonWebKeySetAsync();
+
+      tokenResponse.AssertIdTokenIsSigned(jsonWebKeySet.Keys[0], ["ArbitraryClientId"]);
+   }
+
+   [Test]
+   public async Task response_content_should_contain_id_token_with_sub()
+   {
+      var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
+
+      var jwtSecurityToken = tokenResponse.ParseIdTokenAsJwtSecurityToken();
+
+      Assert.That(jwtSecurityToken.Subject, Is.EqualTo("default-subject"));
+   }
+
+   [Test]
+   public async Task response_content_should_contain_id_token_with_audience()
+   {
+      var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
+
+      var jwtSecurityToken = tokenResponse.ParseIdTokenAsJwtSecurityToken();
+
+      Assert.That(jwtSecurityToken.Audiences, Is.EqualTo(["ArbitraryClientId"]));
+   }
+
+   [Test]
+   public async Task response_content_should_not_contain_refresh_token()
+   {
+      var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
+
+      Assert.That(tokenResponse.RefreshToken, Is.Null);
+   }
+
+   [Test]
+   public async Task response_content_should_contain_scope()
+   {
+      var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
+
+      Assert.That(tokenResponse.Scope, Is.EqualTo("any_scope openid"));
    }
 
    [Test]

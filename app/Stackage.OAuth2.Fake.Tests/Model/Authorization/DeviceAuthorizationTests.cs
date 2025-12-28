@@ -42,8 +42,10 @@ public class DeviceAuthorizationTests
       Assert.That(testSubject.Subject, Is.EqualTo("AnySubject"));
    }
 
-   private static DeviceAuthorization CreateAuthorization(string? scope = null)
+   private static DeviceAuthorization CreateAuthorization(
+      string? scope = null,
+      string? audience = null)
    {
-      return DeviceAuthorization.Create(scope: (Scope?)scope ?? Scope.Empty);
+      return DeviceAuthorization.Create(scope: (Scope?)scope ?? Scope.Empty, audience: audience);
    }
 }

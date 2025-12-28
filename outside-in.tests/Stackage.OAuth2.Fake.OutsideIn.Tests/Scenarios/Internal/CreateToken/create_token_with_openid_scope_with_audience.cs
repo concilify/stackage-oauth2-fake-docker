@@ -46,7 +46,7 @@ public class create_token_with_openid_scope_with_audience
 
       var jsonWebKeySet = await Support.GetJsonWebKeySetAsync();
 
-      tokenResponse.AssertAccessTokenIsSigned(jsonWebKeySet.Keys[0]);
+      tokenResponse.AssertAccessTokenIsSigned(jsonWebKeySet.Keys[0], ["arbitrary-audience"]);
    }
 
    [Test]
@@ -98,7 +98,7 @@ public class create_token_with_openid_scope_with_audience
 
       var jsonWebKeySet = await Support.GetJsonWebKeySetAsync();
 
-      tokenResponse.AssertIdTokenIsSigned(jsonWebKeySet.Keys[0]);
+      tokenResponse.AssertIdTokenIsSigned(jsonWebKeySet.Keys[0], ["arbitrary-audience"]);
    }
 
    [Test]

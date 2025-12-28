@@ -2,11 +2,14 @@ namespace Stackage.OAuth2.Fake.Model.Authorization;
 
 using System;
 
-public record DeviceAuthorization(string DeviceCode, string UserCode, Scope Scope) : IAuthorizationWithCode
+public record DeviceAuthorization(
+   string DeviceCode,
+   string UserCode,
+   Scope Scope,
+   string ClientId,
+   string[]? Audiences) : IAuthorizationWithCode, IAuthorizationWithIdToken, IAuthorizationWithRefreshToken, IAuthorizationWithAudiences
 {
    public string Code => DeviceCode;
-
-   // TODO: Audience?
 
    public bool IsAuthenticated => Subject != null;
 
@@ -19,11 +22,12 @@ public record DeviceAuthorization(string DeviceCode, string UserCode, Scope Scop
       Subject = subject;
    }
 
-   public static DeviceAuthorization Create(Scope scope)
+   public static DeviceAuthorization Create(Scope scope, string? audience)
    {
       return new DeviceAuthorization(
          DeviceCode: Guid.NewGuid().ToString(),
          UserCode: Guid.NewGuid().ToString()[..4].ToUpper(),
-         Scope: scope);
+         Scope: scope,
+         Audiences: audience != null ? [audience] : null);
    }
 }

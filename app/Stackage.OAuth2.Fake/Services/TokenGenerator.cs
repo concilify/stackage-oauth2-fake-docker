@@ -40,6 +40,14 @@ public class TokenGenerator : ITokenGenerator
          new(JwtRegisteredClaimNames.Sub, authorization.Subject)
       };
 
+      if (authorization is IAuthorizationWithAudiences { Audiences: not null } authorizationWithAudiences)
+      {
+         foreach (var audience in authorizationWithAudiences.Audiences)
+         {
+            accessTokenClaims.Add(new Claim(JwtRegisteredClaimNames.Aud, audience));
+         }
+      }
+
       if (authorization is IAuthorizationWithClaims authorizationWithClaims)
       {
          accessTokenClaims.AddRange(authorizationWithClaims.Claims);
@@ -49,8 +57,6 @@ public class TokenGenerator : ITokenGenerator
       {
          accessTokenClaims.Add(new Claim("scope", authorization.Scope));
       }
-
-      // TODO: audience is resource from orig request
 
       var expirySeconds = authorization.TokenExpirySeconds ?? _settings.DefaultTokenExpirySeconds;
 
@@ -62,11 +68,12 @@ public class TokenGenerator : ITokenGenerator
 
       if (!authorization.Scope.IsEmpty)
       {
-         if (authorization.Scope.Contains("openid"))
+         if (authorization.SupportIdToken && authorization.Scope.Contains("openid"))
          {
             var idTokenClaims = new List<Claim>
             {
-               new(JwtRegisteredClaimNames.Sub, authorization.Subject)
+               new(JwtRegisteredClaimNames.Sub, authorization.Subject),
+               new(JwtRegisteredClaimNames.Aud, "foo")
                // TODO: aud is client_id
             };
 
@@ -87,7 +94,7 @@ public class TokenGenerator : ITokenGenerator
             response = response with { IdToken = idToken };
          }
 
-         if (authorization.Scope.Contains("offline_access"))
+         if (authorization.SupportRefreshToken && authorization.Scope.Contains("offline_access"))
          {
             var refreshToken = Guid.NewGuid().ToString();
 
@@ -102,7 +109,7 @@ public class TokenGenerator : ITokenGenerator
       return response;
    }
 
-   private string Generate(IList<Claim> claims, int expirySeconds)
+   private string Generate(IEnumerable<Claim> claims, int expirySeconds)
    {
       var jwk = _jsonWebKeyCache.JsonWebKeys.First();
 

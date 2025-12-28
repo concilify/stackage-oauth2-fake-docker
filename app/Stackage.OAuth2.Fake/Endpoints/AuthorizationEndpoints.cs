@@ -20,10 +20,12 @@ public static class AuthorizationEndpoints
             AuthorizationCache<UserAuthorization> authorizationCache,
             [FromQuery(Name = "state")] string state,
             [FromQuery(Name = "redirect_uri")] string redirectUri,
-            [FromQuery(Name = "scope")] string? scope = null
+            [FromQuery(Name = "scope")] string? scope = null,
+            [FromQuery(Name = "audience")] string? audience = null
          ) =>
          {
-            var authorization = authorizationCache.Add(() => UserAuthorization.Create((Scope?)scope ?? Scope.Empty));
+            var authorization = authorizationCache.Add(
+               () => UserAuthorization.Create((Scope?)scope ?? Scope.Empty, audience));
 
             // This would normally redirect to an intermediate URL to allow the user to logon, but the code returned here
             // can be used immediately with the /oauth2/token endpoint using grant type authorization_code
@@ -36,10 +38,12 @@ public static class AuthorizationEndpoints
          settings.DeviceAuthorizationPath,
          (
             AuthorizationCache<DeviceAuthorization> authorizationCache,
-            [FromForm(Name = "scope")] string? scope = null
+            [FromForm(Name = "scope")] string? scope = null,
+            [FromForm(Name = "audience")] string? audience = null
          ) =>
          {
-            var authorization = authorizationCache.Add(() => DeviceAuthorization.Create((Scope?)scope ?? Scope.Empty));
+            var authorization = authorizationCache.Add(
+               () => DeviceAuthorization.Create((Scope?)scope ?? Scope.Empty, audience));
 
             // This would normally need the user to visit the verification URL to allow the user to logon, but the code returned
             // here can be used immediately with the /oauth2/token endpoint using grant type urn:ietf:params:oauth:grant-type:device_code

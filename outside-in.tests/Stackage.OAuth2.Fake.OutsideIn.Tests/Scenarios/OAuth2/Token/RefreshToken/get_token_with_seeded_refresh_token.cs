@@ -97,16 +97,6 @@ public class get_token_with_seeded_refresh_token
    }
 
    [Test]
-   public async Task response_content_should_contain_refresh_token_signed_by_public_key()
-   {
-      var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
-
-      var jsonWebKeySet = await Support.GetJsonWebKeySetAsync();
-
-      tokenResponse.AssertRefreshTokenIsSigned(jsonWebKeySet.Keys[0]);
-   }
-
-   [Test]
    public async Task response_content_should_contain_scope()
    {
       var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();

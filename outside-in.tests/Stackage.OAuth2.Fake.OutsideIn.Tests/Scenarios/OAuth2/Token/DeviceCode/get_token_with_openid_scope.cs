@@ -75,6 +75,16 @@ public class get_token_with_openid_scope
    }
 
    [Test]
+   public async Task response_content_should_contain_access_token_without_audience()
+   {
+      var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
+
+      var jwtSecurityToken = tokenResponse.ParseAccessTokenAsJwtSecurityToken();
+
+      Assert.That(jwtSecurityToken.Audiences, Is.Empty);
+   }
+
+   [Test]
    public async Task response_content_should_contain_access_token_with_scope()
    {
       var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();

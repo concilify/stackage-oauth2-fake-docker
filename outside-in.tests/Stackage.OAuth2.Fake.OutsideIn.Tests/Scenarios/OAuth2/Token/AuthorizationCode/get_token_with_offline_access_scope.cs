@@ -33,7 +33,7 @@ public class get_token_with_offline_access_scope
       {
          ["client_id"] = "AnyClientId",
          ["grant_type"] = "authorization_code",
-         ["code"] = authorizationResponse.Code
+         ["code"] = authorizationResponse.Code,
       });
 
       _httpResponse = await httpClient.PostAsync(
@@ -102,16 +102,6 @@ public class get_token_with_offline_access_scope
       var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
 
       Assert.That(Guid.TryParse(tokenResponse.RefreshToken, out _), Is.True);
-   }
-
-   [Test]
-   public async Task response_content_should_contain_refresh_token_signed_by_public_key()
-   {
-      var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
-
-      var jsonWebKeySet = await Support.GetJsonWebKeySetAsync();
-
-      tokenResponse.AssertRefreshTokenIsSigned(jsonWebKeySet.Keys[0]);
    }
 
    [Test]

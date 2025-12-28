@@ -50,7 +50,7 @@ public class get_token_with_openid_and_profile_scopes
       {
          ["client_id"] = "AnyClientId",
          ["grant_type"] = "authorization_code",
-         ["code"] = _code
+         ["code"] = _code,
       });
 
       _httpResponse = await httpClient.PostAsync(

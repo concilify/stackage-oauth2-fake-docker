@@ -59,8 +59,8 @@ public static class InternalEndpoints
 
             var authorization = new InternalAuthorization(
                Scope: (Scope?)request.Scopes ?? Scope.Empty,
+               request.Audiences,
                Subject: request.Subject,
-               // TODO: optional audience
                TokenExpirySeconds: request.TokenExpirySeconds,
                Claims: claims);
 
@@ -92,7 +92,9 @@ public static class InternalEndpoints
 
             var authorization = new UserAuthorization(
                request.Code,
-               (Scope?)request.Scopes ?? Scope.Empty);
+               (Scope?)request.Scopes ?? Scope.Empty,
+               // TODO: optional audience
+               null);
 
             authorization.Authenticate(request.Subject ?? settings.DefaultSubject);
 
@@ -294,6 +296,7 @@ public static class InternalEndpoints
    private record CreateTokenRequest(
       [property: JsonPropertyName("subject")] string? Subject,
       [property: JsonPropertyName("scopes")] string[]? Scopes,
+      [property: JsonPropertyName("audiences")] string[]? Audiences,
       [property: JsonPropertyName("tokenExpirySeconds")] int? TokenExpirySeconds,
       [property: JsonPropertyName("claims")] JsonObject? Claims)
    {

@@ -5,10 +5,10 @@ using System.Security.Claims;
 
 public record InternalAuthorization(
    Scope Scope,
+   string[]? Audiences,
    string Subject,
-   // TODO: optional audience
    int? TokenExpirySeconds,
-   ImmutableArray<Claim> Claims) : IAuthorizationWithClaims
+   ImmutableArray<Claim> Claims) : IAuthorizationWithClaims, IAuthorizationWithAudiences
 {
    public bool IsAuthenticated => true;
 }

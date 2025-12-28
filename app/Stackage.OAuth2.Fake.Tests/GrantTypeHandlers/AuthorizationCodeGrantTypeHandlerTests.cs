@@ -48,7 +48,7 @@ public class AuthorizationCodeGrantTypeHandlerTests
    {
       var authorizationCache = new AuthorizationCache<UserAuthorization>();
 
-      var authorization = authorizationCache.Add(() => UserAuthorization.Create(scope: Scope.Empty));
+      var authorization = authorizationCache.Add(() => UserAuthorization.Create(scope: Scope.Empty, audience: null));
 
       var testSubject = CreateHandler(
          authorizationCache: authorizationCache);
@@ -69,7 +69,7 @@ public class AuthorizationCodeGrantTypeHandlerTests
    {
       var authorizationCache = new AuthorizationCache<UserAuthorization>();
 
-      var authorization = authorizationCache.Add(() => UserAuthorization.Create(scope: Scope.Empty));
+      var authorization = authorizationCache.Add(() => UserAuthorization.Create(scope: Scope.Empty, audience: null));
 
       var testSubject = CreateHandler(
          authorizationCache: authorizationCache);

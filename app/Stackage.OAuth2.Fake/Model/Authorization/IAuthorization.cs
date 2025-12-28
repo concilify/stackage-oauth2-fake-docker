@@ -6,8 +6,6 @@ public interface IAuthorization
 {
    Scope Scope { get; }
 
-   // TODO: optional audience
-
    [MemberNotNullWhen(true, nameof(Subject))]
    bool IsAuthenticated { get; }
 

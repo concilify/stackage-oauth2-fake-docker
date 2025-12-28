@@ -1,16 +1,16 @@
-namespace Stackage.OAuth2.Fake.OutsideIn.Tests.Scenarios.Internal.CreateToken;
+namespace Stackage.OAuth2.Fake.OutsideIn.Tests.Scenarios.OAuth2.Token.DeviceCode;
 
 using System;
+using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Json;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Stackage.OAuth2.Fake.OutsideIn.Tests.Model;
 
 // ReSharper disable once InconsistentNaming
-public class create_token_with_offline_access_scope
+public class get_token_with_audience
 {
    private HttpResponseMessage? _httpResponse;
 
@@ -20,16 +20,22 @@ public class create_token_with_offline_access_scope
       using var httpClient = new HttpClient();
       httpClient.BaseAddress = new Uri(Configuration.AppUrl);
 
-      var body = new
+      var openIdConfigurationResponse = await httpClient.GetWellKnownOpenIdConfigurationAsync();
+
+      var deviceAuthorizationResponse = await httpClient.StartDeviceAuthorizationAsync(
+         openIdConfigurationResponse,
+         audience: "arbitrary-audience");
+
+      var content = new FormUrlEncodedContent(new Dictionary<string, string>
       {
-         subject = "arbitrary-subject",
-         scopes = new[] { "any_scope", "offline_access" },
-         claims = new { }
-      };
+         ["client_id"] = "AnyClientId",
+         ["grant_type"] = "urn:ietf:params:oauth:grant-type:device_code",
+         ["device_code"] = deviceAuthorizationResponse.DeviceCode,
+      });
 
-      var content = JsonContent.Create(body);
-
-      _httpResponse = await httpClient.PostAsync(".internal/create-token", content);
+      _httpResponse = await httpClient.PostAsync(
+         openIdConfigurationResponse.TokenEndpoint,
+         content);
    }
 
    [Test]
@@ -45,7 +51,7 @@ public class create_token_with_offline_access_scope
 
       var jsonWebKeySet = await Support.GetJsonWebKeySetAsync();
 
-      tokenResponse.AssertAccessTokenIsSigned(jsonWebKeySet.Keys[0]);
+      tokenResponse.AssertAccessTokenIsSigned(jsonWebKeySet.Keys[0], ["arbitrary-audience"]);
    }
 
    [Test]
@@ -65,42 +71,17 @@ public class create_token_with_offline_access_scope
 
       var jwtSecurityToken = tokenResponse.ParseAccessTokenAsJwtSecurityToken();
 
-      Assert.That(jwtSecurityToken.Subject, Is.EqualTo("arbitrary-subject"));
+      Assert.That(jwtSecurityToken.Subject, Is.EqualTo("default-subject"));
    }
 
    [Test]
-   public async Task response_content_should_contain_access_token_with_scope()
+   public async Task response_content_should_contain_access_token_with_audience()
    {
       var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
 
-      var scope = tokenResponse.ParseAccessTokenClaim("scope");
+      var jwtSecurityToken = tokenResponse.ParseAccessTokenAsJwtSecurityToken();
 
-      Assert.That(scope, Is.Not.Null);
-      Assert.That(scope!.Value, Is.EqualTo("any_scope offline_access"));
-   }
-
-   [Test]
-   public async Task response_content_should_not_contain_id_token()
-   {
-      var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
-
-      Assert.That(tokenResponse.IdToken, Is.Null);
-   }
-
-   [Test]
-   public async Task response_content_should_contain_refresh_token()
-   {
-      var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
-
-      Assert.That(Guid.TryParse(tokenResponse.RefreshToken, out _), Is.True);
-   }
-
-   [Test]
-   public async Task response_content_should_contain_scope()
-   {
-      var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
-
-      Assert.That(tokenResponse.Scope, Is.EqualTo("any_scope offline_access"));
+      Assert.That(jwtSecurityToken.Audiences, Is.EqualTo(["arbitrary-audience"]));
    }
 
    [Test]

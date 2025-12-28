@@ -51,16 +51,6 @@ public class get_happy_path
    }
 
    [Test]
-   public async Task response_content_should_contain_refresh_token_signed_by_public_key()
-   {
-      var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
-
-      var jsonWebKeySet = await Support.GetJsonWebKeySetAsync();
-
-      tokenResponse.AssertRefreshTokenIsSigned(jsonWebKeySet.Keys[0]);
-   }
-
-   [Test]
    public async Task response_content_should_contain_scopes()
    {
       var refreshTokenResponse = await _httpResponse!.ParseAsync<RefreshTokenResponse>();

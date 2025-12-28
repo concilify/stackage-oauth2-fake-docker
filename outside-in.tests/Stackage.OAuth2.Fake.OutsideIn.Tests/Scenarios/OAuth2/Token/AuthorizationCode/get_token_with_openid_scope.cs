@@ -33,7 +33,7 @@ public class get_token_with_openid_scope
       {
          ["client_id"] = "AnyClientId",
          ["grant_type"] = "authorization_code",
-         ["code"] = authorizationResponse.Code
+         ["code"] = authorizationResponse.Code,
       });
 
       _httpResponse = await httpClient.PostAsync(
@@ -88,6 +88,15 @@ public class get_token_with_openid_scope
       Assert.That(scope!.Value, Is.EqualTo("any_scope openid"));
    }
 
+   [Test]
+   public async Task response_content_should_contain_access_token_without_audience()
+   {
+      var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
+
+      var jwtSecurityToken = tokenResponse.ParseAccessTokenAsJwtSecurityToken();
+
+      Assert.That(jwtSecurityToken.Audiences, Is.Empty);
+   }
 
    [Test]
    public async Task response_content_should_contain_id_token_signed_by_public_key()

@@ -52,7 +52,8 @@ public static class Support
    public static async Task<AuthorizationResponse> StartAuthorizationAsync(
       this HttpClient httpClient,
       OpenIdConfigurationResponse openIdConfigurationResponse,
-      string[]? scopes = null)
+      string[]? scopes = null,
+      string? audience = null)
    {
       scopes ??= [];
 
@@ -60,12 +61,17 @@ public static class Support
       {
          ["response_type"] = "code",
          ["state"] = "AnyState",
-         ["redirect_uri"] = "http://any-host/callback"
+         ["redirect_uri"] = "http://any-host/callback",
       };
 
       if (scopes.Length != 0)
       {
          requestQuery["scope"] = string.Join(" ", scopes);
+      }
+
+      if (audience != null)
+      {
+         requestQuery["audience"] = audience;
       }
 
       var httpResponse = await httpClient.GetAsync(
@@ -81,7 +87,8 @@ public static class Support
    public static async Task<DeviceAuthorizationResponse> StartDeviceAuthorizationAsync(
       this HttpClient httpClient,
       OpenIdConfigurationResponse openIdConfigurationResponse,
-      string[]? scopes = null)
+      string[]? scopes = null,
+      string? audience = null)
    {
       scopes ??= [];
 
@@ -93,6 +100,11 @@ public static class Support
       if (scopes.Length != 0)
       {
          requestQuery["scope"] = string.Join(" ", scopes);
+      }
+
+      if (audience != null)
+      {
+         requestQuery["audience"] = audience;
       }
 
       var content = new FormUrlEncodedContent(requestQuery);
