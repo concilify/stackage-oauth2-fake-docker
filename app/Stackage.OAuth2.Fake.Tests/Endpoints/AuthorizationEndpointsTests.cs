@@ -51,7 +51,7 @@ public class AuthorizationEndpointsTests
 
       var body = new Dictionary<string, string?>
       {
-        ["valid-claim"] = "valid-claim-value",
+         ["valid-claim"] = "valid-claim-value",
       };
 
       var httpResponse = await httpClient.PostAsync(
