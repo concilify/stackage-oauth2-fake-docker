@@ -20,8 +20,7 @@ public static class AuthorizationEndpoints
             AuthorizationCache<UserAuthorization> authorizationCache,
             [FromQuery(Name = "state")] string state,
             [FromQuery(Name = "redirect_uri")] string redirectUri,
-            [FromQuery(Name = "scope")] string? scope = null
-         ) =>
+            [FromQuery(Name = "scope")] string? scope = null) =>
          {
             var authorization = authorizationCache.Add(() => UserAuthorization.Create((Scope?)scope ?? Scope.Empty));
 
@@ -36,8 +35,7 @@ public static class AuthorizationEndpoints
          settings.DeviceAuthorizationPath,
          (
             AuthorizationCache<DeviceAuthorization> authorizationCache,
-            [FromForm(Name = "scope")] string? scope = null
-         ) =>
+            [FromForm(Name = "scope")] string? scope = null) =>
          {
             var authorization = authorizationCache.Add(() => DeviceAuthorization.Create((Scope?)scope ?? Scope.Empty));
 
@@ -52,7 +50,7 @@ public static class AuthorizationEndpoints
                verification_uri = $"{settings.IssuerUrl}{settings.DeviceVerificationPath}",
                verification_uri_complete = $"{settings.IssuerUrl}{settings.DeviceVerificationPath}?user_code={authorization.UserCode}",
                expires_in = 600,
-               interval = 5
+               interval = 5,
             };
 
             return TypedResults.Json(response);

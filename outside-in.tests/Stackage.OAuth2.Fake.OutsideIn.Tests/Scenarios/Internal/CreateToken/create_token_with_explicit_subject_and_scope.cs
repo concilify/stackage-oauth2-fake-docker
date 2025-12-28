@@ -29,8 +29,8 @@ public class create_token_with_explicit_subject_and_scope
          scopes = new[] { "first_token", "second_token" },
          claims = new
          {
-            custom_claim = "custom-value"
-         }
+            custom_claim = "custom-value",
+         },
       };
 
       var content = JsonContent.Create(body);
@@ -94,7 +94,7 @@ public class create_token_with_explicit_subject_and_scope
 
       var expectedClaims = new Dictionary<string, StringValues>
       {
-         ["custom_claim"] = "custom-value"
+         ["custom_claim"] = "custom-value",
       };
 
       claims.ShouldBeEquivalentTo(expectedClaims);

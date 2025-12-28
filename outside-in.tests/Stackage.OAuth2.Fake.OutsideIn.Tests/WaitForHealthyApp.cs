@@ -22,7 +22,10 @@ public class WaitForHealthyApp
          {
             var response = await httpClient.GetAsync(".internal/health");
 
-            if (response.StatusCode == HttpStatusCode.OK) break;
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+               break;
+            }
 
             await Task.Delay(1000);
          }

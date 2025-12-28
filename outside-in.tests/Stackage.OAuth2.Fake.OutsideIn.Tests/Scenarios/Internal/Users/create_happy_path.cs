@@ -21,7 +21,7 @@ public class create_happy_path
       var body = new
       {
          subject = Guid.NewGuid().ToString(),
-         claims = new { }
+         claims = new { },
       };
 
       var content = JsonContent.Create(body);

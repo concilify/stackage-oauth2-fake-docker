@@ -19,12 +19,6 @@ public record Scope : IEnumerable<string>
 
    public bool IsEmpty => _tokens.Count == 0;
 
-   public bool Contains(string scope) => _tokens.Contains(scope);
-
-   public IEnumerator<string> GetEnumerator() => _tokens.GetEnumerator();
-
-   IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
    public static implicit operator string(Scope scope) => scope.ToString();
 
    [return: NotNullIfNotNull(nameof(scope))]
@@ -32,6 +26,12 @@ public record Scope : IEnumerable<string>
 
    [return: NotNullIfNotNull(nameof(scopes))]
    public static explicit operator Scope?(string[]? scopes) => scopes != null ? new Scope(TrimTokens(scopes)) : null;
+
+   public bool Contains(string scope) => _tokens.Contains(scope);
+
+   public IEnumerator<string> GetEnumerator() => _tokens.GetEnumerator();
+
+   IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
    public override string ToString() => string.Join(" ", _tokens);
 

@@ -24,7 +24,7 @@ public class AuthorizationEndpointsTests
       var requestQuery = new Dictionary<string, string?>
       {
          ["state"] = "AnyState",
-         ["redirect_uri"] = "http://any-host/callback"
+         ["redirect_uri"] = "http://any-host/callback",
       };
 
       var httpResponse = await httpClient.GetAsync(QueryHelpers.AddQueryString(path, requestQuery));
@@ -44,7 +44,7 @@ public class AuthorizationEndpointsTests
       factory.Settings = factory.Settings with
       {
          DeviceAuthorizationPath = $"/{authorizePath}",
-         DeviceVerificationPath = $"/{verifyPath}"
+         DeviceVerificationPath = $"/{verifyPath}",
       };
 
       var httpClient = factory.CreateClient();
@@ -60,7 +60,7 @@ public class AuthorizationEndpointsTests
 
       Assert.That(httpResponse.StatusCode, Is.EqualTo(HttpStatusCode.OK));
 
-      var deviceAuthorizationResponse = await httpResponse!.ParseAsync<DeviceAuthorizationResponse>();
+      var deviceAuthorizationResponse = await httpResponse.ParseAsync<DeviceAuthorizationResponse>();
 
       Assert.That(deviceAuthorizationResponse.VerificationUri, Is.EqualTo($"/{verifyPath}"));
    }

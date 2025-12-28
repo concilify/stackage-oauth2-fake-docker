@@ -23,8 +23,8 @@ public class create_token_with_non_string_claim
       {
          claims = new
          {
-            invalid_type = 136
-         }
+            invalid_type = 136,
+         },
       };
 
       var content = JsonContent.Create(body);

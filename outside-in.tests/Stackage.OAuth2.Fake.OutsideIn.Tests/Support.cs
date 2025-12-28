@@ -60,7 +60,7 @@ public static class Support
       {
          ["response_type"] = "code",
          ["state"] = "AnyState",
-         ["redirect_uri"] = "http://any-host/callback"
+         ["redirect_uri"] = "http://any-host/callback",
       };
 
       if (scopes.Length != 0)
@@ -113,7 +113,7 @@ public static class Support
       {
          ["client_id"] = "AnyClientId",
          ["grant_type"] = "authorization_code",
-         ["code"] = code
+         ["code"] = code,
       });
 
       var httpResponse = await httpClient.PostAsync(
@@ -132,7 +132,7 @@ public static class Support
       {
          ["client_id"] = "AnyClientId",
          ["grant_type"] = "urn:ietf:params:oauth:grant-type:device_code",
-         ["device_code"] = deviceCode
+         ["device_code"] = deviceCode,
       });
 
       var httpResponse = await httpClient.PostAsync(
@@ -148,7 +148,7 @@ public static class Support
    {
       var body = new JsonObject
       {
-         ["claims"] = new JsonObject()
+         ["claims"] = new JsonObject(),
       };
 
       body.AddScopes(scopes);
@@ -166,7 +166,7 @@ public static class Support
    {
       var body = new JsonObject
       {
-         ["code"] = code
+         ["code"] = code,
       };
 
       body.AddScopes(scopes);
@@ -183,7 +183,7 @@ public static class Support
    {
       var body = new JsonObject
       {
-         ["refreshToken"] = refreshToken
+         ["refreshToken"] = refreshToken,
       };
 
       body.AddScopes(scopes);
@@ -200,7 +200,7 @@ public static class Support
       var body = new
       {
          subject,
-         claims
+         claims,
       };
 
       var content = JsonContent.Create(body);
@@ -216,7 +216,7 @@ public static class Support
       {
          IssuerSigningKey = jsonWebKey,
          ValidIssuer = Configuration.IssuerUrl,
-         ValidateAudience = false
+         ValidateAudience = false,
       };
 
       new JwtSecurityTokenHandler().ValidateToken(
