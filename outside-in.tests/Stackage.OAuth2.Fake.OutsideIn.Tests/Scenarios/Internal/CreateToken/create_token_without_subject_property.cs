@@ -9,7 +9,7 @@ using NUnit.Framework;
 using Stackage.OAuth2.Fake.OutsideIn.Tests.Model;
 
 // ReSharper disable once InconsistentNaming
-public class create_token_with_non_string_claim
+public class create_token_without_subject_property
 {
    private HttpResponseMessage? _httpResponse;
 
@@ -21,11 +21,7 @@ public class create_token_with_non_string_claim
 
       var body = new
       {
-         subject = "valid-subject",
-         claims = new
-         {
-            invalid_type = 136
-         }
+         claims = new { }
       };
 
       var content = JsonContent.Create(body);
@@ -52,6 +48,6 @@ public class create_token_with_non_string_claim
    {
       var errorResponse = await _httpResponse!.ParseAsync<ErrorResponse>();
 
-      Assert.That(errorResponse.ErrorDescription, Is.EqualTo("The claims property must contain string properties or string array properties"));
+      Assert.That(errorResponse.ErrorDescription, Is.EqualTo("The subject property was missing"));
    }
 }

@@ -19,7 +19,12 @@ public class create_token_without_claims_property
       using var httpClient = new HttpClient();
       httpClient.BaseAddress = new Uri(Configuration.AppUrl);
 
-      var content = JsonContent.Create(new { });
+      var body = new
+      {
+         subject = "valid-subject",
+      };
+
+      var content = JsonContent.Create(body);
 
       _httpResponse = await httpClient.PostAsync(".internal/create-token", content);
    }
