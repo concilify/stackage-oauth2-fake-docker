@@ -88,7 +88,6 @@ public class get_token_with_openid_scope
       Assert.That(scope!.Value, Is.EqualTo("any_scope openid"));
    }
 
-
    [Test]
    public async Task response_content_should_contain_id_token_signed_by_public_key()
    {

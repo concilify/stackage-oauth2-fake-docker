@@ -46,11 +46,6 @@ public static class InternalEndpoints
                return OAuth2Results.InvalidRequest("The subject property was missing");
             }
 
-            if (request.Subject == null)
-            {
-               return Error.InvalidRequest("The subject property was missing");
-            }
-
             if (request.Claims == null)
             {
                return OAuth2Results.InvalidRequest("The claims property was missing");

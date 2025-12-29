@@ -102,7 +102,6 @@ public class get_token_with_openid_and_profile_scopes
       Assert.That(tokenResponse.Scope, Is.EqualTo("openid profile"));
    }
 
-
    [Test]
    public async Task response_content_should_contain_id_token_signed_by_public_key()
    {

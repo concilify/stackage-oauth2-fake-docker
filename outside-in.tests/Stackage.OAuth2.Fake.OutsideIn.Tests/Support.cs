@@ -307,7 +307,7 @@ public static class Support
       {
          IssuerSigningKey = jsonWebKey,
          ValidIssuer = Configuration.IssuerUrl,
-         ValidateAudience = false
+         ValidateAudience = false,
       };
 
       new JwtSecurityTokenHandler().ValidateToken(
