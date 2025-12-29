@@ -145,7 +145,7 @@ public static class Support
 
    public static async Task<TokenResponse> CreateTokenAsync(
       this HttpClient httpClient,
-      string subject = "valid-subject",
+      string subject = "any-subject",
       string[]? scopes = null)
    {
       var body = new JsonObject
