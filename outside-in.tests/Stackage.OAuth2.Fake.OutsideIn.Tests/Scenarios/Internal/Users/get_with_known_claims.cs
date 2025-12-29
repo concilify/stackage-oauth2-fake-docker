@@ -31,8 +31,8 @@ public class get_with_known_claims
          {
             Name = "name-claim",
             NiCkNaMe = "nickname-claim",
-            PICTURE = "picture-claim"
-         }
+            PICTURE = "picture-claim",
+         },
       };
 
       var content = JsonContent.Create(body);
@@ -73,7 +73,7 @@ public class get_with_known_claims
       {
          ["name"] = "name-claim",
          ["nickname"] = "nickname-claim",
-         ["picture"] = "picture-claim"
+         ["picture"] = "picture-claim",
       };
 
       usersResponse[0].Claims.ShouldBeEquivalentTo(expectedClaims);

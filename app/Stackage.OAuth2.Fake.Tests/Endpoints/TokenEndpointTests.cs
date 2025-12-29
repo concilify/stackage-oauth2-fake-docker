@@ -30,7 +30,7 @@ public class TokenEndpointTests
 
       Assert.That(httpResponse.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
 
-      var errorResponse = await httpResponse!.ParseAsync<ErrorResponse>();
+      var errorResponse = await httpResponse.ParseAsync<ErrorResponse>();
 
       Assert.That(errorResponse.Error, Is.EqualTo("unsupported_grant_type"));
    }

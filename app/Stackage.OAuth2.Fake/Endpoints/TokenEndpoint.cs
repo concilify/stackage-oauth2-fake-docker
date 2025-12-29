@@ -17,22 +17,22 @@ public static class TokenEndpoint
          settings.TokenPath,
          IResult (
             HttpContext httpContext,
-            IEnumerable<IGrantTypeHandler> grantTypeHandlers
-         ) =>
+            IEnumerable<IGrantTypeHandler> grantTypeHandlers) =>
          {
             if (!httpContext.Request.Form.TryGetValue("grant_type", out var grantType))
             {
-               return Error.InvalidRequest("The grant_type parameter was missing");
+               return OAuth2Results.InvalidRequest("The grant_type parameter was missing");
             }
 
             var grantTypeHandler = grantTypeHandlers.FirstOrDefault(h => h.GrantType == grantType);
 
             if (grantTypeHandler == null)
             {
-               return Error.UnsupportedGrantType();
+               return OAuth2Results.UnsupportedGrantType();
             }
 
             return grantTypeHandler.Handle(httpContext.Request);
-         });
+         })
+         .DisableAntiforgery();
    }
 }

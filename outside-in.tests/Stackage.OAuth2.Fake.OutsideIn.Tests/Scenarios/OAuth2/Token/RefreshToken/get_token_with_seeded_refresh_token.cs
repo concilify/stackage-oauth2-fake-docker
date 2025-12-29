@@ -33,7 +33,7 @@ public class get_token_with_seeded_refresh_token
       {
          ["client_id"] = "AnyClientId",
          ["grant_type"] = "refresh_token",
-         ["refresh_token"] = _refreshToken
+         ["refresh_token"] = _refreshToken,
       });
 
       _httpResponse = await httpClient.PostAsync(

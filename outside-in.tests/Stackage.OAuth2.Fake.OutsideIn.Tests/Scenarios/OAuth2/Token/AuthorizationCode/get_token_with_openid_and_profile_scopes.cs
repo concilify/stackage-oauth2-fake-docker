@@ -43,14 +43,14 @@ public class get_token_with_openid_and_profile_scopes
          {
             ["name"] = $"{_subject}-name",
             ["nickname"] = $"{_subject}-nickname",
-            ["picture"] = $"{_subject}-picture"
+            ["picture"] = $"{_subject}-picture",
          });
 
       var content = new FormUrlEncodedContent(new Dictionary<string, string>
       {
          ["client_id"] = "AnyClientId",
          ["grant_type"] = "authorization_code",
-         ["code"] = _code
+         ["code"] = _code,
       });
 
       _httpResponse = await httpClient.PostAsync(
@@ -137,7 +137,7 @@ public class get_token_with_openid_and_profile_scopes
       {
          [JwtRegisteredClaimNames.Name] = $"{_subject}-name",
          [JwtRegisteredClaimNames.Nickname] = $"{_subject}-nickname",
-         [JwtRegisteredClaimNames.Picture] = $"{_subject}-picture"
+         [JwtRegisteredClaimNames.Picture] = $"{_subject}-picture",
       };
 
       claims.ShouldBeEquivalentTo(expectedClaims);

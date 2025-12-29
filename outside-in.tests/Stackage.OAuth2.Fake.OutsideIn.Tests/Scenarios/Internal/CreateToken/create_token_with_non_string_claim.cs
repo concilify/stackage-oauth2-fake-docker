@@ -21,11 +21,11 @@ public class create_token_with_non_string_claim
 
       var body = new
       {
-         subject = "valid-subject",
+         subject = "any-subject",
          claims = new
          {
-            invalid_type = 136
-         }
+            invalid_type = 136,
+         },
       };
 
       var content = JsonContent.Create(body);
