@@ -22,12 +22,13 @@ public record DeviceAuthorization(
       Subject = subject;
    }
 
-   public static DeviceAuthorization Create(Scope scope, string? audience)
+   public static DeviceAuthorization Create(Scope scope, string clientId, string? audience)
    {
       return new DeviceAuthorization(
          DeviceCode: Guid.NewGuid().ToString(),
          UserCode: Guid.NewGuid().ToString()[..4].ToUpper(),
          Scope: scope,
+         ClientId: clientId,
          Audiences: audience != null ? [audience] : null);
    }
 }

@@ -122,6 +122,7 @@ public static class InternalEndpoints
                code = authorization.Code,
                scopes = authorization.Scope.ToArray(),
                subject = authorization.Subject,
+               // TODO: client and audiences
             };
 
             return TypedResults.Json(response, statusCode: 200);

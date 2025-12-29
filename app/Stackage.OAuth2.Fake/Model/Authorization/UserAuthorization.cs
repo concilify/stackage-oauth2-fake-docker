@@ -19,11 +19,12 @@ public record UserAuthorization(
       Subject = subject;
    }
 
-   public static UserAuthorization Create(Scope scope, string? audience)
+   public static UserAuthorization Create(Scope scope, string clientId, string? audience)
    {
       return new UserAuthorization(
          Code: Guid.NewGuid().ToString(),
          Scope: scope,
+         ClientId: clientId,
          Audiences: audience != null ? [audience] : null);
    }
 }
