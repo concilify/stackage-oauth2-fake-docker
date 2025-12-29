@@ -22,7 +22,7 @@ public static class AuthorizationEndpoints
             [FromQuery(Name = "redirect_uri")] string? redirectUri,
             [FromQuery(Name = "scope")] string? scope,
             [FromQuery(Name = "state")] string? state,
-            [FromQuery(Name = "audience")] string? audience = null,
+            [FromQuery(Name = "audience")] string? audience,
             AuthorizationCache<UserAuthorization> authorizationCache) =>
          {
             // RFC 6749 Section 4.1.2.1: If the request fails due to a missing, invalid, or mismatching
@@ -75,7 +75,7 @@ public static class AuthorizationEndpoints
          (
             [FromForm(Name = "client_id")] string? clientId,
             [FromForm(Name = "scope")] string? scope,
-            [FromForm(Name = "audience")] string? audience = null,
+            [FromForm(Name = "audience")] string? audience,
             AuthorizationCache<DeviceAuthorization> authorizationCache) =>
          {
             // RFC 8628 Section 3.1: client_id is REQUIRED

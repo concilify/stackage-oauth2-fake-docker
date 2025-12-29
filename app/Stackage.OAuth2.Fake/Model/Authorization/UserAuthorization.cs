@@ -6,7 +6,7 @@ public record UserAuthorization(
    string Code,
    Scope Scope,
    string ClientId,
-   string[]? Audiences) : IAuthorizationWithIdToken, IAuthorizationWithRefreshToken, IAuthorizationWithAudiences
+   string[]? Audiences) : IAuthorizationWithCode, IAuthorizationWithIdToken, IAuthorizationWithRefreshToken, IAuthorizationWithAudiences
 {
    public bool IsAuthenticated => Subject != null;
 
