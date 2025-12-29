@@ -23,7 +23,7 @@ public class create_token_without_explicit_claims
       var body = new
       {
          subject = "any-subject",
-         claims = new { }
+         claims = new { },
       };
 
       var content = JsonContent.Create(body);

@@ -21,7 +21,7 @@ public class create_token_without_subject_property
 
       var body = new
       {
-         claims = new { }
+         claims = new { },
       };
 
       var content = JsonContent.Create(body);
