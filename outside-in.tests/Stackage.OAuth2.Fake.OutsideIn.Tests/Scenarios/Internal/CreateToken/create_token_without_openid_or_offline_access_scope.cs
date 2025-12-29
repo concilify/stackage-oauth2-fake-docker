@@ -24,7 +24,7 @@ public class create_token_without_openid_or_offline_access_scope
       {
          subject = "arbitrary-subject",
          scopes = new[] { "any_scope" },
-         claims = new { }
+         claims = new { },
       };
 
       var content = JsonContent.Create(body);

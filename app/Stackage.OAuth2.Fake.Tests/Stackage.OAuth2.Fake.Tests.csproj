@@ -19,4 +19,8 @@
     <ProjectReference Include="..\Stackage.OAuth2.Fake\Stackage.OAuth2.Fake.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556" PrivateAssets="all" />
+  </ItemGroup>
+
 </Project>

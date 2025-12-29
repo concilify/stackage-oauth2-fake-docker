@@ -135,7 +135,7 @@ public class TokenGeneratorTests
          Claims: [
             new Claim("name", "name-claim"),
             new Claim("nickname", "nickname-claim"),
-            new Claim("picture", "picture-claim")
+            new Claim("picture", "picture-claim"),
          ]);
       var userStore = UserStoreStub.Returns(user);
 
@@ -156,7 +156,7 @@ public class TokenGeneratorTests
       {
          ["name"] = "name-claim",
          ["nickname"] = "nickname-claim",
-         ["picture"] = "picture-claim"
+         ["picture"] = "picture-claim",
       };
 
       claims.ShouldBeEquivalentTo(expectedClaims);
@@ -168,7 +168,7 @@ public class TokenGeneratorTests
       var user = new User(
          Subject: "the-subject",
          Claims: [
-            new Claim("name", "name-claim")
+            new Claim("name", "name-claim"),
          ]);
       var userStore = UserStoreStub.Returns(user);
 
@@ -187,7 +187,7 @@ public class TokenGeneratorTests
 
       var expectedClaims = new Dictionary<string, StringValues>
       {
-         ["name"] = "name-claim"
+         ["name"] = "name-claim",
       };
 
       claims.ShouldBeEquivalentTo(expectedClaims);
@@ -199,7 +199,7 @@ public class TokenGeneratorTests
       var user = new User(
          Subject: "the-subject",
          Claims: [
-            new Claim("unknown-claim", "unknown-value")
+            new Claim("unknown-claim", "unknown-value"),
          ]);
       var userStore = UserStoreStub.Returns(user);
 
@@ -227,7 +227,7 @@ public class TokenGeneratorTests
          Claims: [
             new Claim("name", "name-claim"),
             new Claim("nickname", "nickname-claim"),
-            new Claim("picture", "picture-claim")
+            new Claim("picture", "picture-claim"),
          ]);
       var userStore = UserStoreStub.Returns(user);
 

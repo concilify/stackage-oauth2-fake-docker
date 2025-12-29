@@ -33,7 +33,7 @@ public class RefreshTokenGrantTypeHandlerTests
 
       var httpRequest = CreateRequest(new Dictionary<string, StringValues>
       {
-         ["refresh_token"] = "UnknownRefreshToken"
+         ["refresh_token"] = "UnknownRefreshToken",
       });
 
       var result = testSubject.Handle(httpRequest);
@@ -55,7 +55,7 @@ public class RefreshTokenGrantTypeHandlerTests
 
       var httpRequest = CreateRequest(new Dictionary<string, StringValues>
       {
-         ["refresh_token"] = "AnyRefreshToken"
+         ["refresh_token"] = "AnyRefreshToken",
       });
 
       var result = testSubject.Handle(httpRequest);
@@ -77,7 +77,7 @@ public class RefreshTokenGrantTypeHandlerTests
 
       var httpRequest = CreateRequest(new Dictionary<string, StringValues>
       {
-         ["refresh_token"] = "AnyRefreshToken"
+         ["refresh_token"] = "AnyRefreshToken",
       });
 
       testSubject.Handle(httpRequest);
@@ -94,8 +94,8 @@ public class RefreshTokenGrantTypeHandlerTests
       {
          Request =
          {
-            Form = new FormCollection(formValues)
-         }
+            Form = new FormCollection(formValues),
+         },
       };
 
       return httpContext.Request;

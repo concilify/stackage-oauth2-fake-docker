@@ -37,7 +37,7 @@ public class TokenGenerator : ITokenGenerator
 
       var accessTokenClaims = new List<Claim>
       {
-         new(JwtRegisteredClaimNames.Sub, authorization.Subject)
+         new(JwtRegisteredClaimNames.Sub, authorization.Subject),
       };
 
       if (authorization is IAuthorizationWithClaims authorizationWithClaims)
@@ -55,7 +55,7 @@ public class TokenGenerator : ITokenGenerator
       var response = new TokenResponse
       {
          AccessToken = Generate(accessTokenClaims, expirySeconds),
-         ExpiresInSeconds = expirySeconds
+         ExpiresInSeconds = expirySeconds,
       };
 
       if (!authorization.Scope.IsEmpty)
@@ -64,7 +64,7 @@ public class TokenGenerator : ITokenGenerator
          {
             var idTokenClaims = new List<Claim>
             {
-               new(JwtRegisteredClaimNames.Sub, authorization.Subject)
+               new(JwtRegisteredClaimNames.Sub, authorization.Subject),
             };
 
             if (authorization.Scope.Contains("profile") && _userStore.TryGet(authorization.Subject, out var user))
@@ -112,7 +112,7 @@ public class TokenGenerator : ITokenGenerator
          Issuer = _settings.IssuerUrl,
          Subject = identity,
          Expires = utcNow.AddSeconds(expirySeconds),
-         SigningCredentials = signingCredentials
+         SigningCredentials = signingCredentials,
       };
 
       if (expirySeconds <= 0)

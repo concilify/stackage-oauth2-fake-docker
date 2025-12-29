@@ -24,8 +24,8 @@ public class create_with_non_string_claim
          subject = Guid.NewGuid().ToString(),
          claims = new
          {
-            invalid_type = 136
-         }
+            invalid_type = 136,
+         },
       };
 
       var content = JsonContent.Create(body);

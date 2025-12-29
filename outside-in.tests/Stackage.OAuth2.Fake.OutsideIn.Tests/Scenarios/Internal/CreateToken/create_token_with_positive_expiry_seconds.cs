@@ -24,7 +24,7 @@ public class create_token_with_positive_expiry_seconds
       {
          subject = "arbitrary-subject",
          tokenExpirySeconds = 120,
-         claims = new { }
+         claims = new { },
       };
 
       var content = JsonContent.Create(body);

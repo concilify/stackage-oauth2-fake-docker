@@ -34,7 +34,7 @@ public class DeviceCodeGrantTypeHandlerTests
 
       var httpRequest = CreateRequest(new Dictionary<string, StringValues>
       {
-         ["device_code"] = "UnknownDeviceCode"
+         ["device_code"] = "UnknownDeviceCode",
       });
 
       var result = testSubject.Handle(httpRequest);
@@ -55,7 +55,7 @@ public class DeviceCodeGrantTypeHandlerTests
 
       var httpRequest = CreateRequest(new Dictionary<string, StringValues>
       {
-         ["device_code"] = authorization.DeviceCode
+         ["device_code"] = authorization.DeviceCode,
       });
 
       var result = testSubject.Handle(httpRequest);
@@ -76,7 +76,7 @@ public class DeviceCodeGrantTypeHandlerTests
 
       var httpRequest = CreateRequest(new Dictionary<string, StringValues>
       {
-         ["device_code"] = authorization.DeviceCode
+         ["device_code"] = authorization.DeviceCode,
       });
 
       testSubject.Handle(httpRequest);
@@ -93,8 +93,8 @@ public class DeviceCodeGrantTypeHandlerTests
       {
          Request =
          {
-            Form = new FormCollection(formValues)
-         }
+            Form = new FormCollection(formValues),
+         },
       };
 
       return httpContext.Request;

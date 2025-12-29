@@ -28,8 +28,8 @@ public class create_token_without_scopes
          subject = "arbitrary-subject",
          claims = new
          {
-            custom_claim = "custom-value"
-         }
+            custom_claim = "custom-value",
+         },
       };
 
       var content = JsonContent.Create(body);
@@ -92,7 +92,7 @@ public class create_token_without_scopes
 
       var expectedClaims = new Dictionary<string, StringValues>
       {
-         ["custom_claim"] = "custom-value"
+         ["custom_claim"] = "custom-value",
       };
 
       claims.ShouldBeEquivalentTo(expectedClaims);
