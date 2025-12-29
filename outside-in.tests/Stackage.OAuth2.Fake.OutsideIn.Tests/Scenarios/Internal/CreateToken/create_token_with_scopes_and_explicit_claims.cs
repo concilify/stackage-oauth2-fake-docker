@@ -13,7 +13,7 @@ using Shouldly;
 using Stackage.OAuth2.Fake.OutsideIn.Tests.Model;
 
 // ReSharper disable once InconsistentNaming
-public class create_token_without_explicit_subject_and_scope
+public class create_token_with_scopes_and_explicit_claims
 {
    private HttpResponseMessage? _httpResponse;
 
@@ -25,6 +25,8 @@ public class create_token_without_explicit_subject_and_scope
 
       var body = new
       {
+         subject = "any-subject",
+         scopes = new[] { "first_token", "second_token" },
          claims = new
          {
             custom_claim = "custom-value",
@@ -69,17 +71,18 @@ public class create_token_without_explicit_subject_and_scope
 
       var jwtSecurityToken = tokenResponse.ParseAccessTokenAsJwtSecurityToken();
 
-      Assert.That(jwtSecurityToken.Subject, Is.EqualTo("default-subject"));
+      Assert.That(jwtSecurityToken.Subject, Is.EqualTo("any-subject"));
    }
 
    [Test]
-   public async Task response_content_should_not_contain_access_token_with_scope()
+   public async Task response_content_should_contain_access_token_with_scope()
    {
       var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
 
-      var claim = tokenResponse.ParseAccessTokenClaim("scope");
+      var scope = tokenResponse.ParseAccessTokenClaim("scope");
 
-      Assert.That(claim, Is.Null);
+      Assert.That(scope, Is.Not.Null);
+      Assert.That(scope!.Value, Is.EqualTo("first_token second_token"));
    }
 
    [Test]

@@ -22,6 +22,7 @@ public class create_token_with_offline_access_scope
 
       var body = new
       {
+         subject = "any-subject",
          scopes = new[] { "any_scope", "offline_access" },
          claims = new { },
       };
@@ -64,7 +65,7 @@ public class create_token_with_offline_access_scope
 
       var jwtSecurityToken = tokenResponse.ParseAccessTokenAsJwtSecurityToken();
 
-      Assert.That(jwtSecurityToken.Subject, Is.EqualTo("default-subject"));
+      Assert.That(jwtSecurityToken.Subject, Is.EqualTo("any-subject"));
    }
 
    [Test]
