@@ -6,7 +6,7 @@ using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.WebUtilities;
 
-public static class Result
+public static class OAuth2Results
 {
    public static IResult SuccessRedirect(string redirectUri, string code, string? state)
    {

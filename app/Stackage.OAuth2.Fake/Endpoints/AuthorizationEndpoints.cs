@@ -29,13 +29,13 @@ public static class AuthorizationEndpoints
             // and MUST NOT automatically redirect the user-agent to the invalid redirection URI.
             if (string.IsNullOrEmpty(redirectUri))
             {
-               return Result.InvalidRequest("The redirect_uri parameter is required");
+               return OAuth2Results.InvalidRequest("The redirect_uri parameter is required");
             }
 
             // RFC 6749 Section 3.1: response_type is REQUIRED
             if (string.IsNullOrEmpty(responseType))
             {
-               return Result.InvalidRequestRedirect(
+               return OAuth2Results.InvalidRequestRedirect(
                   redirectUri,
                   "The response_type parameter is required",
                   state);
@@ -44,7 +44,7 @@ public static class AuthorizationEndpoints
             // RFC 6749 Section 3.1.1: For authorization code flow, response_type must be "code"
             if (responseType != "code")
             {
-               return Result.UnsupportedResponseTypeRedirect(
+               return OAuth2Results.UnsupportedResponseTypeRedirect(
                   redirectUri,
                   "The response_type must be code",
                   state);
@@ -53,7 +53,7 @@ public static class AuthorizationEndpoints
             // RFC 6749 Section 3.1: client_id is REQUIRED
             if (string.IsNullOrEmpty(clientId))
             {
-               return Result.InvalidRequestRedirect(
+               return OAuth2Results.InvalidRequestRedirect(
                   redirectUri,
                   "The client_id parameter is required",
                   state);
@@ -65,7 +65,7 @@ public static class AuthorizationEndpoints
             // can be used immediately with the /oauth2/token endpoint using grant type authorization_code
             authorization.Authenticate(settings.DefaultSubject);
 
-            return Result.SuccessRedirect(redirectUri, authorization.Code, state);
+            return OAuth2Results.SuccessRedirect(redirectUri, authorization.Code, state);
          });
 
       app.MapPost(
@@ -78,7 +78,7 @@ public static class AuthorizationEndpoints
             // RFC 8628 Section 3.1: client_id is REQUIRED
             if (string.IsNullOrEmpty(clientId))
             {
-               return Result.InvalidRequest("The client_id parameter is required");
+               return OAuth2Results.InvalidRequest("The client_id parameter is required");
             }
 
             var authorization = authorizationCache.Add(() => DeviceAuthorization.Create((Scope?)scope ?? Scope.Empty));

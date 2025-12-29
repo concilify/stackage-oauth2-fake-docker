@@ -23,12 +23,12 @@ public class RefreshTokenGrantTypeHandler : IGrantTypeHandler
    {
       if (!httpRequest.Form.TryGetValue("refresh_token", out var refreshToken))
       {
-         return Result.InvalidRequest("The refresh_token parameter was missing");
+         return OAuth2Results.InvalidRequest("The refresh_token parameter was missing");
       }
 
       if (!_authorizationCache.TryGet(refreshToken.ToString(), out var authorization))
       {
-         return Result.InvalidGrant("The given refresh_token was not found");
+         return OAuth2Results.InvalidGrant("The given refresh_token was not found");
       }
 
       _authorizationCache.Remove(authorization);
