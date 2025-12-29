@@ -21,14 +21,14 @@ public static class TokenEndpoint
          {
             if (!httpContext.Request.Form.TryGetValue("grant_type", out var grantType))
             {
-               return Error.InvalidRequest("The grant_type parameter was missing");
+               return Result.InvalidRequest("The grant_type parameter was missing");
             }
 
             var grantTypeHandler = grantTypeHandlers.FirstOrDefault(h => h.GrantType == grantType);
 
             if (grantTypeHandler == null)
             {
-               return Error.UnsupportedGrantType();
+               return Result.UnsupportedGrantType();
             }
 
             return grantTypeHandler.Handle(httpContext.Request);

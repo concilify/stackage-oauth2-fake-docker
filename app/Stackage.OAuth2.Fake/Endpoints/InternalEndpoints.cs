@@ -39,17 +39,17 @@ public static class InternalEndpoints
          {
             if (request == null)
             {
-               return Error.InvalidRequest("The request body was missing");
+               return Result.InvalidRequest("The request body was missing");
             }
 
             if (request.Claims == null)
             {
-               return Error.InvalidRequest("The claims property was missing");
+               return Result.InvalidRequest("The claims property was missing");
             }
 
             if (!claimsParser.TryParse(request.Claims, out var claims))
             {
-               return Error.InvalidRequest("The claims property must contain string properties or string array properties");
+               return Result.InvalidRequest("The claims property must contain string properties or string array properties");
             }
 
             var authorization = new InternalAuthorization(
@@ -75,12 +75,12 @@ public static class InternalEndpoints
          {
             if (request == null)
             {
-               return Error.InvalidRequest("The request body was missing");
+               return Result.InvalidRequest("The request body was missing");
             }
 
             if (request.Code == null)
             {
-               return Error.InvalidRequest("The code property was missing");
+               return Result.InvalidRequest("The code property was missing");
             }
 
             var authorization = new UserAuthorization(
@@ -91,7 +91,7 @@ public static class InternalEndpoints
 
             return authorizationCache.TryAdd(authorization)
                ? TypedResults.Ok()
-               : Error.InvalidRequest("The given code already exists");
+               : Result.InvalidRequest("The given code already exists");
          });
 
       app.MapGet(
@@ -102,12 +102,12 @@ public static class InternalEndpoints
          {
             if (code == null)
             {
-               return Error.InvalidRequest("The code parameter was missing");
+               return Result.InvalidRequest("The code parameter was missing");
             }
 
             if (!authorizationCache.TryGet(code, out var authorization))
             {
-               return Error.InvalidRequest("The given code was not found");
+               return Result.InvalidRequest("The given code was not found");
             }
 
             var response = new
@@ -132,12 +132,12 @@ public static class InternalEndpoints
          {
             if (request == null)
             {
-               return Error.InvalidRequest("The request body was missing");
+               return Result.InvalidRequest("The request body was missing");
             }
 
             if (request.RefreshToken == null)
             {
-               return Error.InvalidRequest("The refreshToken property was missing");
+               return Result.InvalidRequest("The refreshToken property was missing");
             }
 
             var authorization = new RefreshAuthorization(
@@ -147,7 +147,7 @@ public static class InternalEndpoints
 
             return authorizationCache.TryAdd(authorization)
                ? TypedResults.Ok()
-               : Error.InvalidRequest("The given refreshToken already exists");
+               : Result.InvalidRequest("The given refreshToken already exists");
          });
 
       app.MapGet(
@@ -158,12 +158,12 @@ public static class InternalEndpoints
          {
             if (refreshToken == null)
             {
-               return Error.InvalidRequest("The refresh_token parameter was missing");
+               return Result.InvalidRequest("The refresh_token parameter was missing");
             }
 
             if (!authorizationCache.TryGet(refreshToken, out var authorization))
             {
-               return Error.InvalidRequest("The given refresh_token was not found");
+               return Result.InvalidRequest("The given refresh_token was not found");
             }
 
             var response = new
@@ -188,29 +188,29 @@ public static class InternalEndpoints
          {
             if (request == null)
             {
-               return Error.InvalidRequest("The request body was missing");
+               return Result.InvalidRequest("The request body was missing");
             }
 
             if (request.Subject == null)
             {
-               return Error.InvalidRequest("The subject property was missing");
+               return Result.InvalidRequest("The subject property was missing");
             }
 
             if (request.Claims == null)
             {
-               return Error.InvalidRequest("The claims property was missing");
+               return Result.InvalidRequest("The claims property was missing");
             }
 
             if (!claimsParser.TryParse(request.Claims, out var claims))
             {
-               return Error.InvalidRequest("The claims property must contain string properties or string array properties");
+               return Result.InvalidRequest("The claims property must contain string properties or string array properties");
             }
 
             var user = new User(request.Subject, claims);
 
             return userStore.TryAdd(user)
                ? TypedResults.Ok()
-               : Error.InvalidRequest("The given subject already exists");
+               : Result.InvalidRequest("The given subject already exists");
          });
 
       app.MapGet(
@@ -229,7 +229,7 @@ public static class InternalEndpoints
             {
                if (!userStore.TryGet(subject, out var user))
                {
-                  return Error.InvalidRequest("The given subject was not found");
+                  return Result.InvalidRequest("The given subject was not found");
                }
 
                users = [user];

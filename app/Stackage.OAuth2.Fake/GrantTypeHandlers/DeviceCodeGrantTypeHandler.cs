@@ -23,12 +23,12 @@ public class DeviceCodeGrantTypeHandler : IGrantTypeHandler
    {
       if (!httpRequest.Form.TryGetValue("device_code", out var deviceCode))
       {
-         return Error.InvalidRequest("The device_code parameter was missing");
+         return Result.InvalidRequest("The device_code parameter was missing");
       }
 
       if (!_authorizationCache.TryGet(deviceCode.ToString(), out var authorization))
       {
-         return Error.InvalidGrant("The given device_code was not found");
+         return Result.InvalidGrant("The given device_code was not found");
       }
 
       _authorizationCache.Remove(authorization);

@@ -1,6 +1,5 @@
 namespace Stackage.OAuth2.Fake.Endpoints;
 
-using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -20,9 +19,9 @@ public static class AuthorizationEndpoints
          (
             [FromQuery(Name = "response_type")] string? responseType,
             [FromQuery(Name = "client_id")] string? clientId,
-            [FromQuery(Name = "state")] string? state,
             [FromQuery(Name = "redirect_uri")] string? redirectUri,
             [FromQuery(Name = "scope")] string? scope,
+            [FromQuery(Name = "state")] string? state,
             AuthorizationCache<UserAuthorization> authorizationCache) =>
          {
             // RFC 6749 Section 4.1.2.1: If the request fails due to a missing, invalid, or mismatching
@@ -30,41 +29,34 @@ public static class AuthorizationEndpoints
             // and MUST NOT automatically redirect the user-agent to the invalid redirection URI.
             if (string.IsNullOrEmpty(redirectUri))
             {
-               return Results.BadRequest(new
-               {
-                  error = "invalid_request",
-                  error_description = "The redirect_uri parameter is required",
-               });
+               return Result.InvalidRequest("The redirect_uri parameter is required");
             }
 
             // RFC 6749 Section 3.1: response_type is REQUIRED
             if (string.IsNullOrEmpty(responseType))
             {
-               return Results.Redirect(BuildErrorRedirectUri(
+               return Result.InvalidRequestRedirect(
                   redirectUri,
-                  "invalid_request",
                   "The response_type parameter is required",
-                  state));
+                  state);
             }
 
             // RFC 6749 Section 3.1.1: For authorization code flow, response_type must be "code"
             if (responseType != "code")
             {
-               return Results.Redirect(BuildErrorRedirectUri(
+               return Result.UnsupportedResponseTypeRedirect(
                   redirectUri,
-                  "unsupported_response_type",
                   "The response_type must be code",
-                  state));
+                  state);
             }
 
             // RFC 6749 Section 3.1: client_id is REQUIRED
             if (string.IsNullOrEmpty(clientId))
             {
-               return Results.Redirect(BuildErrorRedirectUri(
+               return Result.InvalidRequestRedirect(
                   redirectUri,
-                  "invalid_request",
                   "The client_id parameter is required",
-                  state));
+                  state);
             }
 
             var authorization = authorizationCache.Add(() => UserAuthorization.Create((Scope?)scope ?? Scope.Empty));
@@ -73,7 +65,7 @@ public static class AuthorizationEndpoints
             // can be used immediately with the /oauth2/token endpoint using grant type authorization_code
             authorization.Authenticate(settings.DefaultSubject);
 
-            return TypedResults.Redirect(BuildSuccessRedirectUri(redirectUri, authorization.Code, state));
+            return Result.SuccessRedirect(redirectUri, authorization.Code, state);
          });
 
       app.MapPost(
@@ -86,7 +78,7 @@ public static class AuthorizationEndpoints
             // RFC 8628 Section 3.1: client_id is REQUIRED
             if (string.IsNullOrEmpty(clientId))
             {
-               return Error.InvalidRequest("The client_id parameter is required");
+               return Result.InvalidRequest("The client_id parameter is required");
             }
 
             var authorization = authorizationCache.Add(() => DeviceAuthorization.Create((Scope?)scope ?? Scope.Empty));
@@ -108,29 +100,5 @@ public static class AuthorizationEndpoints
             return TypedResults.Json(response);
          })
          .DisableAntiforgery();
-   }
-
-   private static string BuildErrorRedirectUri(string redirectUri, string error, string errorDescription, string? state)
-   {
-      var uri = $"{redirectUri}?error={Uri.EscapeDataString(error)}&error_description={Uri.EscapeDataString(errorDescription)}";
-
-      if (!string.IsNullOrEmpty(state))
-      {
-         uri += $"&state={Uri.EscapeDataString(state)}";
-      }
-
-      return uri;
-   }
-
-   private static string BuildSuccessRedirectUri(string redirectUri, string code, string? state)
-   {
-      var uri = $"{redirectUri}?code={Uri.EscapeDataString(code)}";
-
-      if (!string.IsNullOrEmpty(state))
-      {
-         uri += $"&state={Uri.EscapeDataString(state)}";
-      }
-
-      return uri;
    }
 }
