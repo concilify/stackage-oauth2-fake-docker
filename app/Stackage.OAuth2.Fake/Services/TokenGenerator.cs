@@ -40,6 +40,11 @@ public class TokenGenerator : ITokenGenerator
          new(JwtRegisteredClaimNames.Sub, authorization.Subject),
       };
 
+      if (authorization is IAuthorizationWithClientId authorizationWithClientId)
+      {
+         accessTokenClaims.Add(new("client_id", authorizationWithClientId.ClientId));
+      }
+
       if (authorization is IAuthorizationWithClaims authorizationWithClaims)
       {
          accessTokenClaims.AddRange(authorizationWithClaims.Claims);

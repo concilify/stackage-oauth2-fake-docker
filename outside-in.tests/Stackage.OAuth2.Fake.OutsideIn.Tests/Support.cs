@@ -164,12 +164,14 @@ public static class Support
    public static async Task SeedAuthorizationAsync(
       this HttpClient httpClient,
       string code,
+      string clientId = "ValidClientId",
       string[]? scopes = null,
       string? subject = null)
    {
       var body = new JsonObject
       {
          ["code"] = code,
+         ["clientId"] = clientId,
       };
 
       body.AddScopes(scopes);

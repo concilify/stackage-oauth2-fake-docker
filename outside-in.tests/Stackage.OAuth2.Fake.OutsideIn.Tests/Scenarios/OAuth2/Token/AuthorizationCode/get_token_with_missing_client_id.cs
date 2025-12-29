@@ -1,15 +1,15 @@
-namespace Stackage.OAuth2.Fake.OutsideIn.Tests.Scenarios.Internal.Authorization;
+namespace Stackage.OAuth2.Fake.OutsideIn.Tests.Scenarios.OAuth2.Token.AuthorizationCode;
 
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Json;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Stackage.OAuth2.Fake.OutsideIn.Tests.Model;
 
 // ReSharper disable once InconsistentNaming
-public class create_without_code
+public class get_token_with_missing_client_id
 {
    private HttpResponseMessage? _httpResponse;
 
@@ -19,14 +19,17 @@ public class create_without_code
       using var httpClient = new HttpClient();
       httpClient.BaseAddress = new Uri(Configuration.AppUrl);
 
-      var body = new
+      var openIdConfigurationResponse = await httpClient.GetWellKnownOpenIdConfigurationAsync();
+
+      var content = new FormUrlEncodedContent(new Dictionary<string, string>
       {
-         clientId = "AnyClientId",
-      };
+         ["grant_type"] = "authorization_code",
+         ["code"] = "AnyCode",
+      });
 
-      var content = JsonContent.Create(body);
-
-      _httpResponse = await httpClient.PostAsync(".internal/authorization", content);
+      _httpResponse = await httpClient.PostAsync(
+         openIdConfigurationResponse.TokenEndpoint,
+         content);
    }
 
    [Test]
@@ -48,6 +51,6 @@ public class create_without_code
    {
       var errorResponse = await _httpResponse!.ParseAsync<ErrorResponse>();
 
-      Assert.That(errorResponse.ErrorDescription, Is.EqualTo("The code property was missing"));
+      Assert.That(errorResponse.ErrorDescription, Is.EqualTo("The client_id parameter was missing"));
    }
 }

@@ -87,9 +87,15 @@ public static class InternalEndpoints
                return OAuth2Results.InvalidRequest("The code property was missing");
             }
 
+            if (request.ClientId == null)
+            {
+               return OAuth2Results.InvalidRequest("The clientId property was missing");
+            }
+
             var authorization = new UserAuthorization(
                request.Code,
-               (Scope?)request.Scopes ?? Scope.Empty);
+               (Scope?)request.Scopes ?? Scope.Empty,
+               request.ClientId);
 
             authorization.Authenticate(request.Subject ?? settings.DefaultSubject);
 
@@ -118,6 +124,7 @@ public static class InternalEndpoints
             {
                code = authorization.Code,
                scopes = authorization.Scope.ToArray(),
+               clientId = authorization.ClientId,
                subject = authorization.Subject,
             };
 
@@ -296,6 +303,7 @@ public static class InternalEndpoints
    private record PostAuthorizationRequest(
       [property: JsonPropertyName("code")] string? Code,
       [property: JsonPropertyName("scopes")] string[]? Scopes,
+      [property: JsonPropertyName("clientId")] string? ClientId,
       [property: JsonPropertyName("subject")] string? Subject)
    {
       // ReSharper disable once UnusedMember.Local

@@ -78,6 +78,17 @@ public class get_token_with_seeded_refresh_token
    }
 
    [Test]
+   public async Task response_content_should_contain_access_token_with_client_id()
+   {
+      var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
+
+      var scope = tokenResponse.ParseAccessTokenClaim("client_id");
+
+      Assert.That(scope, Is.Not.Null);
+      Assert.That(scope!.Value, Is.EqualTo("AnyClientId"));
+   }
+
+   [Test]
    public async Task response_content_should_contain_access_token_with_scope()
    {
       var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();

@@ -59,7 +59,8 @@ public static class AuthorizationEndpoints
                   state);
             }
 
-            var authorization = authorizationCache.Add(() => UserAuthorization.Create((Scope?)scope ?? Scope.Empty));
+            var authorization = authorizationCache.Add(
+               () => UserAuthorization.Create((Scope?)scope ?? Scope.Empty, clientId));
 
             // This would normally redirect to an intermediate URL to allow the user to logon, but the code returned here
             // can be used immediately with the /oauth2/token endpoint using grant type authorization_code
@@ -81,7 +82,8 @@ public static class AuthorizationEndpoints
                return OAuth2Results.InvalidRequest("The client_id parameter is required");
             }
 
-            var authorization = authorizationCache.Add(() => DeviceAuthorization.Create((Scope?)scope ?? Scope.Empty));
+            var authorization = authorizationCache.Add(
+               () => DeviceAuthorization.Create((Scope?)scope ?? Scope.Empty, clientId));
 
             // This would normally need the user to visit the verification URL to allow the user to logon, but the code returned
             // here can be used immediately with the /oauth2/token endpoint using grant type urn:ietf:params:oauth:grant-type:device_code
