@@ -23,12 +23,12 @@ public class AuthorizationCodeGrantTypeHandler : IGrantTypeHandler
    {
       if (!httpRequest.Form.TryGetValue("code", out var code))
       {
-         return Error.InvalidRequest("The code parameter was missing");
+         return OAuth2Results.InvalidRequest("The code parameter was missing");
       }
 
       if (!_authorizationCache.TryGet(code.ToString(), out var authorization))
       {
-         return Error.InvalidGrant("The given code was not found");
+         return OAuth2Results.InvalidGrant("The given code was not found");
       }
 
       _authorizationCache.Remove(authorization);

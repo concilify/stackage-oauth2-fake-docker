@@ -11,6 +11,42 @@ trim_trailing_whitespace = true
 
 [*.cs]
 indent_size = 3
+dotnet_diagnostic.SA0001.severity = none
+dotnet_diagnostic.SA1101.severity = none
+dotnet_diagnostic.SA1309.severity = none
+dotnet_diagnostic.SA1413.severity = warning
+dotnet_diagnostic.SA1600.severity = none
+dotnet_diagnostic.SA1633.severity = none
+dotnet_style_prefer_trailing_commas = true:warning
+resharper_arrange_trailing_comma_in_multiline_lists_highlighting = warning
+resharper_arrange_trailing_comma_in_singleline_lists_highlighting = none
+
+# Private instance fields (_camelCase)
+dotnet_naming_symbols.private_instance_fields.applicable_kinds = field
+dotnet_naming_symbols.private_instance_fields.applicable_accessibilities = private
+dotnet_naming_style.underscore_camel_case.required_prefix = _
+dotnet_naming_style.underscore_camel_case.capitalization = camel_case
+dotnet_naming_rule.private_fields_must_use_underscore.style = underscore_camel_case
+dotnet_naming_rule.private_fields_must_use_underscore.symbols = private_instance_fields
+dotnet_naming_rule.private_fields_must_use_underscore.severity = error
+
+# Private static fields (PascalCase)
+otnet_naming_symbols.private_static_fields.applicable_kinds = field
+dotnet_naming_symbols.private_static_fields.applicable_accessibilities = private
+dotnet_naming_symbols.private_static_fields.required_modifiers = static
+dotnet_naming_style.private_static_pascal.capitalization = pascal_case
+dotnet_naming_rule.private_static_fields_pascal.style = private_static_pascal
+dotnet_naming_rule.private_static_fields_pascal.symbols = private_static_fields
+dotnet_naming_rule.private_static_fields_pascal.severity = error
+
+[**/*Tests.cs]
+dotnet_diagnostic.SA1300.severity = none
+
+[**/Scenarios/**/*.cs]
+dotnet_diagnostic.SA1300.severity = none
+
+[**/WaitForHealthyApp.cs]
+dotnet_diagnostic.SA1300.severity = none
 
 [*.sh]
 end_of_line = lf

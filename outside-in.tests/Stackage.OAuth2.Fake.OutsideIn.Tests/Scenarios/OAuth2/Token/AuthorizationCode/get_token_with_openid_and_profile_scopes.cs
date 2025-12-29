@@ -43,7 +43,7 @@ public class get_token_with_openid_and_profile_scopes
          {
             ["name"] = $"{_subject}-name",
             ["nickname"] = $"{_subject}-nickname",
-            ["picture"] = $"{_subject}-picture"
+            ["picture"] = $"{_subject}-picture",
          });
 
       var content = new FormUrlEncodedContent(new Dictionary<string, string>
@@ -105,7 +105,6 @@ public class get_token_with_openid_and_profile_scopes
       Assert.That(scope!.Value, Is.EqualTo("openid profile"));
    }
 
-
    [Test]
    public async Task response_content_should_contain_id_token_signed_by_public_key()
    {
@@ -137,7 +136,7 @@ public class get_token_with_openid_and_profile_scopes
       {
          [JwtRegisteredClaimNames.Name] = $"{_subject}-name",
          [JwtRegisteredClaimNames.Nickname] = $"{_subject}-nickname",
-         [JwtRegisteredClaimNames.Picture] = $"{_subject}-picture"
+         [JwtRegisteredClaimNames.Picture] = $"{_subject}-picture",
       };
 
       claims.ShouldBeEquivalentTo(expectedClaims);

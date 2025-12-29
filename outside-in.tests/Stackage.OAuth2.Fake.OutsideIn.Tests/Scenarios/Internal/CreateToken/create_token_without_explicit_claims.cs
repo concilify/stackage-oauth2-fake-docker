@@ -22,8 +22,8 @@ public class create_token_without_explicit_claims
 
       var body = new
       {
-         subject = "arbitrary-subject",
-         claims = new { }
+         subject = "any-subject",
+         claims = new { },
       };
 
       var content = JsonContent.Create(body);
@@ -64,7 +64,7 @@ public class create_token_without_explicit_claims
 
       var jwtSecurityToken = tokenResponse.ParseAccessTokenAsJwtSecurityToken();
 
-      Assert.That(jwtSecurityToken.Subject, Is.EqualTo("arbitrary-subject"));
+      Assert.That(jwtSecurityToken.Subject, Is.EqualTo("any-subject"));
    }
 
    [Test]

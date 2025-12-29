@@ -8,7 +8,7 @@ using System.Web;
 using NUnit.Framework;
 
 // ReSharper disable once InconsistentNaming
-public class user_authorization_happy_path
+public class user_authorization_missing_response_type
 {
    private HttpResponseMessage? _httpResponse;
 
@@ -24,7 +24,7 @@ public class user_authorization_happy_path
       var openIdConfigurationResponse = await httpClient.GetWellKnownOpenIdConfigurationAsync();
 
       var authorizationUri =
-         $"{openIdConfigurationResponse.AuthorizationEndpoint}?response_type=code&client_id=AnyClientId&state=AnyState&redirect_uri=http://any-host/callback";
+         $"{openIdConfigurationResponse.AuthorizationEndpoint}?client_id=AnyClientId&state=AnyState&redirect_uri=http://any-host/callback";
 
       _httpResponse = await httpClient.GetAsync(authorizationUri);
    }
@@ -36,19 +36,11 @@ public class user_authorization_happy_path
    }
 
    [Test]
-   public void response_headers_should_contain_location_with_code_and_state_query_parameters()
+   public void response_should_contain_error_parameter()
    {
-      Assert.That(_httpResponse?.Headers.Location, Is.Not.Null);
-      Assert.That(_httpResponse?.Headers.Location?.Host, Is.EqualTo("any-host"));
-      Assert.That(_httpResponse?.Headers.Location?.AbsolutePath, Is.EqualTo("/callback"));
-      Assert.That(_httpResponse?.Headers.Location?.Query, Is.Not.Null);
-
       var queryString = HttpUtility.ParseQueryString(_httpResponse!.Headers.Location!.Query!);
 
-      Assert.That(queryString.Keys, Contains.Item("code"));
-      Assert.That(queryString.Keys, Contains.Item("state"));
-
-      Assert.That(Guid.TryParse(queryString["code"], out _), Is.True);
+      Assert.That(queryString["error"], Is.EqualTo("invalid_request"));
       Assert.That(queryString["state"], Is.EqualTo("AnyState"));
    }
 }

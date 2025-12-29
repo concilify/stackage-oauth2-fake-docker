@@ -27,7 +27,7 @@ public class ClaimsParserTests
 
       var claimsObject = new JsonObject
       {
-         ["sub"] = "any-subject"
+         ["sub"] = "any-subject",
       };
 
       var result = testSubject.TryParse(claimsObject, out var claims);
@@ -48,7 +48,7 @@ public class ClaimsParserTests
 
       var claimsObject = new JsonObject
       {
-         ["sub"] = JsonValue.Create(value)
+         ["sub"] = JsonValue.Create(value),
       };
 
       var result = testSubject.TryParse(claimsObject, out var claims);
@@ -64,7 +64,7 @@ public class ClaimsParserTests
 
       var claimsObject = new JsonObject
       {
-         ["any-claim"] = new JsonArray { "any-value" }
+         ["any-claim"] = new JsonArray { "any-value" },
       };
 
       var result = testSubject.TryParse(claimsObject, out var claims);
@@ -83,7 +83,7 @@ public class ClaimsParserTests
 
       var claimsObject = new JsonObject
       {
-         ["any-claim"] = new JsonArray { "value-one", "value-two" }
+         ["any-claim"] = new JsonArray { "value-one", "value-two" },
       };
 
       var result = testSubject.TryParse(claimsObject, out var claims);
@@ -104,7 +104,7 @@ public class ClaimsParserTests
 
       var claimsObject = new JsonObject
       {
-         ["any-claim"] = new JsonArray { "value-one", value }
+         ["any-claim"] = new JsonArray { "value-one", value },
       };
 
       var result = testSubject.TryParse(claimsObject, out var claims);
@@ -125,7 +125,7 @@ public class ClaimsParserTests
 
       var claimsObject = new JsonObject
       {
-         [name] = "any-value"
+         [name] = "any-value",
       };
 
       var result = testSubject.TryParse(claimsObject, out var claims);
@@ -150,7 +150,7 @@ public class ClaimsParserTests
 
       var claimsObject = new JsonObject
       {
-         [name] = "any-value"
+         [name] = "any-value",
       };
 
       var result = testSubject.TryParse(claimsObject, out var claims);

@@ -17,13 +17,49 @@ public static class AuthorizationEndpoints
       app.MapGet(
          settings.AuthorizationPath,
          (
-            AuthorizationCache<UserAuthorization> authorizationCache,
-            [FromQuery(Name = "state")] string state,
-            [FromQuery(Name = "redirect_uri")] string redirectUri,
-            [FromQuery(Name = "scope")] string? scope = null,
-            [FromQuery(Name = "audience")] string? audience = null
-         ) =>
+            [FromQuery(Name = "response_type")] string? responseType,
+            [FromQuery(Name = "client_id")] string? clientId,
+            [FromQuery(Name = "redirect_uri")] string? redirectUri,
+            [FromQuery(Name = "scope")] string? scope,
+            [FromQuery(Name = "state")] string? state,
+            [FromQuery(Name = "audience")] string? audience = null,
+            AuthorizationCache<UserAuthorization> authorizationCache) =>
          {
+            // RFC 6749 Section 4.1.2.1: If the request fails due to a missing, invalid, or mismatching
+            // redirection URI, the authorization server SHOULD inform the resource owner of the error
+            // and MUST NOT automatically redirect the user-agent to the invalid redirection URI.
+            if (string.IsNullOrEmpty(redirectUri))
+            {
+               return OAuth2Results.InvalidRequest("The redirect_uri parameter is required");
+            }
+
+            // RFC 6749 Section 3.1: response_type is REQUIRED
+            if (string.IsNullOrEmpty(responseType))
+            {
+               return OAuth2Results.InvalidRequestRedirect(
+                  redirectUri,
+                  "The response_type parameter is required",
+                  state);
+            }
+
+            // RFC 6749 Section 3.1.1: For authorization code flow, response_type must be "code"
+            if (responseType != "code")
+            {
+               return OAuth2Results.UnsupportedResponseTypeRedirect(
+                  redirectUri,
+                  "The response_type must be code",
+                  state);
+            }
+
+            // RFC 6749 Section 3.1: client_id is REQUIRED
+            if (string.IsNullOrEmpty(clientId))
+            {
+               return OAuth2Results.InvalidRequestRedirect(
+                  redirectUri,
+                  "The client_id parameter is required",
+                  state);
+            }
+
             var authorization = authorizationCache.Add(
                () => UserAuthorization.Create((Scope?)scope ?? Scope.Empty, audience));
 
@@ -31,17 +67,23 @@ public static class AuthorizationEndpoints
             // can be used immediately with the /oauth2/token endpoint using grant type authorization_code
             authorization.Authenticate(settings.DefaultSubject);
 
-            return TypedResults.Redirect($"{redirectUri}?code={authorization.Code}&state={state}");
+            return OAuth2Results.SuccessRedirect(redirectUri, authorization.Code, state);
          });
 
       app.MapPost(
          settings.DeviceAuthorizationPath,
          (
-            AuthorizationCache<DeviceAuthorization> authorizationCache,
-            [FromForm(Name = "scope")] string? scope = null,
-            [FromForm(Name = "audience")] string? audience = null
-         ) =>
+            [FromForm(Name = "client_id")] string? clientId,
+            [FromForm(Name = "scope")] string? scope,
+            [FromForm(Name = "audience")] string? audience = null,
+            AuthorizationCache<DeviceAuthorization> authorizationCache) =>
          {
+            // RFC 8628 Section 3.1: client_id is REQUIRED
+            if (string.IsNullOrEmpty(clientId))
+            {
+               return OAuth2Results.InvalidRequest("The client_id parameter is required");
+            }
+
             var authorization = authorizationCache.Add(
                () => DeviceAuthorization.Create((Scope?)scope ?? Scope.Empty, audience));
 
@@ -56,7 +98,7 @@ public static class AuthorizationEndpoints
                verification_uri = $"{settings.IssuerUrl}{settings.DeviceVerificationPath}",
                verification_uri_complete = $"{settings.IssuerUrl}{settings.DeviceVerificationPath}?user_code={authorization.UserCode}",
                expires_in = 600,
-               interval = 5
+               interval = 5,
             };
 
             return TypedResults.Json(response);

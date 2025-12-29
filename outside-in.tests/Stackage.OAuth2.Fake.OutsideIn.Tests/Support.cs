@@ -60,6 +60,7 @@ public static class Support
       var requestQuery = new Dictionary<string, string?>
       {
          ["response_type"] = "code",
+         ["client_id"] = "AnyClientId",
          ["state"] = "AnyState",
          ["redirect_uri"] = "http://any-host/callback",
       };
@@ -125,7 +126,7 @@ public static class Support
       {
          ["client_id"] = "AnyClientId",
          ["grant_type"] = "authorization_code",
-         ["code"] = code
+         ["code"] = code,
       });
 
       var httpResponse = await httpClient.PostAsync(
@@ -144,7 +145,7 @@ public static class Support
       {
          ["client_id"] = "AnyClientId",
          ["grant_type"] = "urn:ietf:params:oauth:grant-type:device_code",
-         ["device_code"] = deviceCode
+         ["device_code"] = deviceCode,
       });
 
       var httpResponse = await httpClient.PostAsync(
@@ -156,13 +157,13 @@ public static class Support
 
    public static async Task<TokenResponse> CreateTokenAsync(
       this HttpClient httpClient,
-      string subject = "valid-subject",
+      string subject = "any-subject",
       string[]? scopes = null)
    {
       var body = new JsonObject
       {
          ["subject"] = subject,
-         ["claims"] = new JsonObject()
+         ["claims"] = new JsonObject(),
       };
 
       body.AddScopes(scopes);
@@ -180,7 +181,7 @@ public static class Support
    {
       var body = new JsonObject
       {
-         ["code"] = code
+         ["code"] = code,
       };
 
       body.AddScopes(scopes);
@@ -197,7 +198,7 @@ public static class Support
    {
       var body = new JsonObject
       {
-         ["refreshToken"] = refreshToken
+         ["refreshToken"] = refreshToken,
       };
 
       body.AddScopes(scopes);
@@ -214,7 +215,7 @@ public static class Support
       var body = new
       {
          subject,
-         claims
+         claims,
       };
 
       var content = JsonContent.Create(body);
@@ -321,7 +322,7 @@ public static class Support
          IssuerSigningKey = jsonWebKey,
          ValidIssuer = Configuration.IssuerUrl,
          ValidateAudience = audiences is { Length: > 0 },
-         ValidAudiences = audiences
+         ValidAudiences = audiences,
       };
 
       new JwtSecurityTokenHandler().ValidateToken(

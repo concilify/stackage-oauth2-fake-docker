@@ -25,11 +25,11 @@ public class create_token_without_scopes
 
       var body = new
       {
-         subject = "arbitrary-subject",
+         subject = "any-subject",
          claims = new
          {
-            custom_claim = "custom-value"
-         }
+            custom_claim = "custom-value",
+         },
       };
 
       var content = JsonContent.Create(body);
@@ -70,7 +70,7 @@ public class create_token_without_scopes
 
       var jwtSecurityToken = tokenResponse.ParseAccessTokenAsJwtSecurityToken();
 
-      Assert.That(jwtSecurityToken.Subject, Is.EqualTo("arbitrary-subject"));
+      Assert.That(jwtSecurityToken.Subject, Is.EqualTo("any-subject"));
    }
 
    [Test]
@@ -92,7 +92,7 @@ public class create_token_without_scopes
 
       var expectedClaims = new Dictionary<string, StringValues>
       {
-         ["custom_claim"] = "custom-value"
+         ["custom_claim"] = "custom-value",
       };
 
       claims.ShouldBeEquivalentTo(expectedClaims);

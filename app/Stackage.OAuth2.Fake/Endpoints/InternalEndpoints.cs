@@ -34,27 +34,26 @@ public static class InternalEndpoints
          (
             [FromBody] CreateTokenRequest? request,
             [FromServices] IClaimsParser claimsParser,
-            ITokenGenerator tokenGenerator
-         ) =>
+            ITokenGenerator tokenGenerator) =>
          {
             if (request == null)
             {
-               return Error.InvalidRequest("The request body was missing");
+               return OAuth2Results.InvalidRequest("The request body was missing");
             }
 
             if (request.Subject == null)
             {
-               return Error.InvalidRequest("The subject property was missing");
+               return OAuth2Results.InvalidRequest("The subject property was missing");
             }
 
             if (request.Claims == null)
             {
-               return Error.InvalidRequest("The claims property was missing");
+               return OAuth2Results.InvalidRequest("The claims property was missing");
             }
 
             if (!claimsParser.TryParse(request.Claims, out var claims))
             {
-               return Error.InvalidRequest("The claims property must contain string properties or string array properties");
+               return OAuth2Results.InvalidRequest("The claims property must contain string properties or string array properties");
             }
 
             var authorization = new InternalAuthorization(
@@ -77,17 +76,16 @@ public static class InternalEndpoints
          (
             [FromBody] PostAuthorizationRequest? request,
             Settings settings,
-            AuthorizationCache<UserAuthorization> authorizationCache
-         ) =>
+            AuthorizationCache<UserAuthorization> authorizationCache) =>
          {
             if (request == null)
             {
-               return Error.InvalidRequest("The request body was missing");
+               return OAuth2Results.InvalidRequest("The request body was missing");
             }
 
             if (request.Code == null)
             {
-               return Error.InvalidRequest("The code property was missing");
+               return OAuth2Results.InvalidRequest("The code property was missing");
             }
 
             var authorization = new UserAuthorization(
@@ -100,31 +98,30 @@ public static class InternalEndpoints
 
             return authorizationCache.TryAdd(authorization)
                ? TypedResults.Ok()
-               : Error.InvalidRequest("The given code already exists");
+               : OAuth2Results.InvalidRequest("The given code already exists");
          });
 
       app.MapGet(
          "/.internal/authorization",
          (
             [FromQuery(Name = "code")] string? code,
-            AuthorizationCache<UserAuthorization> authorizationCache
-         ) =>
+            AuthorizationCache<UserAuthorization> authorizationCache) =>
          {
             if (code == null)
             {
-               return Error.InvalidRequest("The code parameter was missing");
+               return OAuth2Results.InvalidRequest("The code parameter was missing");
             }
 
             if (!authorizationCache.TryGet(code, out var authorization))
             {
-               return Error.InvalidRequest("The given code was not found");
+               return OAuth2Results.InvalidRequest("The given code was not found");
             }
 
             var response = new
             {
                code = authorization.Code,
                scopes = authorization.Scope.ToArray(),
-               subject = authorization.Subject
+               subject = authorization.Subject,
             };
 
             return TypedResults.Json(response, statusCode: 200);
@@ -138,17 +135,16 @@ public static class InternalEndpoints
          (
             [FromBody] PostRefreshTokenRequest? request,
             Settings settings,
-            AuthorizationCache<RefreshAuthorization> authorizationCache
-         ) =>
+            AuthorizationCache<RefreshAuthorization> authorizationCache) =>
          {
             if (request == null)
             {
-               return Error.InvalidRequest("The request body was missing");
+               return OAuth2Results.InvalidRequest("The request body was missing");
             }
 
             if (request.RefreshToken == null)
             {
-               return Error.InvalidRequest("The refreshToken property was missing");
+               return OAuth2Results.InvalidRequest("The refreshToken property was missing");
             }
 
             var authorization = new RefreshAuthorization(
@@ -158,31 +154,30 @@ public static class InternalEndpoints
 
             return authorizationCache.TryAdd(authorization)
                ? TypedResults.Ok()
-               : Error.InvalidRequest("The given refreshToken already exists");
+               : OAuth2Results.InvalidRequest("The given refreshToken already exists");
          });
 
       app.MapGet(
          "/.internal/refresh-token",
          (
             [FromQuery(Name = "refresh_token")] string? refreshToken,
-            AuthorizationCache<RefreshAuthorization> authorizationCache
-         ) =>
+            AuthorizationCache<RefreshAuthorization> authorizationCache) =>
          {
             if (refreshToken == null)
             {
-               return Error.InvalidRequest("The refresh_token parameter was missing");
+               return OAuth2Results.InvalidRequest("The refresh_token parameter was missing");
             }
 
             if (!authorizationCache.TryGet(refreshToken, out var authorization))
             {
-               return Error.InvalidRequest("The given refresh_token was not found");
+               return OAuth2Results.InvalidRequest("The given refresh_token was not found");
             }
 
             var response = new
             {
                refresh_token = authorization.RefreshToken,
                scopes = authorization.Scope.ToArray(),
-               subject = authorization.Subject
+               subject = authorization.Subject,
             };
 
             return TypedResults.Json(response, statusCode: 200);
@@ -196,42 +191,40 @@ public static class InternalEndpoints
          (
             [FromBody] PostUserRequest? request,
             [FromServices] IClaimsParser claimsParser,
-            IUserStore userStore
-         ) =>
+            IUserStore userStore) =>
          {
             if (request == null)
             {
-               return Error.InvalidRequest("The request body was missing");
+               return OAuth2Results.InvalidRequest("The request body was missing");
             }
 
             if (request.Subject == null)
             {
-               return Error.InvalidRequest("The subject property was missing");
+               return OAuth2Results.InvalidRequest("The subject property was missing");
             }
 
             if (request.Claims == null)
             {
-               return Error.InvalidRequest("The claims property was missing");
+               return OAuth2Results.InvalidRequest("The claims property was missing");
             }
 
             if (!claimsParser.TryParse(request.Claims, out var claims))
             {
-               return Error.InvalidRequest("The claims property must contain string properties or string array properties");
+               return OAuth2Results.InvalidRequest("The claims property must contain string properties or string array properties");
             }
 
             var user = new User(request.Subject, claims);
 
             return userStore.TryAdd(user)
                ? TypedResults.Ok()
-               : Error.InvalidRequest("The given subject already exists");
+               : OAuth2Results.InvalidRequest("The given subject already exists");
          });
 
       app.MapGet(
          "/.internal/users",
          (
             [FromQuery(Name = "subject")] string? subject,
-            IUserStore userStore
-         ) =>
+            IUserStore userStore) =>
          {
             IReadOnlyList<User> users;
 
@@ -243,7 +236,7 @@ public static class InternalEndpoints
             {
                if (!userStore.TryGet(subject, out var user))
                {
-                  return Error.InvalidRequest("The given subject was not found");
+                  return OAuth2Results.InvalidRequest("The given subject was not found");
                }
 
                users = [user];
@@ -253,7 +246,7 @@ public static class InternalEndpoints
                .Select(u => new
                {
                   subject = u.Subject,
-                  claims = u.Claims.ToDictionary(c => c.Type, c => c.Value)
+                  claims = u.Claims.ToDictionary(c => c.Type, c => c.Value),
                })
                .ToArray();
 

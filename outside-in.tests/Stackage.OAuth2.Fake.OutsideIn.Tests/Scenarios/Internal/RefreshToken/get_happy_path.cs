@@ -26,7 +26,7 @@ public class get_happy_path
       {
          refreshToken = _refreshToken,
          scopes = new[] { "scope-a", "scope-b" },
-         subject = "SomeSubject"
+         subject = "SomeSubject",
       };
 
       var content = JsonContent.Create(body);

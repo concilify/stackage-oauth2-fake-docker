@@ -37,7 +37,7 @@ public class TokenGenerator : ITokenGenerator
 
       var accessTokenClaims = new List<Claim>
       {
-         new(JwtRegisteredClaimNames.Sub, authorization.Subject)
+         new(JwtRegisteredClaimNames.Sub, authorization.Subject),
       };
 
       if (authorization is IAuthorizationWithAudiences { Audiences: not null } authorizationWithAudiences)
@@ -63,7 +63,7 @@ public class TokenGenerator : ITokenGenerator
       var response = new TokenResponse
       {
          AccessToken = Generate(accessTokenClaims, expirySeconds),
-         ExpiresInSeconds = expirySeconds
+         ExpiresInSeconds = expirySeconds,
       };
 
       if (!authorization.Scope.IsEmpty)
@@ -73,7 +73,7 @@ public class TokenGenerator : ITokenGenerator
             var idTokenClaims = new List<Claim>
             {
                new(JwtRegisteredClaimNames.Sub, authorization.Subject),
-               new(JwtRegisteredClaimNames.Aud, "foo")
+               new(JwtRegisteredClaimNames.Aud, "foo"),
                // TODO: aud is client_id
             };
 

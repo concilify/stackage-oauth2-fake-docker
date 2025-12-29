@@ -34,7 +34,7 @@ public class AuthorizationCodeGrantTypeHandlerTests
 
       var httpRequest = CreateRequest(new Dictionary<string, StringValues>
       {
-         ["code"] = "UnknownAuthorizationCode"
+         ["code"] = "UnknownAuthorizationCode",
       });
 
       var result = testSubject.Handle(httpRequest);
@@ -55,7 +55,7 @@ public class AuthorizationCodeGrantTypeHandlerTests
 
       var httpRequest = CreateRequest(new Dictionary<string, StringValues>
       {
-         ["code"] = authorization.Code
+         ["code"] = authorization.Code,
       });
 
       var result = testSubject.Handle(httpRequest);
@@ -76,7 +76,7 @@ public class AuthorizationCodeGrantTypeHandlerTests
 
       var httpRequest = CreateRequest(new Dictionary<string, StringValues>
       {
-         ["code"] = authorization.Code
+         ["code"] = authorization.Code,
       });
 
       testSubject.Handle(httpRequest);
@@ -93,8 +93,8 @@ public class AuthorizationCodeGrantTypeHandlerTests
       {
          Request =
          {
-            Form = new FormCollection(formValues)
-         }
+            Form = new FormCollection(formValues),
+         },
       };
 
       return httpContext.Request;
