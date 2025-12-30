@@ -42,8 +42,12 @@ public class UserAuthorizationTests
       Assert.That(testSubject.Subject, Is.EqualTo("AnySubject"));
    }
 
-   private static UserAuthorization CreateAuthorization(string? scope = null)
+   private static UserAuthorization CreateAuthorization(
+      string clientId = "AnyClientId",
+      string? scope = null)
    {
-      return UserAuthorization.Create(scope: (Scope?)scope ?? Scope.Empty);
+      return UserAuthorization.Create(
+         clientId: clientId,
+         scope: (Scope?)scope ?? Scope.Empty);
    }
 }

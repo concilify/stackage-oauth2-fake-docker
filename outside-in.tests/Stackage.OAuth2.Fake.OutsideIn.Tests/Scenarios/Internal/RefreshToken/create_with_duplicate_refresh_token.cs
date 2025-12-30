@@ -22,6 +22,7 @@ public class create_with_duplicate_refresh_token
       var body = new
       {
          refreshToken = Guid.NewGuid().ToString(),
+         clientId = "AnyClientId",
       };
 
       var content = JsonContent.Create(body);

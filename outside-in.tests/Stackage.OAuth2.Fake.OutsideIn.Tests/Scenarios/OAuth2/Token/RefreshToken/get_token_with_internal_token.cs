@@ -41,6 +41,7 @@ public class get_token_with_internal_token
    [Test]
    public void response_status_should_be_okay()
    {
+      var c = _httpResponse.Content.ReadAsStringAsync();
       Assert.That(_httpResponse?.StatusCode, Is.EqualTo(HttpStatusCode.OK));
    }
 

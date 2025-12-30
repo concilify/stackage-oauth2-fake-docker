@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.Security.Claims;
 
 public record InternalAuthorization(
+   string ClientId,
    Scope Scope,
    string Subject,
    int? TokenExpirySeconds,

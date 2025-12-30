@@ -48,7 +48,8 @@ public class AuthorizationCodeGrantTypeHandlerTests
    {
       var authorizationCache = new AuthorizationCache<UserAuthorization>();
 
-      var authorization = authorizationCache.Add(() => UserAuthorization.Create(scope: Scope.Empty));
+      var authorization = authorizationCache.Add(
+         () => UserAuthorization.Create(clientId: "AnyClientId", scope: Scope.Empty));
 
       var testSubject = CreateHandler(
          authorizationCache: authorizationCache);
@@ -56,6 +57,7 @@ public class AuthorizationCodeGrantTypeHandlerTests
       var httpRequest = CreateRequest(new Dictionary<string, StringValues>
       {
          ["code"] = authorization.Code,
+         ["client_id"] = "AnyClientId",
       });
 
       var result = testSubject.Handle(httpRequest);
@@ -69,7 +71,8 @@ public class AuthorizationCodeGrantTypeHandlerTests
    {
       var authorizationCache = new AuthorizationCache<UserAuthorization>();
 
-      var authorization = authorizationCache.Add(() => UserAuthorization.Create(scope: Scope.Empty));
+      var authorization = authorizationCache.Add(
+         () => UserAuthorization.Create(clientId: "AnyClientId", scope: Scope.Empty));
 
       var testSubject = CreateHandler(
          authorizationCache: authorizationCache);

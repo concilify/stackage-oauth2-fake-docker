@@ -18,14 +18,17 @@ public static class AuthorizationStub
    }
 
    public static IAuthorization With(
+      string? clientId = null,
       Scope? scope = null,
       string? subject = null)
    {
+      clientId ??= "ValidClientId";
       scope ??= Scope.Empty;
       subject ??= string.Empty;
 
       var mock = new Mock<IAuthorization>();
 
+      mock.Setup(m => m.ClientId).Returns(clientId);
       mock.Setup(m => m.Scope).Returns(scope);
       mock.Setup(m => m.IsAuthenticated).Returns(true);
       mock.Setup(m => m.Subject).Returns(subject);

@@ -32,6 +32,7 @@ public class get_token_with_openid_and_profile_scopes
       await httpClient.SeedRefreshTokenAsync(
          refreshToken: _refreshToken,
          scopes: ["openid", "profile"],
+         clientId: "AnyClientId",
          subject: _subject);
 
       await httpClient.SeedUserAsync(
@@ -100,6 +101,17 @@ public class get_token_with_openid_and_profile_scopes
 
       Assert.That(scope, Is.Not.Null);
       Assert.That(tokenResponse.Scope, Is.EqualTo("openid profile"));
+   }
+
+   [Test]
+   public async Task response_content_should_contain_access_token_with_client_id()
+   {
+      var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
+
+      var scope = tokenResponse.ParseAccessTokenClaim("client_id");
+
+      Assert.That(scope, Is.Not.Null);
+      Assert.That(scope!.Value, Is.EqualTo("AnyClientId"));
    }
 
    [Test]

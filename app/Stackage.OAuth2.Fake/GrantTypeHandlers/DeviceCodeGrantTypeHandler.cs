@@ -36,7 +36,10 @@ public class DeviceCodeGrantTypeHandler : IGrantTypeHandler
          return OAuth2Results.InvalidGrant("The given device_code was not found");
       }
 
-      //// TODO: verify client_id
+      if (clientId.ToString() != authorization.ClientId)
+      {
+         return OAuth2Results.InvalidGrant("The given client_id did not match the original request");
+      }
 
       _authorizationCache.Remove(authorization);
 

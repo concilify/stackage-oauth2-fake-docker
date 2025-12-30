@@ -21,6 +21,7 @@ public class create_happy_path
       var body = new
       {
          refreshToken = Guid.NewGuid().ToString(),
+         clientId = "AnyClientId",
       };
 
       var content = JsonContent.Create(body);

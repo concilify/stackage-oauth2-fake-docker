@@ -36,7 +36,10 @@ public class RefreshTokenGrantTypeHandler : IGrantTypeHandler
          return OAuth2Results.InvalidGrant("The given refresh_token was not found");
       }
 
-      //// TODO: verify client_id
+      if (clientId.ToString() != authorization.ClientId)
+      {
+         return OAuth2Results.InvalidGrant("The given client_id did not match the original request");
+      }
 
       _authorizationCache.Remove(authorization);
 

@@ -27,7 +27,8 @@ public class get_token_with_seeded_refresh_token
 
       await httpClient.SeedRefreshTokenAsync(
          refreshToken: _refreshToken,
-         scopes: ["offline_access"]);
+         scopes: ["offline_access"],
+         clientId: "AnyClientId");
 
       var content = new FormUrlEncodedContent(new Dictionary<string, string>
       {
