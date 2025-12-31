@@ -38,6 +38,7 @@ public class TokenGenerator : ITokenGenerator
       var accessTokenClaims = new List<Claim>
       {
          new(JwtRegisteredClaimNames.Sub, authorization.Subject),
+         new("client_id", authorization.ClientId),
       };
 
       if (authorization is IAuthorizationWithClaims authorizationWithClaims)

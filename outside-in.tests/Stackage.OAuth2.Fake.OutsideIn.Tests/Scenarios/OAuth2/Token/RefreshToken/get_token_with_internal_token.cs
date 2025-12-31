@@ -41,6 +41,7 @@ public class get_token_with_internal_token
    [Test]
    public void response_status_should_be_okay()
    {
+      var c = _httpResponse.Content.ReadAsStringAsync();
       Assert.That(_httpResponse?.StatusCode, Is.EqualTo(HttpStatusCode.OK));
    }
 
@@ -72,6 +73,17 @@ public class get_token_with_internal_token
       var jwtSecurityToken = tokenResponse.ParseAccessTokenAsJwtSecurityToken();
 
       Assert.That(jwtSecurityToken.Subject, Is.EqualTo("any-subject"));
+   }
+
+   [Test]
+   public async Task response_content_should_contain_access_token_with_client_id()
+   {
+      var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
+
+      var scope = tokenResponse.ParseAccessTokenClaim("client_id");
+
+      Assert.That(scope, Is.Not.Null);
+      Assert.That(scope!.Value, Is.EqualTo("AnyClientId"));
    }
 
    [Test]

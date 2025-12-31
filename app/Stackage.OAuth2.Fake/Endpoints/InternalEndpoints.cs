@@ -41,6 +41,11 @@ public static class InternalEndpoints
                return OAuth2Results.InvalidRequest("The request body was missing");
             }
 
+            if (request.ClientId == null)
+            {
+               return OAuth2Results.InvalidRequest("The clientId property was missing");
+            }
+
             if (request.Subject == null)
             {
                return OAuth2Results.InvalidRequest("The subject property was missing");
@@ -57,6 +62,7 @@ public static class InternalEndpoints
             }
 
             var authorization = new InternalAuthorization(
+               ClientId: request.ClientId,
                Scope: (Scope?)request.Scopes ?? Scope.Empty,
                Subject: request.Subject,
                TokenExpirySeconds: request.TokenExpirySeconds,
@@ -87,8 +93,14 @@ public static class InternalEndpoints
                return OAuth2Results.InvalidRequest("The code property was missing");
             }
 
+            if (request.ClientId == null)
+            {
+               return OAuth2Results.InvalidRequest("The clientId property was missing");
+            }
+
             var authorization = new UserAuthorization(
                request.Code,
+               request.ClientId,
                (Scope?)request.Scopes ?? Scope.Empty);
 
             authorization.Authenticate(request.Subject ?? settings.DefaultSubject);
@@ -117,6 +129,7 @@ public static class InternalEndpoints
             var response = new
             {
                code = authorization.Code,
+               clientId = authorization.ClientId,
                scopes = authorization.Scope.ToArray(),
                subject = authorization.Subject,
             };
@@ -144,8 +157,14 @@ public static class InternalEndpoints
                return OAuth2Results.InvalidRequest("The refreshToken property was missing");
             }
 
+            if (request.ClientId == null)
+            {
+               return OAuth2Results.InvalidRequest("The clientId property was missing");
+            }
+
             var authorization = new RefreshAuthorization(
                request.RefreshToken,
+               request.ClientId,
                (Scope?)request.Scopes ?? Scope.Empty,
                request.Subject ?? settings.DefaultSubject);
 
@@ -173,6 +192,7 @@ public static class InternalEndpoints
             var response = new
             {
                refresh_token = authorization.RefreshToken,
+               clientId = authorization.ClientId,
                scopes = authorization.Scope.ToArray(),
                subject = authorization.Subject,
             };
@@ -284,8 +304,9 @@ public static class InternalEndpoints
    }
 
    private record CreateTokenRequest(
-      [property: JsonPropertyName("subject")] string? Subject,
+      [property: JsonPropertyName("clientId")] string? ClientId,
       [property: JsonPropertyName("scopes")] string[]? Scopes,
+      [property: JsonPropertyName("subject")] string? Subject,
       [property: JsonPropertyName("tokenExpirySeconds")] int? TokenExpirySeconds,
       [property: JsonPropertyName("claims")] JsonObject? Claims)
    {
@@ -295,6 +316,7 @@ public static class InternalEndpoints
 
    private record PostAuthorizationRequest(
       [property: JsonPropertyName("code")] string? Code,
+      [property: JsonPropertyName("clientId")] string? ClientId,
       [property: JsonPropertyName("scopes")] string[]? Scopes,
       [property: JsonPropertyName("subject")] string? Subject)
    {
@@ -304,6 +326,7 @@ public static class InternalEndpoints
 
    private record PostRefreshTokenRequest(
       [property: JsonPropertyName("refreshToken")] string? RefreshToken,
+      [property: JsonPropertyName("clientId")] string? ClientId,
       [property: JsonPropertyName("scopes")] string[]? Scopes,
       [property: JsonPropertyName("subject")] string? Subject)
    {

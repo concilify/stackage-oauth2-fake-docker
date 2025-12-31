@@ -22,8 +22,9 @@ public class create_token_without_openid_or_offline_access_scope
 
       var body = new
       {
-         subject = "any-subject",
+         clientId = "AnyClientId",
          scopes = new[] { "any_scope" },
+         subject = "any-subject",
          claims = new { },
       };
 

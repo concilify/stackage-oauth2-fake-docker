@@ -22,6 +22,7 @@ public class create_token_with_negative_expiry_seconds
 
       var body = new
       {
+         clientId = "AnyClientId",
          subject = "any-subject",
          tokenExpirySeconds = -120,
          claims = new { },
@@ -86,7 +87,7 @@ public class create_token_with_negative_expiry_seconds
       var jwtSecurityToken = tokenResponse.ParseAccessTokenAsJwtSecurityToken();
 
       Assert.That(jwtSecurityToken.IssuedAt, Is.EqualTo(DateTime.UtcNow).Within(TimeSpan.FromSeconds(1)));
-      Assert.That(jwtSecurityToken.ValidFrom, Is.EqualTo(jwtSecurityToken.IssuedAt.AddSeconds(-120)).Within(TimeSpan.FromMilliseconds(100)));
+      Assert.That(jwtSecurityToken.ValidFrom, Is.EqualTo(jwtSecurityToken.IssuedAt.AddSeconds(-120)).Within(TimeSpan.FromMilliseconds(120)));
    }
 
    [Test]

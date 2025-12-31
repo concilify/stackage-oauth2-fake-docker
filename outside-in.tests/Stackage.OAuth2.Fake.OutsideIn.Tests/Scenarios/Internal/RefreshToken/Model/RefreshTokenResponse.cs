@@ -5,4 +5,5 @@ using System.Text.Json.Serialization;
 public record RefreshTokenResponse(
    [property: JsonPropertyName("refresh_token")] string RefreshToken,
    [property: JsonPropertyName("scopes")] string[] Scopes,
+   [property: JsonPropertyName("clientId")] string ClientId,
    [property: JsonPropertyName("subject")] string Subject);

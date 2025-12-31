@@ -140,7 +140,7 @@ public class AuthorizationEndpointsTests
 
       var body = new Dictionary<string, string?>
       {
-         ["client_id"] = "ValidClientId",
+         ["client_id"] = "AnyClientId",
       };
 
       var httpResponse = await httpClient.PostAsync(

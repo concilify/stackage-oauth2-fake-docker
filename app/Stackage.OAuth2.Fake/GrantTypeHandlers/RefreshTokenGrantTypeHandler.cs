@@ -26,9 +26,19 @@ public class RefreshTokenGrantTypeHandler : IGrantTypeHandler
          return OAuth2Results.InvalidRequest("The refresh_token parameter was missing");
       }
 
+      if (!httpRequest.Form.TryGetValue("client_id", out var clientId))
+      {
+         return OAuth2Results.InvalidRequest("The client_id parameter was missing");
+      }
+
       if (!_authorizationCache.TryGet(refreshToken.ToString(), out var authorization))
       {
          return OAuth2Results.InvalidGrant("The given refresh_token was not found");
+      }
+
+      if (clientId.ToString() != authorization.ClientId)
+      {
+         return OAuth2Results.InvalidGrant("The given client_id did not match the original request");
       }
 
       _authorizationCache.Remove(authorization);

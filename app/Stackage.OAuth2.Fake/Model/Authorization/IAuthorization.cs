@@ -4,6 +4,8 @@ using System.Diagnostics.CodeAnalysis;
 
 public interface IAuthorization
 {
+   string ClientId { get; }
+
    Scope Scope { get; }
 
    [MemberNotNullWhen(true, nameof(Subject))]

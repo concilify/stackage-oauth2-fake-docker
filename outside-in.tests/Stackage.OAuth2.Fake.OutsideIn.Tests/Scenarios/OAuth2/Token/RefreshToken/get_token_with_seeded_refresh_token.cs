@@ -27,7 +27,8 @@ public class get_token_with_seeded_refresh_token
 
       await httpClient.SeedRefreshTokenAsync(
          refreshToken: _refreshToken,
-         scopes: ["offline_access"]);
+         scopes: ["offline_access"],
+         clientId: "AnyClientId");
 
       var content = new FormUrlEncodedContent(new Dictionary<string, string>
       {
@@ -75,6 +76,17 @@ public class get_token_with_seeded_refresh_token
       var jwtSecurityToken = tokenResponse.ParseAccessTokenAsJwtSecurityToken();
 
       Assert.That(jwtSecurityToken.Subject, Is.EqualTo("default-subject"));
+   }
+
+   [Test]
+   public async Task response_content_should_contain_access_token_with_client_id()
+   {
+      var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
+
+      var scope = tokenResponse.ParseAccessTokenClaim("client_id");
+
+      Assert.That(scope, Is.Not.Null);
+      Assert.That(scope!.Value, Is.EqualTo("AnyClientId"));
    }
 
    [Test]

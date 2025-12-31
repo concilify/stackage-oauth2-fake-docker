@@ -25,6 +25,7 @@ public class create_token_without_scopes
 
       var body = new
       {
+         clientId = "AnyClientId",
          subject = "any-subject",
          claims = new
          {
