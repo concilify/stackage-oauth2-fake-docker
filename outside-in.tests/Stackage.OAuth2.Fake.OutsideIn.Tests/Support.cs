@@ -248,6 +248,7 @@ public static class Support
 
       AssertTokenIsSigned(tokenResponse.IdToken!, jsonWebKey, audiences);
    }
+
    public static JwtSecurityToken ParseAccessTokenAsJwtSecurityToken(this TokenResponse tokenResponse)
    {
       var securityToken = new JwtSecurityTokenHandler().ReadToken(tokenResponse.AccessToken);

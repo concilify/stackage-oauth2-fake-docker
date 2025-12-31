@@ -22,9 +22,10 @@ public class create_token_with_audiences
 
       var body = new
       {
+         clientId = "AnyClientId",
          subject = "arbitrary-subject",
          audiences = new[] { "arbitrary-audience" },
-         claims = new { }
+         claims = new { },
       };
 
       var content = JsonContent.Create(body);

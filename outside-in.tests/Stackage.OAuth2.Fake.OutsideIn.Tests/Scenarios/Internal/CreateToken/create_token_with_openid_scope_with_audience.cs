@@ -22,10 +22,11 @@ public class create_token_with_openid_scope_with_audience
 
       var body = new
       {
+         clientId = "AnyClientId",
+         scopes = new[] { "any_scope", "openid" },
          subject = "arbitrary-subject",
          audiences = new[] { "arbitrary-audience" },
-         scopes = new[] { "any_scope", "openid" },
-         claims = new { }
+         claims = new { },
       };
 
       var content = JsonContent.Create(body);
@@ -89,7 +90,6 @@ public class create_token_with_openid_scope_with_audience
       Assert.That(scope, Is.Not.Null);
       Assert.That(scope!.Value, Is.EqualTo("any_scope openid"));
    }
-
 
    [Test]
    public async Task response_content_should_contain_id_token_signed_by_public_key()

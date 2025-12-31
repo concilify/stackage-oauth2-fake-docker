@@ -103,8 +103,7 @@ public static class InternalEndpoints
                request.Code,
                request.ClientId,
                (Scope?)request.Scopes ?? Scope.Empty,
-               // TODO: optional audience
-               null);
+               request.Audiences);
 
             authorization.Authenticate(request.Subject ?? settings.DefaultSubject);
 
@@ -135,7 +134,7 @@ public static class InternalEndpoints
                clientId = authorization.ClientId,
                scopes = authorization.Scope.ToArray(),
                subject = authorization.Subject,
-               // TODO: client and audiences
+               audiences = authorization.Audiences,
             };
 
             return TypedResults.Json(response, statusCode: 200);
@@ -323,7 +322,8 @@ public static class InternalEndpoints
       [property: JsonPropertyName("code")] string? Code,
       [property: JsonPropertyName("clientId")] string? ClientId,
       [property: JsonPropertyName("scopes")] string[]? Scopes,
-      [property: JsonPropertyName("subject")] string? Subject)
+      [property: JsonPropertyName("subject")] string? Subject,
+      [property: JsonPropertyName("audiences")] string[]? Audiences)
    {
       // ReSharper disable once UnusedMember.Local
       public static ValueTask<PostAuthorizationRequest?> BindAsync(HttpContext context) => BindAsync<PostAuthorizationRequest>(context);

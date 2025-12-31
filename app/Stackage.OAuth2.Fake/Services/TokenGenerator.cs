@@ -72,12 +72,12 @@ public class TokenGenerator : ITokenGenerator
          response = response with { Scope = authorization.Scope };
       }
 
-      if (authorization is IAuthorizationWithIdToken authorizationWithIdToken && authorization.Scope.Contains("openid"))
+      if (authorization.Scope.Contains("openid"))
       {
          var idTokenClaims = new List<Claim>
          {
             new(JwtRegisteredClaimNames.Sub, authorization.Subject),
-            new(JwtRegisteredClaimNames.Aud, authorizationWithIdToken.ClientId),
+            new(JwtRegisteredClaimNames.Aud, authorization.ClientId),
          };
 
          if (authorization.Scope.Contains("profile") && _userStore.TryGet(authorization.Subject, out var user))
@@ -97,7 +97,7 @@ public class TokenGenerator : ITokenGenerator
          response = response with { IdToken = idToken };
       }
 
-      if (authorization is IAuthorizationWithRefreshToken && authorization.Scope.Contains("offline_access"))
+      if (authorization.Scope.Contains("offline_access"))
       {
          var refreshToken = Guid.NewGuid().ToString();
 
