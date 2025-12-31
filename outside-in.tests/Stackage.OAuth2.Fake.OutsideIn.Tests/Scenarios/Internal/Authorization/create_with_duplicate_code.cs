@@ -22,7 +22,7 @@ public class create_with_duplicate_code
       var body = new
       {
          code = Guid.NewGuid().ToString(),
-         clientId = "ArbitraryClientId",
+         clientId = "ValidClientId",
       };
 
       var content = JsonContent.Create(body);

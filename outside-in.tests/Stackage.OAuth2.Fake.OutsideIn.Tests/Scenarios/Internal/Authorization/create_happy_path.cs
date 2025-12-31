@@ -21,7 +21,7 @@ public class create_happy_path
       var body = new
       {
          code = Guid.NewGuid().ToString(),
-         clientId = "ArbitraryClientId",
+         clientId = "ValidClientId",
       };
 
       var content = JsonContent.Create(body);

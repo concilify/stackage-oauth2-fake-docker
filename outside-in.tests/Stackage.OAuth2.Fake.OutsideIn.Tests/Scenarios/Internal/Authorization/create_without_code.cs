@@ -21,7 +21,7 @@ public class create_without_code
 
       var body = new
       {
-         clientId = "ArbitraryClientId",
+         clientId = "ValidClientId",
       };
 
       var content = JsonContent.Create(body);

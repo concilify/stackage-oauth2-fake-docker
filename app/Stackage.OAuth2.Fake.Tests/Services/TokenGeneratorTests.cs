@@ -131,7 +131,7 @@ public class TokenGeneratorTests
    public void response_id_token_contains_user_claims_when_scope_includes_openid_and_profile()
    {
       var user = new User(
-         Subject: "ArbitrarySubject",
+         Subject: "arbitrary-subject",
          Claims: [
             new Claim("name", "ArbitraryName"),
             new Claim("nickname", "ArbitraryNickname"),
@@ -144,7 +144,7 @@ public class TokenGeneratorTests
 
       var authorization = AuthorizationStub.With(
          scope: (Scope)"openid profile",
-         subject: "ArbitrarySubject");
+         subject: "arbitrary-subject");
 
       var response = testSubject.Generate(authorization);
 
