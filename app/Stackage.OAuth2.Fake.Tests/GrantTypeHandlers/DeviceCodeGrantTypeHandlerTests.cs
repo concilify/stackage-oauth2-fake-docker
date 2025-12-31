@@ -34,7 +34,7 @@ public class DeviceCodeGrantTypeHandlerTests
 
       var httpRequest = CreateRequest(new Dictionary<string, StringValues>
       {
-         ["device_code"] = "ValidDeviceCode",
+         ["device_code"] = "UnknownDeviceCode",
       });
 
       var result = testSubject.Handle(httpRequest);
@@ -49,7 +49,7 @@ public class DeviceCodeGrantTypeHandlerTests
       var authorizationCache = new AuthorizationCache<DeviceAuthorization>();
 
       var authorization = authorizationCache.Add(
-         () => DeviceAuthorization.Create(clientId: "ArbitraryClientId", scope: Scope.Empty, audience: null));
+         () => DeviceAuthorization.Create(clientId: "AnyClientId", scope: Scope.Empty, audience: null));
 
       var testSubject = CreateHandler(
          authorizationCache: authorizationCache);
@@ -57,7 +57,7 @@ public class DeviceCodeGrantTypeHandlerTests
       var httpRequest = CreateRequest(new Dictionary<string, StringValues>
       {
          ["device_code"] = authorization.DeviceCode,
-         ["client_id"] = "ArbitraryClientId",
+         ["client_id"] = "AnyClientId",
       });
 
       var result = testSubject.Handle(httpRequest);
@@ -72,7 +72,7 @@ public class DeviceCodeGrantTypeHandlerTests
       var authorizationCache = new AuthorizationCache<DeviceAuthorization>();
 
       var authorization = authorizationCache.Add(
-         () => DeviceAuthorization.Create(clientId: "ArbitraryClientId", scope: Scope.Empty, audience: null));
+         () => DeviceAuthorization.Create(clientId: "AnyClientId", scope: Scope.Empty, audience: null));
 
       var testSubject = CreateHandler(
          authorizationCache: authorizationCache);

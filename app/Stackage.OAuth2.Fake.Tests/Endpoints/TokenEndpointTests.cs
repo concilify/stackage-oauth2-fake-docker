@@ -21,7 +21,7 @@ public class TokenEndpointTests
 
       var content = new FormUrlEncodedContent(new Dictionary<string, string>
       {
-         ["grant_type"] = "ValidGrantType",
+         ["grant_type"] = "UnsupportedGrantType",
       });
 
       var httpResponse = await httpClient.PostAsync(
