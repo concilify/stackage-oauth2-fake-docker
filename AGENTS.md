@@ -1,13 +1,13 @@
 # Agents Guide
 
-This repository publishes a Docker Image that can be used as a replacement for OAuth 2.0 Identity Providers such as Auth0, Okta, Keycloak and FusionAuth etc.
+This repository publishes a Docker Image that can be used as a replacement for OAuth 2.0 Identity Providers such as Auth0, Okta, Keycloak and FusionAuth etc. when testing components that use such providers. Use in production should be avoided.
 
 The following guidelines are for agents (automated or human) contributing to the development and maintenance of this project.
 
 ## Agent Responsibilities
 
 1. **Development**
-    - You are an expert C#/.NET developer.
+    - You are an expert C#/.NET developer as [described here](.github/agents/CSharpExpert.agent.md).
     - Implement new features, security updates, housekeeping and bug fixes.
     - All new features and bug fixes should be accompanied by appropriate tests.
     - Follow existing code style and contribution guidelines.
@@ -23,7 +23,7 @@ The following guidelines are for agents (automated or human) contributing to the
     - Automated checks (e.g. build and test runs) must be green before merging.
 
 4. **Publication**
-    - Publication of the Docker image is automated via GitHub Actions.
+    - Publication of the Docker image is automated via GitHub Actions but triggerred manually.
     - To trigger a new image release:
         1. Merge all changes to the `main` branch.
         2. Tag the repository with a version following [Semantic Versioning](https://semver.org/). To build a pre-release image, add a suffix `-preview{NUMBER}` where `{NUMBER}` is 3 numeric digits.
@@ -75,7 +75,7 @@ docker compose -f docker-compose.app.yaml build
 
 The project has two test suites:
 
-1. **Unit and Integration Tests** (in `app/Stackage.OAuth2.Fake.Tests`):
+1. **Unit/Integration Tests** (in `app/Stackage.OAuth2.Fake.Tests`):
    ```bash
    dotnet test app/Stackage.OAuth2.Fake.Tests/Stackage.OAuth2.Fake.Tests.csproj
    ```
@@ -86,11 +86,11 @@ The project has two test suites:
    ```bash
    # Start the application
    docker compose -f docker-compose.app.yaml up --detach --renew-anon-volumes app
-   
+
    # Set environment variables
    export STACKAGEOAUTH2FAKETESTS_APP_URL="http://localhost:32111/"
    export STACKAGEOAUTH2FAKETESTS_ISSUER_URL="http://localhost:32111"
-   
+
    # Run tests
    dotnet test outside-in.tests/Stackage.OAuth2.Fake.OutsideIn.Tests/Stackage.OAuth2.Fake.OutsideIn.Tests.csproj
    ```
@@ -126,11 +126,13 @@ var httpRequest = CreateRequest(new Dictionary<string, StringValues>
 });
 ```
 
+When a test uses a method in another class to generate a test-double, the correlating value should be passed to that method to make it clear it correlates with the test.
+
 #### Independent Values
 
 When a test value doesn't need to correlate with other values (i.e., any valid value will do):
 
-- **Strings**: Use inline values or prefix with `Valid` or any descriptive inline string (e.g., `"valid-subject"`, `"any-nickname"`)
+- **Strings**: Use inline values or prefix with `Valid` or any descriptive inline string (e.g., `"valid-subject"`, `"ValidNickname"`)
 - **Non-strings**: Use inline values directly (e.g., `1200`, `600`, `true`)
 
 **Example**:
