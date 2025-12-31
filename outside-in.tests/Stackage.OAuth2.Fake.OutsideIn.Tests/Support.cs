@@ -52,7 +52,7 @@ public static class Support
    public static async Task<AuthorizationResponse> StartAuthorizationAsync(
       this HttpClient httpClient,
       OpenIdConfigurationResponse openIdConfigurationResponse,
-      string clientId = "ArbitraryClientId",
+      string clientId = "ValidClientId",
       string[]? scopes = null,
       string? audience = null)
    {
@@ -89,7 +89,7 @@ public static class Support
    public static async Task<DeviceAuthorizationResponse> StartDeviceAuthorizationAsync(
       this HttpClient httpClient,
       OpenIdConfigurationResponse openIdConfigurationResponse,
-      string clientId = "ArbitraryClientId",
+      string clientId = "ValidClientId",
       string[]? scopes = null,
       string? audience = null)
    {
@@ -122,11 +122,12 @@ public static class Support
    public static async Task<TokenResponse> ExchangeAuthorizationCodeAsync(
       this HttpClient httpClient,
       OpenIdConfigurationResponse openIdConfigurationResponse,
-      string code)
+      string code,
+      string clientId = "ValidClientId")
    {
       var content = new FormUrlEncodedContent(new Dictionary<string, string>
       {
-         ["client_id"] = "ArbitraryClientId",
+         ["client_id"] = clientId,
          ["grant_type"] = "authorization_code",
          ["code"] = code,
       });
@@ -141,11 +142,12 @@ public static class Support
    public static async Task<TokenResponse> ExchangeDeviceCodeAsync(
       this HttpClient httpClient,
       OpenIdConfigurationResponse openIdConfigurationResponse,
-      string deviceCode)
+      string deviceCode,
+      string clientId = "ValidClientId")
    {
       var content = new FormUrlEncodedContent(new Dictionary<string, string>
       {
-         ["client_id"] = "ArbitraryClientId",
+         ["client_id"] = clientId,
          ["grant_type"] = "urn:ietf:params:oauth:grant-type:device_code",
          ["device_code"] = deviceCode,
       });
@@ -159,7 +161,7 @@ public static class Support
 
    public static async Task<TokenResponse> CreateTokenAsync(
       this HttpClient httpClient,
-      string clientId = "ArbitraryClientId",
+      string clientId = "ValidClientId",
       string subject = "valid-subject",
       string[]? scopes = null)
    {

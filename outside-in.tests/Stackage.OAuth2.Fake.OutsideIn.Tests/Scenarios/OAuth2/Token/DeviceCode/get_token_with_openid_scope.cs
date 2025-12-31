@@ -24,6 +24,7 @@ public class get_token_with_openid_scope
 
       var deviceAuthorizationResponse = await httpClient.StartDeviceAuthorizationAsync(
          openIdConfigurationResponse,
+         clientId: "ArbitraryClientId",
          scopes: ["arbitrary_scope", "openid"]);
 
       var content = new FormUrlEncodedContent(new Dictionary<string, string>

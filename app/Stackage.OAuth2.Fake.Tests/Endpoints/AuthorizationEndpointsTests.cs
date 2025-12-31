@@ -25,7 +25,7 @@ public class AuthorizationEndpointsTests
       {
          ["response_type"] = "code",
          ["client_id"] = "ArbitraryClientId",
-         ["redirect_uri"] = "http://valid-host/callback",
+         ["redirect_uri"] = "http://arbitrary-host/callback",
          ["state"] = "ArbitraryState",
       };
 
@@ -33,7 +33,7 @@ public class AuthorizationEndpointsTests
 
       Assert.That(httpResponse.StatusCode, Is.EqualTo(HttpStatusCode.Redirect));
 
-      Assert.That(httpResponse.Headers.Location?.AbsoluteUri, Does.StartWith("http://valid-host/callback"));
+      Assert.That(httpResponse.Headers.Location?.AbsoluteUri, Does.StartWith("http://arbitrary-host/callback"));
       Assert.That(httpResponse.Headers.Location?.Query, Does.Contain("state=ArbitraryState"));
    }
 
@@ -67,7 +67,7 @@ public class AuthorizationEndpointsTests
 
       var requestQuery = new Dictionary<string, string?>
       {
-         ["client_id"] = "ArbitraryClientId",
+         ["client_id"] = "ValidClientId",
          ["redirect_uri"] = "http://valid-host/callback",
          ["state"] = "ArbitraryState",
       };
@@ -90,7 +90,7 @@ public class AuthorizationEndpointsTests
       var requestQuery = new Dictionary<string, string?>
       {
          ["response_type"] = "token",
-         ["client_id"] = "ArbitraryClientId",
+         ["client_id"] = "ValidClientId",
          ["redirect_uri"] = "http://valid-host/callback",
          ["state"] = "ArbitraryState",
       };

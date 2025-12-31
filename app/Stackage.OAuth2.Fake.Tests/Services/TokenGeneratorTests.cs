@@ -208,7 +208,7 @@ public class TokenGeneratorTests
 
       var authorization = AuthorizationStub.With(
          scope: (Scope)"openid profile",
-         subject: "the-subject");
+         subject: "valid-subject");
 
       var response = testSubject.Generate(authorization);
 
@@ -223,7 +223,7 @@ public class TokenGeneratorTests
    public void response_id_token_does_not_contain_user_claims_when_scope_does_not_include_profile()
    {
       var user = new User(
-         Subject: "the-subject",
+         Subject: "arbitrary-subject",
          Claims: [
             new Claim("name", "name-claim"),
             new Claim("nickname", "nickname-claim"),
@@ -236,7 +236,7 @@ public class TokenGeneratorTests
 
       var authorization = AuthorizationStub.With(
          scope: (Scope)"openid no-profile",
-         subject: "ArbitrarySubject");
+         subject: "arbitrary-subject");
 
       var response = testSubject.Generate(authorization);
 
@@ -250,14 +250,14 @@ public class TokenGeneratorTests
    [Test]
    public void response_id_token_does_not_contain_user_claims_when_scope_includes_profile_but_user_not_found()
    {
-      var userStore = UserStoreStub.NotFound();
+      var userStore = UserStoreStub.NotFound("arbitrary-subject");
 
       var testSubject = CreateGenerator(
          userStore: userStore);
 
       var authorization = AuthorizationStub.With(
          scope: (Scope)"openid profile",
-         subject: "the-subject");
+         subject: "arbitrary-subject");
 
       var response = testSubject.Generate(authorization);
 

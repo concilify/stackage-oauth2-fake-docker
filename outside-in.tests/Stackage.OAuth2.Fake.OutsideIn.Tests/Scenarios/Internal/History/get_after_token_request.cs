@@ -24,11 +24,14 @@ public class get_after_token_request
 
       var openIdConfigurationResponse = await httpClient.GetWellKnownOpenIdConfigurationAsync();
 
-      await httpClient.SeedAuthorizationAsync("the-code");
+      await httpClient.SeedAuthorizationAsync(
+         "the-code",
+         clientId: "ArbitraryClientId");
 
       await httpClient.ExchangeAuthorizationCodeAsync(
          openIdConfigurationResponse,
-         "the-code");
+         "the-code",
+         clientId: "ArbitraryClientId");
 
       _httpResponse = await httpClient.GetAsync(".internal/history/requests");
    }

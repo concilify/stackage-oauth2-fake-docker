@@ -43,7 +43,7 @@ public class UserAuthorizationTests
    }
 
    private static UserAuthorization CreateAuthorization(
-      string clientId = "ArbitraryClientId",
+      string clientId = "ValidClientId",
       string? scope = null,
       string? audience = null)
    {

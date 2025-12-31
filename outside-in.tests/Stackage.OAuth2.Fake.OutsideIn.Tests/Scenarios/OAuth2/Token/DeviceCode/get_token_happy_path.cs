@@ -22,7 +22,9 @@ public class get_token_happy_path
 
       var openIdConfigurationResponse = await httpClient.GetWellKnownOpenIdConfigurationAsync();
 
-      var deviceAuthorizationResponse = await httpClient.StartDeviceAuthorizationAsync(openIdConfigurationResponse);
+      var deviceAuthorizationResponse = await httpClient.StartDeviceAuthorizationAsync(
+         openIdConfigurationResponse,
+         clientId: "ArbitraryClientId");
 
       var content = new FormUrlEncodedContent(new Dictionary<string, string>
       {

@@ -24,6 +24,7 @@ public class get_token_with_audience
 
       var deviceAuthorizationResponse = await httpClient.StartDeviceAuthorizationAsync(
          openIdConfigurationResponse,
+         clientId: "ArbitraryClientId",
          audience: "arbitrary-audience");
 
       var content = new FormUrlEncodedContent(new Dictionary<string, string>

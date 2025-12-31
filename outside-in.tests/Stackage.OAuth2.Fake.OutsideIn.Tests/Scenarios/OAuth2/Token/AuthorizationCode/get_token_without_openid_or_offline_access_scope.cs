@@ -27,6 +27,7 @@ public class get_token_without_openid_or_offline_access_scope
 
       var authorizationResponse = await httpClient.StartAuthorizationAsync(
          openIdConfigurationResponse,
+         clientId: "ArbitraryClientId",
          scopes: ["arbitrary_scope"]);
 
       var content = new FormUrlEncodedContent(new Dictionary<string, string>

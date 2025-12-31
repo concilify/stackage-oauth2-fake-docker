@@ -24,11 +24,13 @@ public class get_token_with_device_refresh_token
 
       var deviceAuthorizationResponse = await httpClient.StartDeviceAuthorizationAsync(
          openIdConfigurationResponse,
+         clientId: "ArbitraryClientId",
          scopes: ["offline_access"]);
 
       var tokenResponse = await httpClient.ExchangeDeviceCodeAsync(
          openIdConfigurationResponse,
-         deviceAuthorizationResponse.DeviceCode);
+         deviceAuthorizationResponse.DeviceCode,
+         clientId: "ArbitraryClientId");
 
       var content = new FormUrlEncodedContent(new Dictionary<string, string>
       {

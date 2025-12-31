@@ -22,7 +22,7 @@ public static class AuthorizationStub
       Scope? scope = null,
       string? subject = null)
    {
-      clientId ??= "ArbitraryClientId";
+      clientId ??= "ValidClientId";
       scope ??= Scope.Empty;
       subject ??= string.Empty;
 

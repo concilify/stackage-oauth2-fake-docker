@@ -43,7 +43,7 @@ public class DeviceAuthorizationTests
    }
 
    private static DeviceAuthorization CreateAuthorization(
-      string clientId = "ArbitraryClientId",
+      string clientId = "ValidClientId",
       string? scope = null,
       string? audience = null)
    {

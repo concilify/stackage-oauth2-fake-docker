@@ -27,11 +27,13 @@ public class get_token_with_authorization_refresh_token
 
       var authorizationResponse = await httpClient.StartAuthorizationAsync(
          openIdConfigurationResponse,
+         clientId: "ArbitraryClientId",
          scopes: ["offline_access"]);
 
       var tokenResponse = await httpClient.ExchangeAuthorizationCodeAsync(
          openIdConfigurationResponse,
-         authorizationResponse.Code);
+         authorizationResponse.Code,
+         clientId: "ArbitraryClientId");
 
       var content = new FormUrlEncodedContent(new Dictionary<string, string>
       {

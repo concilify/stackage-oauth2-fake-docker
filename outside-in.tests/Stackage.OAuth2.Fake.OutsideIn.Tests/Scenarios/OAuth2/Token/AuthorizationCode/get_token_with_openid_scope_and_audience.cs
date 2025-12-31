@@ -27,6 +27,7 @@ public class get_token_with_openid_scope_and_audience
 
       var authorizationResponse = await httpClient.StartAuthorizationAsync(
          openIdConfigurationResponse,
+         clientId: "ArbitraryClientId",
          scopes: ["arbitrary_scope", "openid"],
          audience: "arbitrary-audience");
 

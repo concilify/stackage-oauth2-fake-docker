@@ -17,12 +17,12 @@ public static class UserStoreStub
       return mock.Object;
    }
 
-   public static IUserStore NotFound()
+   public static IUserStore NotFound(string subject)
    {
       var mock = new Mock<IUserStore>();
 
       User? user = null;
-      mock.Setup(m => m.TryGet(It.IsAny<string>(), out user)).Returns(false);
+      mock.Setup(m => m.TryGet(subject, out user)).Returns(false);
 
       return mock.Object;
    }

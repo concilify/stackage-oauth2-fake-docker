@@ -24,6 +24,7 @@ public class get_token_with_offline_access_scope
 
       var deviceAuthorizationResponse = await httpClient.StartDeviceAuthorizationAsync(
          openIdConfigurationResponse,
+         clientId: "ArbitraryClientId",
          scopes: ["arbitrary_scope", "offline_access"]);
 
       var content = new FormUrlEncodedContent(new Dictionary<string, string>

@@ -23,6 +23,7 @@ public class get_token_with_internal_token
       var openIdConfigurationResponse = await httpClient.GetWellKnownOpenIdConfigurationAsync();
 
       var tokenResponse = await httpClient.CreateTokenAsync(
+         clientId: "ArbitraryClientId",
          subject: "arbitrary-subject",
          scopes: ["offline_access"]);
 
