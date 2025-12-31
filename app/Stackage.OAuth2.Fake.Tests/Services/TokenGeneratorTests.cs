@@ -32,7 +32,7 @@ public class TokenGeneratorTests
    {
       var testSubject = CreateGenerator();
 
-      var authorization = AuthorizationStub.With(Scope.Empty);
+      var authorization = AuthorizationStub.With(scope: Scope.Empty);
 
       var response = testSubject.Generate(authorization);
 
@@ -44,7 +44,7 @@ public class TokenGeneratorTests
    {
       var testSubject = CreateGenerator();
 
-      var authorization = AuthorizationStub.With((Scope)"any_scope");
+      var authorization = AuthorizationStub.With(scope: (Scope)"any_scope");
 
       var response = testSubject.Generate(authorization);
 
@@ -56,7 +56,7 @@ public class TokenGeneratorTests
    {
       var testSubject = CreateGenerator();
 
-      var authorization = AuthorizationStub.With(Scope.Empty);
+      var authorization = AuthorizationStub.With(scope: Scope.Empty);
 
       var response = testSubject.Generate(authorization);
 
@@ -68,7 +68,7 @@ public class TokenGeneratorTests
    {
       var testSubject = CreateGenerator();
 
-      var authorization = AuthorizationStub.With((Scope)"any_scope");
+      var authorization = AuthorizationStub.With(scope: (Scope)"any_scope");
 
       var response = testSubject.Generate(authorization);
 
@@ -80,7 +80,7 @@ public class TokenGeneratorTests
    {
       var testSubject = CreateGenerator();
 
-      var authorization = AuthorizationStub.With((Scope)"offline_access");
+      var authorization = AuthorizationStub.With(scope: (Scope)"offline_access");
 
       var response = testSubject.Generate(authorization);
 
@@ -92,7 +92,7 @@ public class TokenGeneratorTests
    {
       var testSubject = CreateGenerator();
 
-      var authorization = AuthorizationStub.With(Scope.Empty);
+      var authorization = AuthorizationStub.With(scope: Scope.Empty);
 
       var response = testSubject.Generate(authorization);
 
@@ -105,7 +105,7 @@ public class TokenGeneratorTests
    {
       var testSubject = CreateGenerator();
 
-      var authorization = AuthorizationStub.With((Scope)scope);
+      var authorization = AuthorizationStub.With(scope: (Scope)scope);
 
       var response = testSubject.Generate(authorization);
 
@@ -118,7 +118,7 @@ public class TokenGeneratorTests
    {
       var testSubject = CreateGenerator();
 
-      var authorization = AuthorizationStub.With((Scope)scope);
+      var authorization = AuthorizationStub.With(scope: (Scope)scope);
 
       var response = testSubject.Generate(authorization);
 
@@ -276,7 +276,7 @@ public class TokenGeneratorTests
       var testSubject = CreateGenerator(
          authorizationCache: authorizationCache);
 
-      var authorization = AuthorizationStub.With((Scope)"any_scope");
+      var authorization = AuthorizationStub.With(scope: (Scope)"any_scope");
 
       testSubject.Generate(authorization);
 
