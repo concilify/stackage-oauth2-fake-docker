@@ -62,7 +62,7 @@ public static class Support
       {
          ["response_type"] = "code",
          ["client_id"] = clientId,
-         ["state"] = "ArbitraryState",
+         ["state"] = "ValidState",
          ["redirect_uri"] = "http://valid-host/callback",
       };
 
