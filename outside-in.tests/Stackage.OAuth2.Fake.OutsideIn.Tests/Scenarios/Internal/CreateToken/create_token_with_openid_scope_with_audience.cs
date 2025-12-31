@@ -22,7 +22,7 @@ public class create_token_with_openid_scope_with_audience
 
       var body = new
       {
-         clientId = "AnyClientId",
+         clientId = "ArbitraryClientId",
          scopes = new[] { "any_scope", "openid" },
          subject = "arbitrary-subject",
          audiences = new[] { "arbitrary-audience" },
@@ -98,7 +98,7 @@ public class create_token_with_openid_scope_with_audience
 
       var jsonWebKeySet = await Support.GetJsonWebKeySetAsync();
 
-      tokenResponse.AssertIdTokenIsSigned(jsonWebKeySet.Keys[0], ["AnyClientId"]);
+      tokenResponse.AssertIdTokenIsSigned(jsonWebKeySet.Keys[0], ["ArbitraryClientId"]);
    }
 
    [Test]
@@ -118,7 +118,7 @@ public class create_token_with_openid_scope_with_audience
 
       var jwtSecurityToken = tokenResponse.ParseIdTokenAsJwtSecurityToken();
 
-      Assert.That(jwtSecurityToken.Audiences, Is.EqualTo(["AnyClientId"]));
+      Assert.That(jwtSecurityToken.Audiences, Is.EqualTo(["ArbitraryClientId"]));
    }
 
    [Test]

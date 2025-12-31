@@ -32,7 +32,7 @@ public class get_token_with_openid_and_profile_scopes
       await httpClient.SeedRefreshTokenAsync(
          refreshToken: _refreshToken,
          scopes: ["openid", "profile"],
-         clientId: "AnyClientId",
+         clientId: "ArbitraryClientId",
          subject: _subject);
 
       await httpClient.SeedUserAsync(
@@ -46,7 +46,7 @@ public class get_token_with_openid_and_profile_scopes
 
       var content = new FormUrlEncodedContent(new Dictionary<string, string>
       {
-         ["client_id"] = "AnyClientId",
+         ["client_id"] = "ArbitraryClientId",
          ["grant_type"] = "refresh_token",
          ["refresh_token"] = _refreshToken,
       });
@@ -111,7 +111,7 @@ public class get_token_with_openid_and_profile_scopes
       var scope = tokenResponse.ParseAccessTokenClaim("client_id");
 
       Assert.That(scope, Is.Not.Null);
-      Assert.That(scope!.Value, Is.EqualTo("AnyClientId"));
+      Assert.That(scope!.Value, Is.EqualTo("ArbitraryClientId"));
    }
 
    [Test]

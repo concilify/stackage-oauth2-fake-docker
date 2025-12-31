@@ -22,7 +22,7 @@ public class create_token_with_openid_scope
 
       var body = new
       {
-         clientId = "AnyClientId",
+         clientId = "ArbitraryClientId",
          scopes = new[] { "any_scope", "openid" },
          subject = "any-subject",
          claims = new { },

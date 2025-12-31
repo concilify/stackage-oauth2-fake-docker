@@ -21,7 +21,7 @@ public class create_without_refresh_token
 
       var body = new
       {
-         clientId = "AnyClientId",
+         clientId = "ArbitraryClientId",
       };
 
       var content = JsonContent.Create(body);

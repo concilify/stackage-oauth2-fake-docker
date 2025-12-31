@@ -27,7 +27,7 @@ public class ClaimsParserTests
 
       var claimsObject = new JsonObject
       {
-         ["sub"] = "any-subject",
+         ["sub"] = "valid-subject",
       };
 
       var result = testSubject.TryParse(claimsObject, out var claims);
@@ -35,7 +35,7 @@ public class ClaimsParserTests
       Assert.That(result, Is.True);
       Assert.That(claims.Length, Is.EqualTo(1));
       Assert.That(claims[0].Type, Is.EqualTo("sub"));
-      Assert.That(claims[0].Value, Is.EqualTo("any-subject"));
+      Assert.That(claims[0].Value, Is.EqualTo("valid-subject"));
       Assert.That(claims[0].ValueType, Is.EqualTo("http://www.w3.org/2001/XMLSchema#string"));
    }
 
@@ -64,15 +64,15 @@ public class ClaimsParserTests
 
       var claimsObject = new JsonObject
       {
-         ["any-claim"] = new JsonArray { "any-value" },
+         ["valid-claim"] = new JsonArray { "valid-value" },
       };
 
       var result = testSubject.TryParse(claimsObject, out var claims);
 
       Assert.That(result, Is.True);
       Assert.That(claims.Length, Is.EqualTo(1));
-      Assert.That(claims[0].Type, Is.EqualTo("any-claim"));
-      Assert.That(claims[0].Value, Is.EqualTo("[\"any-value\"]"));
+      Assert.That(claims[0].Type, Is.EqualTo("valid-claim"));
+      Assert.That(claims[0].Value, Is.EqualTo("[\"valid-value\"]"));
       Assert.That(claims[0].ValueType, Is.EqualTo("JSON_ARRAY"));
    }
 
@@ -83,14 +83,14 @@ public class ClaimsParserTests
 
       var claimsObject = new JsonObject
       {
-         ["any-claim"] = new JsonArray { "value-one", "value-two" },
+         ["valid-claim"] = new JsonArray { "value-one", "value-two" },
       };
 
       var result = testSubject.TryParse(claimsObject, out var claims);
 
       Assert.That(result, Is.True);
       Assert.That(claims.Length, Is.EqualTo(1));
-      Assert.That(claims[0].Type, Is.EqualTo("any-claim"));
+      Assert.That(claims[0].Type, Is.EqualTo("valid-claim"));
       Assert.That(claims[0].Value, Is.EqualTo("[\"value-one\",\"value-two\"]"));
       Assert.That(claims[0].ValueType, Is.EqualTo("JSON_ARRAY"));
    }
@@ -104,7 +104,7 @@ public class ClaimsParserTests
 
       var claimsObject = new JsonObject
       {
-         ["any-claim"] = new JsonArray { "value-one", value },
+         ["valid-claim"] = new JsonArray { "value-one", value },
       };
 
       var result = testSubject.TryParse(claimsObject, out var claims);
@@ -125,14 +125,14 @@ public class ClaimsParserTests
 
       var claimsObject = new JsonObject
       {
-         [name] = "any-value",
+         [name] = "valid-value",
       };
 
       var result = testSubject.TryParse(claimsObject, out var claims);
 
       var expectedClaims = new Claim[]
       {
-         new(expectedName, "any-value"),
+         new(expectedName, "valid-value"),
       };
 
       Assert.That(result, Is.True);
@@ -150,14 +150,14 @@ public class ClaimsParserTests
 
       var claimsObject = new JsonObject
       {
-         [name] = "any-value",
+         [name] = "valid-value",
       };
 
       var result = testSubject.TryParse(claimsObject, out var claims);
 
       var expectedClaims = new Claim[]
       {
-         new(name, "any-value"),
+         new(name, "valid-value"),
       };
 
       Assert.That(result, Is.True);

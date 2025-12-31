@@ -18,7 +18,7 @@ public class UserStoreTests
       var testSubject = CreateStore(
          configuration: ConfigurationStub.Empty());
 
-      var result = testSubject.TryGet("any-subject", out var user);
+      var result = testSubject.TryGet("valid-subject", out var user);
 
       Assert.That(result, Is.False);
       Assert.That(user, Is.Null);
@@ -30,7 +30,7 @@ public class UserStoreTests
       var users = new Dictionary<string, string?>
       {
          ["Users:0:Subject"] = "existing-subject",
-         ["Users:0:Claims:Nickname"] = "any-nickname",
+         ["Users:0:Claims:Nickname"] = "valid-nickname",
       };
 
       var testSubject = CreateStore(
@@ -52,8 +52,8 @@ public class UserStoreTests
       };
 
       var claimsParser = ClaimsParserStub.Returns(
-         new Claim("nickname", "any-nickname"),
-         new Claim("picture", "any-picture"));
+         new Claim("nickname", "valid-nickname"),
+         new Claim("picture", "valid-picture"));
 
       var testSubject = CreateStore(
          configuration: ConfigurationStub.With(users),
@@ -65,8 +65,8 @@ public class UserStoreTests
 
       var expectedClaims = new Claim[]
       {
-         new(JwtRegisteredClaimNames.Nickname, "any-nickname"),
-         new(JwtRegisteredClaimNames.Picture, "any-picture"),
+         new(JwtRegisteredClaimNames.Nickname, "valid-nickname"),
+         new(JwtRegisteredClaimNames.Picture, "valid-picture"),
       };
 
       Assert.That(user, Is.Not.Null);

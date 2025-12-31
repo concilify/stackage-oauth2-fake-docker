@@ -22,7 +22,7 @@ public class create_token_with_offline_access_scope
 
       var body = new
       {
-         clientId = "AnyClientId",
+         clientId = "ArbitraryClientId",
          scopes = new[] { "any_scope", "offline_access" },
          subject = "any-subject",
          claims = new { },

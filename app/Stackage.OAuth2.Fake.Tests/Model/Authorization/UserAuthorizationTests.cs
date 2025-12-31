@@ -27,7 +27,7 @@ public class UserAuthorizationTests
    {
       var testSubject = CreateAuthorization();
 
-      testSubject.Authenticate("AnySubject");
+      testSubject.Authenticate("ArbitrarySubject");
 
       Assert.That(testSubject.IsAuthenticated, Is.True);
    }
@@ -37,13 +37,13 @@ public class UserAuthorizationTests
    {
       var testSubject = CreateAuthorization();
 
-      testSubject.Authenticate("AnySubject");
+      testSubject.Authenticate("ArbitrarySubject");
 
-      Assert.That(testSubject.Subject, Is.EqualTo("AnySubject"));
+      Assert.That(testSubject.Subject, Is.EqualTo("ArbitrarySubject"));
    }
 
    private static UserAuthorization CreateAuthorization(
-      string clientId = "AnyClientId",
+      string clientId = "ArbitraryClientId",
       string? scope = null,
       string? audience = null)
    {

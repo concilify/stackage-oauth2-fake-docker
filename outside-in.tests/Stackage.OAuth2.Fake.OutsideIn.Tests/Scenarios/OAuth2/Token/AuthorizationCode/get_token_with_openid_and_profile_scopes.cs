@@ -34,7 +34,7 @@ public class get_token_with_openid_and_profile_scopes
 
       await httpClient.SeedAuthorizationAsync(
          code: _code,
-         clientId: "AnyClientId",
+         clientId: "ArbitraryClientId",
          scopes: ["openid", "profile"],
          subject: _subject);
 
@@ -49,7 +49,7 @@ public class get_token_with_openid_and_profile_scopes
 
       var content = new FormUrlEncodedContent(new Dictionary<string, string>
       {
-         ["client_id"] = "AnyClientId",
+         ["client_id"] = "ArbitraryClientId",
          ["grant_type"] = "authorization_code",
          ["code"] = _code,
       });
