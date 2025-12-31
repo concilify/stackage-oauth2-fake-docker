@@ -23,7 +23,7 @@ public class get_token_without_starting_flow
 
       var content = new FormUrlEncodedContent(new Dictionary<string, string>
       {
-         ["client_id"] = "ArbitraryClientId",
+         ["client_id"] = "ValidClientId",
          ["grant_type"] = "urn:ietf:params:oauth:grant-type:device_code",
          ["device_code"] = "UnrecognisedDeviceCode",
       });

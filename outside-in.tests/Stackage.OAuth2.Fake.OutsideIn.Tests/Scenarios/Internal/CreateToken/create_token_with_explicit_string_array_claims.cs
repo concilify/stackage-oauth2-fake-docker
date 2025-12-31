@@ -26,7 +26,7 @@ public class create_token_with_explicit_string_array_claims
 
       var body = new
       {
-         clientId = "ArbitraryClientId",
+         clientId = "ValidClientId",
          subject = "arbitrary-subject",
          claims = new JsonObject
          {

@@ -23,7 +23,7 @@ public class get_token_with_missing_grant_type
 
       var content = new FormUrlEncodedContent(new Dictionary<string, string>
       {
-         ["client_id"] = "ArbitraryClientId",
+         ["client_id"] = "ValidClientId",
       });
 
       _httpResponse = await httpClient.PostAsync(

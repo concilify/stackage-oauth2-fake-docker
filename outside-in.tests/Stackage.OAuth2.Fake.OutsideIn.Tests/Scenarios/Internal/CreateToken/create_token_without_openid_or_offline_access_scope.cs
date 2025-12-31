@@ -22,7 +22,7 @@ public class create_token_without_openid_or_offline_access_scope
 
       var body = new
       {
-         clientId = "ArbitraryClientId",
+         clientId = "ValidClientId",
          scopes = new[] { "arbitrary_scope" },
          subject = "arbitrary-subject",
          claims = new { },

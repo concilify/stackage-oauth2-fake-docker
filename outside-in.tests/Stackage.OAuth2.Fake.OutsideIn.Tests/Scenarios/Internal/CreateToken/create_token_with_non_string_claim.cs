@@ -21,7 +21,7 @@ public class create_token_with_non_string_claim
 
       var body = new
       {
-         clientId = "ArbitraryClientId",
+         clientId = "ValidClientId",
          subject = "valid-subject",
          claims = new
          {

@@ -23,7 +23,7 @@ public class get_token_with_missing_refresh_token
 
       var content = new FormUrlEncodedContent(new Dictionary<string, string>
       {
-         ["client_id"] = "ArbitraryClientId",
+         ["client_id"] = "ValidClientId",
          ["grant_type"] = "refresh_token",
       });
 

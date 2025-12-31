@@ -22,7 +22,7 @@ public class create_token_with_positive_expiry_seconds
 
       var body = new
       {
-         clientId = "ArbitraryClientId",
+         clientId = "ValidClientId",
          subject = "arbitrary-subject",
          tokenExpirySeconds = 120,
          claims = new { },

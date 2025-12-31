@@ -22,7 +22,7 @@ public class create_token_without_explicit_claims
 
       var body = new
       {
-         clientId = "ArbitraryClientId",
+         clientId = "ValidClientId",
          subject = "arbitrary-subject",
          claims = new { },
       };
