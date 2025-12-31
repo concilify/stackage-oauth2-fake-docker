@@ -18,7 +18,7 @@ public class UserStoreTests
       var testSubject = CreateStore(
          configuration: ConfigurationStub.Empty());
 
-      var result = testSubject.TryGet("any-subject", out var user);
+      var result = testSubject.TryGet("valid-subject", out var user);
 
       Assert.That(result, Is.False);
       Assert.That(user, Is.Null);
@@ -29,18 +29,18 @@ public class UserStoreTests
    {
       var users = new Dictionary<string, string?>
       {
-         ["Users:0:Subject"] = "existing-subject",
-         ["Users:0:Claims:Nickname"] = "any-nickname",
+         ["Users:0:Subject"] = "arbitrary-subject",
+         ["Users:0:Claims:Nickname"] = "valid-nickname",
       };
 
       var testSubject = CreateStore(
          configuration: ConfigurationStub.With(users));
 
-      var result = testSubject.TryGet("existing-subject", out var user);
+      var result = testSubject.TryGet("arbitrary-subject", out var user);
 
       Assert.That(result, Is.True);
       Assert.That(user, Is.Not.Null);
-      Assert.That(user!.Subject, Is.EqualTo("existing-subject"));
+      Assert.That(user!.Subject, Is.EqualTo("arbitrary-subject"));
    }
 
    [Test]
@@ -48,25 +48,25 @@ public class UserStoreTests
    {
       var users = new Dictionary<string, string?>
       {
-         ["Users:0:Subject"] = "existing-subject",
+         ["Users:0:Subject"] = "arbitrary-subject",
       };
 
       var claimsParser = ClaimsParserStub.Returns(
-         new Claim("nickname", "any-nickname"),
-         new Claim("picture", "any-picture"));
+         new Claim("nickname", "arbitrary-nickname"),
+         new Claim("picture", "arbitrary-picture"));
 
       var testSubject = CreateStore(
          configuration: ConfigurationStub.With(users),
          claimsParser: claimsParser);
 
-      testSubject.TryGet("existing-subject", out var user);
+      testSubject.TryGet("arbitrary-subject", out var user);
 
       string[] names = [JwtRegisteredClaimNames.Nickname, JwtRegisteredClaimNames.Picture];
 
       var expectedClaims = new Claim[]
       {
-         new(JwtRegisteredClaimNames.Nickname, "any-nickname"),
-         new(JwtRegisteredClaimNames.Picture, "any-picture"),
+         new(JwtRegisteredClaimNames.Nickname, "arbitrary-nickname"),
+         new(JwtRegisteredClaimNames.Picture, "arbitrary-picture"),
       };
 
       Assert.That(user, Is.Not.Null);

@@ -22,9 +22,9 @@ public class create_token_without_openid_or_offline_access_scope
 
       var body = new
       {
-         clientId = "AnyClientId",
-         scopes = new[] { "any_scope" },
-         subject = "any-subject",
+         clientId = "ValidClientId",
+         scopes = new[] { "arbitrary_scope" },
+         subject = "arbitrary-subject",
          claims = new { },
       };
 
@@ -66,7 +66,7 @@ public class create_token_without_openid_or_offline_access_scope
 
       var jwtSecurityToken = tokenResponse.ParseAccessTokenAsJwtSecurityToken();
 
-      Assert.That(jwtSecurityToken.Subject, Is.EqualTo("any-subject"));
+      Assert.That(jwtSecurityToken.Subject, Is.EqualTo("arbitrary-subject"));
    }
 
    [Test]
@@ -77,7 +77,7 @@ public class create_token_without_openid_or_offline_access_scope
       var scope = tokenResponse.ParseAccessTokenClaim("scope");
 
       Assert.That(scope, Is.Not.Null);
-      Assert.That(scope!.Value, Is.EqualTo("any_scope"));
+      Assert.That(scope!.Value, Is.EqualTo("arbitrary_scope"));
    }
 
    [Test]
@@ -101,7 +101,7 @@ public class create_token_without_openid_or_offline_access_scope
    {
       var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
 
-      Assert.That(tokenResponse.Scope, Is.EqualTo("any_scope"));
+      Assert.That(tokenResponse.Scope, Is.EqualTo("arbitrary_scope"));
    }
 
    [Test]

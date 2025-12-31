@@ -21,8 +21,8 @@ public class create_token_without_claims_property
 
       var body = new
       {
-         clientId = "AnyClientId",
-         subject = "any-subject",
+         clientId = "ValidClientId",
+         subject = "valid-subject",
       };
 
       var content = JsonContent.Create(body);

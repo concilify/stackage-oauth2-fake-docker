@@ -23,7 +23,7 @@ public class get_token_with_unknown_refresh_token
 
       var content = new FormUrlEncodedContent(new Dictionary<string, string>
       {
-         ["client_id"] = "AnyClientId",
+         ["client_id"] = "ValidClientId",
          ["grant_type"] = "refresh_token",
          ["refresh_token"] = "UnrecognisedRefreshToken",
       });

@@ -24,11 +24,12 @@ public class get_token_with_audience
 
       var deviceAuthorizationResponse = await httpClient.StartDeviceAuthorizationAsync(
          openIdConfigurationResponse,
+         clientId: "ArbitraryClientId",
          audience: "arbitrary-audience");
 
       var content = new FormUrlEncodedContent(new Dictionary<string, string>
       {
-         ["client_id"] = "AnyClientId",
+         ["client_id"] = "ArbitraryClientId",
          ["grant_type"] = "urn:ietf:params:oauth:grant-type:device_code",
          ["device_code"] = deviceAuthorizationResponse.DeviceCode,
       });

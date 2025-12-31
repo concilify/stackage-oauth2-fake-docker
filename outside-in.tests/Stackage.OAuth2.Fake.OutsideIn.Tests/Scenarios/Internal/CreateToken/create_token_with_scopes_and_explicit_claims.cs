@@ -25,9 +25,9 @@ public class create_token_with_scopes_and_explicit_claims
 
       var body = new
       {
-         clientId = "AnyClientId",
+         clientId = "ValidClientId",
          scopes = new[] { "first_token", "second_token" },
-         subject = "any-subject",
+         subject = "arbitrary-subject",
          claims = new
          {
             custom_claim = "custom-value",
@@ -72,7 +72,7 @@ public class create_token_with_scopes_and_explicit_claims
 
       var jwtSecurityToken = tokenResponse.ParseAccessTokenAsJwtSecurityToken();
 
-      Assert.That(jwtSecurityToken.Subject, Is.EqualTo("any-subject"));
+      Assert.That(jwtSecurityToken.Subject, Is.EqualTo("arbitrary-subject"));
    }
 
    [Test]

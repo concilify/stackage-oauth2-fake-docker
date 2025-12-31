@@ -25,9 +25,9 @@ public class get_happy_path
       var body = new
       {
          refreshToken = _refreshToken,
-         scopes = new[] { "scope-a", "scope-b" },
-         clientId = "SomeClientId",
-         subject = "SomeSubject",
+         scopes = new[] { "arbitrary-scope-a", "arbitrary-scope-b" },
+         clientId = "ArbitraryClientId",
+         subject = "ArbitrarySubject",
       };
 
       var content = JsonContent.Create(body);
@@ -56,7 +56,7 @@ public class get_happy_path
    {
       var refreshTokenResponse = await _httpResponse!.ParseAsync<RefreshTokenResponse>();
 
-      Assert.That(refreshTokenResponse.Scopes, Is.EqualTo(["scope-a", "scope-b"]));
+      Assert.That(refreshTokenResponse.Scopes, Is.EqualTo(["arbitrary-scope-a", "arbitrary-scope-b"]));
    }
 
    [Test]
@@ -64,7 +64,7 @@ public class get_happy_path
    {
       var authorizationResponse = await _httpResponse!.ParseAsync<RefreshTokenResponse>();
 
-      Assert.That(authorizationResponse.ClientId, Is.EqualTo("SomeClientId"));
+      Assert.That(authorizationResponse.ClientId, Is.EqualTo("ArbitraryClientId"));
    }
 
    [Test]
@@ -72,6 +72,6 @@ public class get_happy_path
    {
       var refreshTokenResponse = await _httpResponse!.ParseAsync<RefreshTokenResponse>();
 
-      Assert.That(refreshTokenResponse.Subject, Is.EqualTo("SomeSubject"));
+      Assert.That(refreshTokenResponse.Subject, Is.EqualTo("ArbitrarySubject"));
    }
 }

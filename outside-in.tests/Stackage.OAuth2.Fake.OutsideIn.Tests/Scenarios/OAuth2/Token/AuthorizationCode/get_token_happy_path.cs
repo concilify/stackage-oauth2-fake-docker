@@ -25,11 +25,13 @@ public class get_token_happy_path
 
       var openIdConfigurationResponse = await httpClient.GetWellKnownOpenIdConfigurationAsync();
 
-      var authorizationResponse = await httpClient.StartAuthorizationAsync(openIdConfigurationResponse);
+      var authorizationResponse = await httpClient.StartAuthorizationAsync(
+         openIdConfigurationResponse,
+         clientId: "ArbitraryClientId");
 
       var content = new FormUrlEncodedContent(new Dictionary<string, string>
       {
-         ["client_id"] = "AnyClientId",
+         ["client_id"] = "ArbitraryClientId",
          ["grant_type"] = "authorization_code",
          ["code"] = authorizationResponse.Code,
       });
@@ -83,7 +85,7 @@ public class get_token_happy_path
       var scope = tokenResponse.ParseAccessTokenClaim("client_id");
 
       Assert.That(scope, Is.Not.Null);
-      Assert.That(scope!.Value, Is.EqualTo("AnyClientId"));
+      Assert.That(scope!.Value, Is.EqualTo("ArbitraryClientId"));
    }
 
    [Test]

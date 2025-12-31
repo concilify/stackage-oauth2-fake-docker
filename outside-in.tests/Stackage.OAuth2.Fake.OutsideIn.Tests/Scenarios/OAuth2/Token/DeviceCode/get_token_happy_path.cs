@@ -22,11 +22,13 @@ public class get_token_happy_path
 
       var openIdConfigurationResponse = await httpClient.GetWellKnownOpenIdConfigurationAsync();
 
-      var deviceAuthorizationResponse = await httpClient.StartDeviceAuthorizationAsync(openIdConfigurationResponse);
+      var deviceAuthorizationResponse = await httpClient.StartDeviceAuthorizationAsync(
+         openIdConfigurationResponse,
+         clientId: "ArbitraryClientId");
 
       var content = new FormUrlEncodedContent(new Dictionary<string, string>
       {
-         ["client_id"] = "AnyClientId",
+         ["client_id"] = "ArbitraryClientId",
          ["grant_type"] = "urn:ietf:params:oauth:grant-type:device_code",
          ["device_code"] = deviceAuthorizationResponse.DeviceCode,
       });
@@ -80,7 +82,7 @@ public class get_token_happy_path
       var scope = tokenResponse.ParseAccessTokenClaim("client_id");
 
       Assert.That(scope, Is.Not.Null);
-      Assert.That(scope!.Value, Is.EqualTo("AnyClientId"));
+      Assert.That(scope!.Value, Is.EqualTo("ArbitraryClientId"));
    }
 
    [Test]

@@ -24,7 +24,7 @@ public class user_authorization_happy_path
       var openIdConfigurationResponse = await httpClient.GetWellKnownOpenIdConfigurationAsync();
 
       var authorizationUri =
-         $"{openIdConfigurationResponse.AuthorizationEndpoint}?response_type=code&client_id=AnyClientId&state=AnyState&redirect_uri=http://any-host/callback";
+         $"{openIdConfigurationResponse.AuthorizationEndpoint}?response_type=code&client_id=ValidClientId&state=ArbitraryState&redirect_uri=http://arbitrary-host/callback";
 
       _httpResponse = await httpClient.GetAsync(authorizationUri);
    }
@@ -39,7 +39,7 @@ public class user_authorization_happy_path
    public void response_headers_should_contain_location_with_code_and_state_query_parameters()
    {
       Assert.That(_httpResponse?.Headers.Location, Is.Not.Null);
-      Assert.That(_httpResponse?.Headers.Location?.Host, Is.EqualTo("any-host"));
+      Assert.That(_httpResponse?.Headers.Location?.Host, Is.EqualTo("arbitrary-host"));
       Assert.That(_httpResponse?.Headers.Location?.AbsolutePath, Is.EqualTo("/callback"));
       Assert.That(_httpResponse?.Headers.Location?.Query, Is.Not.Null);
 
@@ -49,6 +49,6 @@ public class user_authorization_happy_path
       Assert.That(queryString.Keys, Contains.Item("state"));
 
       Assert.That(Guid.TryParse(queryString["code"], out _), Is.True);
-      Assert.That(queryString["state"], Is.EqualTo("AnyState"));
+      Assert.That(queryString["state"], Is.EqualTo("ArbitraryState"));
    }
 }

@@ -24,11 +24,12 @@ public class get_token_with_offline_access_scope
 
       var deviceAuthorizationResponse = await httpClient.StartDeviceAuthorizationAsync(
          openIdConfigurationResponse,
-         scopes: ["any_scope", "offline_access"]);
+         clientId: "ArbitraryClientId",
+         scopes: ["arbitrary_scope", "offline_access"]);
 
       var content = new FormUrlEncodedContent(new Dictionary<string, string>
       {
-         ["client_id"] = "AnyClientId",
+         ["client_id"] = "ArbitraryClientId",
          ["grant_type"] = "urn:ietf:params:oauth:grant-type:device_code",
          ["device_code"] = deviceAuthorizationResponse.DeviceCode,
       });
@@ -82,7 +83,7 @@ public class get_token_with_offline_access_scope
       var scope = tokenResponse.ParseAccessTokenClaim("scope");
 
       Assert.That(scope, Is.Not.Null);
-      Assert.That(scope!.Value, Is.EqualTo("any_scope offline_access"));
+      Assert.That(scope!.Value, Is.EqualTo("arbitrary_scope offline_access"));
    }
 
    [Test]
@@ -106,7 +107,7 @@ public class get_token_with_offline_access_scope
    {
       var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
 
-      Assert.That(tokenResponse.Scope, Is.EqualTo("any_scope offline_access"));
+      Assert.That(tokenResponse.Scope, Is.EqualTo("arbitrary_scope offline_access"));
    }
 
    [Test]

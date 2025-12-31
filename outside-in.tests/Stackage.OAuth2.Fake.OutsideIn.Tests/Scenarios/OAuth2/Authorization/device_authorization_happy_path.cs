@@ -23,7 +23,7 @@ public class device_authorization_happy_path
 
       var content = new FormUrlEncodedContent(new Dictionary<string, string>
       {
-         ["client_id"] = "AnyClientId",
+         ["client_id"] = "ValidClientId",
       });
 
       _httpResponse = await httpClient.PostAsync(

@@ -28,11 +28,11 @@ public class get_token_with_seeded_refresh_token
       await httpClient.SeedRefreshTokenAsync(
          refreshToken: _refreshToken,
          scopes: ["offline_access"],
-         clientId: "AnyClientId");
+         clientId: "ArbitraryClientId");
 
       var content = new FormUrlEncodedContent(new Dictionary<string, string>
       {
-         ["client_id"] = "AnyClientId",
+         ["client_id"] = "ArbitraryClientId",
          ["grant_type"] = "refresh_token",
          ["refresh_token"] = _refreshToken,
       });
@@ -86,7 +86,7 @@ public class get_token_with_seeded_refresh_token
       var scope = tokenResponse.ParseAccessTokenClaim("client_id");
 
       Assert.That(scope, Is.Not.Null);
-      Assert.That(scope!.Value, Is.EqualTo("AnyClientId"));
+      Assert.That(scope!.Value, Is.EqualTo("ArbitraryClientId"));
    }
 
    [Test]

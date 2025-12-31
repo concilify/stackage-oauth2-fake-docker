@@ -24,7 +24,7 @@ public class user_authorization_missing_response_type
       var openIdConfigurationResponse = await httpClient.GetWellKnownOpenIdConfigurationAsync();
 
       var authorizationUri =
-         $"{openIdConfigurationResponse.AuthorizationEndpoint}?client_id=AnyClientId&state=AnyState&redirect_uri=http://any-host/callback";
+         $"{openIdConfigurationResponse.AuthorizationEndpoint}?client_id=ValidClientId&state=ArbitraryState&redirect_uri=http://valid-host/callback";
 
       _httpResponse = await httpClient.GetAsync(authorizationUri);
    }
@@ -41,6 +41,6 @@ public class user_authorization_missing_response_type
       var queryString = HttpUtility.ParseQueryString(_httpResponse!.Headers.Location!.Query!);
 
       Assert.That(queryString["error"], Is.EqualTo("invalid_request"));
-      Assert.That(queryString["state"], Is.EqualTo("AnyState"));
+      Assert.That(queryString["state"], Is.EqualTo("ArbitraryState"));
    }
 }

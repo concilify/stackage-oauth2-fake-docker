@@ -22,7 +22,7 @@ public class create_token_with_audiences
 
       var body = new
       {
-         clientId = "AnyClientId",
+         clientId = "ValidClientId",
          subject = "arbitrary-subject",
          audiences = new[] { "arbitrary-audience" },
          claims = new { },

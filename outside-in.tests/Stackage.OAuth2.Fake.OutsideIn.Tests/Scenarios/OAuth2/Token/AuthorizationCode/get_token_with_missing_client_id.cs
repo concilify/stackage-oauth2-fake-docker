@@ -24,7 +24,7 @@ public class get_token_with_missing_client_id
       var content = new FormUrlEncodedContent(new Dictionary<string, string>
       {
          ["grant_type"] = "authorization_code",
-         ["code"] = "AnyCode",
+         ["code"] = "ValidCode",
       });
 
       _httpResponse = await httpClient.PostAsync(

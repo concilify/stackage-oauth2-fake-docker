@@ -24,17 +24,17 @@ public class AuthorizationEndpointsTests
       var requestQuery = new Dictionary<string, string?>
       {
          ["response_type"] = "code",
-         ["client_id"] = "AnyClientId",
-         ["redirect_uri"] = "http://any-host/callback",
-         ["state"] = "AnyState",
+         ["client_id"] = "ValidClientId",
+         ["redirect_uri"] = "http://arbitrary-host/callback",
+         ["state"] = "ArbitraryState",
       };
 
       var httpResponse = await httpClient.GetAsync(QueryHelpers.AddQueryString(path, requestQuery));
 
       Assert.That(httpResponse.StatusCode, Is.EqualTo(HttpStatusCode.Redirect));
 
-      Assert.That(httpResponse.Headers.Location?.AbsoluteUri, Does.StartWith("http://any-host/callback"));
-      Assert.That(httpResponse.Headers.Location?.Query, Does.Contain("state=AnyState"));
+      Assert.That(httpResponse.Headers.Location?.AbsoluteUri, Does.StartWith("http://arbitrary-host/callback"));
+      Assert.That(httpResponse.Headers.Location?.Query, Does.Contain("state=ArbitraryState"));
    }
 
    [Test]
@@ -48,8 +48,8 @@ public class AuthorizationEndpointsTests
       var requestQuery = new Dictionary<string, string?>
       {
          ["response_type"] = "code",
-         ["client_id"] = "AnyClientId",
-         ["state"] = "AnyState",
+         ["client_id"] = "ValidClientId",
+         ["state"] = "ValidState",
       };
 
       var httpResponse = await httpClient.GetAsync(QueryHelpers.AddQueryString("oauth2/authorize", requestQuery));
@@ -67,16 +67,16 @@ public class AuthorizationEndpointsTests
 
       var requestQuery = new Dictionary<string, string?>
       {
-         ["client_id"] = "AnyClientId",
-         ["redirect_uri"] = "http://any-host/callback",
-         ["state"] = "AnyState",
+         ["client_id"] = "ValidClientId",
+         ["redirect_uri"] = "http://valid-host/callback",
+         ["state"] = "ArbitraryState",
       };
 
       var httpResponse = await httpClient.GetAsync(QueryHelpers.AddQueryString("oauth2/authorize", requestQuery));
 
       Assert.That(httpResponse.StatusCode, Is.EqualTo(HttpStatusCode.Redirect));
       Assert.That(httpResponse.Headers.Location?.Query, Does.Contain("error=invalid_request"));
-      Assert.That(httpResponse.Headers.Location?.Query, Does.Contain("state=AnyState"));
+      Assert.That(httpResponse.Headers.Location?.Query, Does.Contain("state=ArbitraryState"));
    }
 
    [Test]
@@ -90,16 +90,16 @@ public class AuthorizationEndpointsTests
       var requestQuery = new Dictionary<string, string?>
       {
          ["response_type"] = "token",
-         ["client_id"] = "AnyClientId",
-         ["redirect_uri"] = "http://any-host/callback",
-         ["state"] = "AnyState",
+         ["client_id"] = "ValidClientId",
+         ["redirect_uri"] = "http://valid-host/callback",
+         ["state"] = "ArbitraryState",
       };
 
       var httpResponse = await httpClient.GetAsync(QueryHelpers.AddQueryString("oauth2/authorize", requestQuery));
 
       Assert.That(httpResponse.StatusCode, Is.EqualTo(HttpStatusCode.Redirect));
       Assert.That(httpResponse.Headers.Location?.Query, Does.Contain("error=unsupported_response_type"));
-      Assert.That(httpResponse.Headers.Location?.Query, Does.Contain("state=AnyState"));
+      Assert.That(httpResponse.Headers.Location?.Query, Does.Contain("state=ArbitraryState"));
    }
 
    [Test]
@@ -113,15 +113,15 @@ public class AuthorizationEndpointsTests
       var requestQuery = new Dictionary<string, string?>
       {
          ["response_type"] = "code",
-         ["redirect_uri"] = "http://any-host/callback",
-         ["state"] = "AnyState",
+         ["redirect_uri"] = "http://valid-host/callback",
+         ["state"] = "ArbitraryState",
       };
 
       var httpResponse = await httpClient.GetAsync(QueryHelpers.AddQueryString("oauth2/authorize", requestQuery));
 
       Assert.That(httpResponse.StatusCode, Is.EqualTo(HttpStatusCode.Redirect));
       Assert.That(httpResponse.Headers.Location?.Query, Does.Contain("error=invalid_request"));
-      Assert.That(httpResponse.Headers.Location?.Query, Does.Contain("state=AnyState"));
+      Assert.That(httpResponse.Headers.Location?.Query, Does.Contain("state=ArbitraryState"));
    }
 
    [TestCase("oauth2/device/authorize", "oauth2/device/verify")]
@@ -140,7 +140,7 @@ public class AuthorizationEndpointsTests
 
       var body = new Dictionary<string, string?>
       {
-         ["client_id"] = "AnyClientId",
+         ["client_id"] = "ValidClientId",
       };
 
       var httpResponse = await httpClient.PostAsync(

@@ -27,12 +27,13 @@ public class get_token_with_openid_scope_and_audience
 
       var authorizationResponse = await httpClient.StartAuthorizationAsync(
          openIdConfigurationResponse,
-         scopes: ["any_scope", "openid"],
+         clientId: "ArbitraryClientId",
+         scopes: ["arbitrary_scope", "openid"],
          audience: "arbitrary-audience");
 
       var content = new FormUrlEncodedContent(new Dictionary<string, string>
       {
-         ["client_id"] = "AnyClientId",
+         ["client_id"] = "ArbitraryClientId",
          ["grant_type"] = "authorization_code",
          ["code"] = authorizationResponse.Code,
       });
@@ -96,7 +97,7 @@ public class get_token_with_openid_scope_and_audience
       var scope = tokenResponse.ParseAccessTokenClaim("scope");
 
       Assert.That(scope, Is.Not.Null);
-      Assert.That(scope!.Value, Is.EqualTo("any_scope openid"));
+      Assert.That(scope!.Value, Is.EqualTo("arbitrary_scope openid"));
    }
 
    [Test]
@@ -106,7 +107,7 @@ public class get_token_with_openid_scope_and_audience
 
       var jsonWebKeySet = await Support.GetJsonWebKeySetAsync();
 
-      tokenResponse.AssertIdTokenIsSigned(jsonWebKeySet.Keys[0], ["AnyClientId"]);
+      tokenResponse.AssertIdTokenIsSigned(jsonWebKeySet.Keys[0], ["ArbitraryClientId"]);
    }
 
    [Test]
@@ -126,7 +127,7 @@ public class get_token_with_openid_scope_and_audience
 
       var jwtSecurityToken = tokenResponse.ParseIdTokenAsJwtSecurityToken();
 
-      Assert.That(jwtSecurityToken.Audiences, Is.EqualTo(["AnyClientId"]));
+      Assert.That(jwtSecurityToken.Audiences, Is.EqualTo(["ArbitraryClientId"]));
    }
 
    [Test]
@@ -142,7 +143,7 @@ public class get_token_with_openid_scope_and_audience
    {
       var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
 
-      Assert.That(tokenResponse.Scope, Is.EqualTo("any_scope openid"));
+      Assert.That(tokenResponse.Scope, Is.EqualTo("arbitrary_scope openid"));
    }
 
    [Test]
