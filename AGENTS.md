@@ -144,6 +144,10 @@ var httpRequest = CreateRequest(new Dictionary<string, StringValues>
 });
 ```
 
+#### Invalid Values
+
+When a test value is purposely invalid, prefix with the reason (eg. `Unknown`, `Unsupported` or `Invalid`). The prefix should roughly match the reason given in the test name where possible.
+
 ### Test Structure
 
 - **Unit/Integration Tests**: Use NUnit's `[Test]` attribute with descriptive `snake_case` method names
