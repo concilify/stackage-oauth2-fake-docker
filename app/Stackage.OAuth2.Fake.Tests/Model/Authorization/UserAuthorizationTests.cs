@@ -43,13 +43,13 @@ public class UserAuthorizationTests
    }
 
    private static UserAuthorization CreateAuthorization(
+      string clientId = "AnyClientId",
       string? scope = null,
-      string? clientId = null,
       string? audience = null)
    {
       return UserAuthorization.Create(
+         clientId: clientId,
          scope: (Scope?)scope ?? Scope.Empty,
-         clientId: clientId ?? "AnyClientId",
          audience: audience);
    }
 }

@@ -26,6 +26,7 @@ public class get_happy_path
       {
          code = _code,
          scopes = new[] { "scope-a", "scope-b" },
+         clientId = "SomeClientId",
          subject = "SomeSubject",
       };
 
@@ -59,6 +60,14 @@ public class get_happy_path
    }
 
    [Test]
+   public async Task response_content_should_contain_client_id()
+   {
+      var authorizationResponse = await _httpResponse!.ParseAsync<AuthorizationResponse>();
+
+      Assert.That(authorizationResponse.ClientId, Is.EqualTo("SomeClientId"));
+   }
+
+   [Test]
    public async Task response_content_should_contain_subject()
    {
       var authorizationResponse = await _httpResponse!.ParseAsync<AuthorizationResponse>();
@@ -69,5 +78,6 @@ public class get_happy_path
    private record AuthorizationResponse(
       [property: JsonPropertyName("code")] string Code,
       [property: JsonPropertyName("scopes")] string[] Scopes,
+      [property: JsonPropertyName("clientId")] string ClientId,
       [property: JsonPropertyName("subject")] string Subject);
 }

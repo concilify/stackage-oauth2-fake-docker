@@ -22,8 +22,9 @@ public class create_token_with_openid_scope
 
       var body = new
       {
-         subject = "any-subject",
+         clientId = "AnyClientId",
          scopes = new[] { "any_scope", "openid" },
+         subject = "any-subject",
          claims = new { },
       };
 

@@ -19,7 +19,12 @@ public class create_without_code
       using var httpClient = new HttpClient();
       httpClient.BaseAddress = new Uri(Configuration.AppUrl);
 
-      var content = JsonContent.Create(new { });
+      var body = new
+      {
+         clientId = "AnyClientId",
+      };
+
+      var content = JsonContent.Create(body);
 
       _httpResponse = await httpClient.PostAsync(".internal/authorization", content);
    }

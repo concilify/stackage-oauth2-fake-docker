@@ -9,7 +9,7 @@ using NUnit.Framework;
 using Stackage.OAuth2.Fake.OutsideIn.Tests.Model;
 
 // ReSharper disable once InconsistentNaming
-public class create_without_refresh_token
+public class create_without_client_id
 {
    private HttpResponseMessage? _httpResponse;
 
@@ -21,7 +21,7 @@ public class create_without_refresh_token
 
       var body = new
       {
-         clientId = "AnyClientId",
+         refreshToken = Guid.NewGuid().ToString(),
       };
 
       var content = JsonContent.Create(body);
@@ -48,6 +48,6 @@ public class create_without_refresh_token
    {
       var errorResponse = await _httpResponse!.ParseAsync<ErrorResponse>();
 
-      Assert.That(errorResponse.ErrorDescription, Is.EqualTo("The refreshToken property was missing"));
+      Assert.That(errorResponse.ErrorDescription, Is.EqualTo("The clientId property was missing"));
    }
 }

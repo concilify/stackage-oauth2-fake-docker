@@ -61,7 +61,7 @@ public static class AuthorizationEndpoints
             }
 
             var authorization = authorizationCache.Add(
-               () => UserAuthorization.Create((Scope?)scope ?? Scope.Empty, clientId, audience));
+               () => UserAuthorization.Create(clientId, (Scope?)scope ?? Scope.Empty, audience));
 
             // This would normally redirect to an intermediate URL to allow the user to logon, but the code returned here
             // can be used immediately with the /oauth2/token endpoint using grant type authorization_code
@@ -85,7 +85,7 @@ public static class AuthorizationEndpoints
             }
 
             var authorization = authorizationCache.Add(
-               () => DeviceAuthorization.Create((Scope?)scope ?? Scope.Empty, clientId, audience));
+               () => DeviceAuthorization.Create(clientId, (Scope?)scope ?? Scope.Empty, audience));
 
             // This would normally need the user to visit the verification URL to allow the user to logon, but the code returned
             // here can be used immediately with the /oauth2/token endpoint using grant type urn:ietf:params:oauth:grant-type:device_code

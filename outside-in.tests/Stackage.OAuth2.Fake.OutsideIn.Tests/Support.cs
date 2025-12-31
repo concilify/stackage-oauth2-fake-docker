@@ -52,6 +52,7 @@ public static class Support
    public static async Task<AuthorizationResponse> StartAuthorizationAsync(
       this HttpClient httpClient,
       OpenIdConfigurationResponse openIdConfigurationResponse,
+      string clientId = "AnyClientId",
       string[]? scopes = null,
       string? audience = null)
    {
@@ -60,7 +61,7 @@ public static class Support
       var requestQuery = new Dictionary<string, string?>
       {
          ["response_type"] = "code",
-         ["client_id"] = "AnyClientId",
+         ["client_id"] = clientId,
          ["state"] = "AnyState",
          ["redirect_uri"] = "http://any-host/callback",
       };
@@ -88,6 +89,7 @@ public static class Support
    public static async Task<DeviceAuthorizationResponse> StartDeviceAuthorizationAsync(
       this HttpClient httpClient,
       OpenIdConfigurationResponse openIdConfigurationResponse,
+      string clientId = "AnyClientId",
       string[]? scopes = null,
       string? audience = null)
    {
@@ -95,7 +97,7 @@ public static class Support
 
       var requestQuery = new Dictionary<string, string?>
       {
-         ["client_id"] = "AnyClientId",
+         ["client_id"] = clientId,
       };
 
       if (scopes.Length != 0)
@@ -157,11 +159,13 @@ public static class Support
 
    public static async Task<TokenResponse> CreateTokenAsync(
       this HttpClient httpClient,
+      string clientId = "AnyClientId",
       string subject = "any-subject",
       string[]? scopes = null)
    {
       var body = new JsonObject
       {
+         ["clientId"] = clientId,
          ["subject"] = subject,
          ["claims"] = new JsonObject(),
       };
@@ -176,12 +180,14 @@ public static class Support
    public static async Task SeedAuthorizationAsync(
       this HttpClient httpClient,
       string code,
+      string clientId = "ValidClientId",
       string[]? scopes = null,
       string? subject = null)
    {
       var body = new JsonObject
       {
          ["code"] = code,
+         ["clientId"] = clientId,
       };
 
       body.AddScopes(scopes);
@@ -194,11 +200,13 @@ public static class Support
       this HttpClient httpClient,
       string refreshToken,
       string[]? scopes = null,
+      string clientId = "ValidClientId",
       string? subject = null)
    {
       var body = new JsonObject
       {
          ["refreshToken"] = refreshToken,
+         ["clientId"] = clientId,
       };
 
       body.AddScopes(scopes);

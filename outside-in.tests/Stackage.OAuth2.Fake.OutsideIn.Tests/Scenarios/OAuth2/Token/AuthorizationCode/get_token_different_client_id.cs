@@ -1,0 +1,64 @@
+namespace Stackage.OAuth2.Fake.OutsideIn.Tests.Scenarios.OAuth2.Token.AuthorizationCode;
+
+using System;
+using System.Collections.Generic;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
+using NUnit.Framework;
+using Stackage.OAuth2.Fake.OutsideIn.Tests.Model;
+
+// ReSharper disable once InconsistentNaming
+public class get_token_different_client_id
+{
+   private HttpResponseMessage? _httpResponse;
+
+   [OneTimeSetUp]
+   public async Task setup_before_all_tests()
+   {
+      using var handler = new HttpClientHandler();
+      handler.AllowAutoRedirect = false;
+
+      var httpClient = new HttpClient(handler);
+      httpClient.BaseAddress = new Uri(Configuration.AppUrl);
+
+      var openIdConfigurationResponse = await httpClient.GetWellKnownOpenIdConfigurationAsync();
+
+      var authorizationResponse = await httpClient.StartAuthorizationAsync(
+         openIdConfigurationResponse,
+         clientId: "OriginalClientId");
+
+      var content = new FormUrlEncodedContent(new Dictionary<string, string>
+      {
+         ["client_id"] = "DifferentClientId",
+         ["grant_type"] = "authorization_code",
+         ["code"] = authorizationResponse.Code,
+      });
+
+      _httpResponse = await httpClient.PostAsync(
+         openIdConfigurationResponse.TokenEndpoint,
+         content);
+   }
+
+   [Test]
+   public void response_status_should_be_bad_request()
+   {
+      Assert.That(_httpResponse?.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
+   }
+
+   [Test]
+   public async Task response_content_should_contain_error()
+   {
+      var errorResponse = await _httpResponse!.ParseAsync<ErrorResponse>();
+
+      Assert.That(errorResponse.Error, Is.EqualTo("invalid_grant"));
+   }
+
+   [Test]
+   public async Task response_content_should_contain_error_description()
+   {
+      var errorResponse = await _httpResponse!.ParseAsync<ErrorResponse>();
+
+      Assert.That(errorResponse.ErrorDescription, Is.EqualTo("The given client_id did not match the original request"));
+   }
+}

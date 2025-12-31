@@ -48,7 +48,7 @@ public class RefreshTokenGrantTypeHandlerTests
       var authorizationCache = new AuthorizationCache<RefreshAuthorization>();
 
       authorizationCache.Add(
-         () => RefreshAuthorization.Create("AnyRefreshToken", AuthorizationStub.Valid()));
+         () => RefreshAuthorization.Create("AnyRefreshToken", AuthorizationStub.With(clientId: "AnyClientId")));
 
       var testSubject = CreateHandler(
          authorizationCache: authorizationCache);
@@ -56,6 +56,7 @@ public class RefreshTokenGrantTypeHandlerTests
       var httpRequest = CreateRequest(new Dictionary<string, StringValues>
       {
          ["refresh_token"] = "AnyRefreshToken",
+         ["client_id"] = "AnyClientId",
       });
 
       var result = testSubject.Handle(httpRequest);

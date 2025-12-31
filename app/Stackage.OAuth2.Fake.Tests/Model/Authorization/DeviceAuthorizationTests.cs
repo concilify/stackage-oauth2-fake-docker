@@ -43,13 +43,13 @@ public class DeviceAuthorizationTests
    }
 
    private static DeviceAuthorization CreateAuthorization(
+      string clientId = "AnyClientId",
       string? scope = null,
-      string? clientId = null,
       string? audience = null)
    {
       return DeviceAuthorization.Create(
+         clientId: clientId,
          scope: (Scope?)scope ?? Scope.Empty,
-         clientId: clientId ?? "AnyClientId",
          audience: audience);
    }
 }

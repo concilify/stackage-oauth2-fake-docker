@@ -25,8 +25,9 @@ public class create_token_with_scopes_and_explicit_claims
 
       var body = new
       {
-         subject = "any-subject",
+         clientId = "AnyClientId",
          scopes = new[] { "first_token", "second_token" },
+         subject = "any-subject",
          claims = new
          {
             custom_claim = "custom-value",

@@ -26,6 +26,7 @@ public class get_happy_path
       {
          refreshToken = _refreshToken,
          scopes = new[] { "scope-a", "scope-b" },
+         clientId = "SomeClientId",
          subject = "SomeSubject",
       };
 
@@ -56,6 +57,14 @@ public class get_happy_path
       var refreshTokenResponse = await _httpResponse!.ParseAsync<RefreshTokenResponse>();
 
       Assert.That(refreshTokenResponse.Scopes, Is.EqualTo(["scope-a", "scope-b"]));
+   }
+
+   [Test]
+   public async Task response_content_should_contain_client_id()
+   {
+      var authorizationResponse = await _httpResponse!.ParseAsync<RefreshTokenResponse>();
+
+      Assert.That(authorizationResponse.ClientId, Is.EqualTo("SomeClientId"));
    }
 
    [Test]

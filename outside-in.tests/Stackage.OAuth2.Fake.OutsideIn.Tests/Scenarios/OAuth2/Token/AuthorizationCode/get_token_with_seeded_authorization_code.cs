@@ -30,6 +30,7 @@ public class get_token_with_seeded_authorization_code
 
       await httpClient.SeedAuthorizationAsync(
          code: _code,
+         clientId: "AnyClientId",
          scopes: ["offline_access"]);
 
       var content = new FormUrlEncodedContent(new Dictionary<string, string>

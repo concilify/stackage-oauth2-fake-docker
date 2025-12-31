@@ -2,10 +2,7 @@ namespace Stackage.OAuth2.Fake.Model.Authorization;
 
 using System;
 
-public record RefreshAuthorization(
-   string RefreshToken,
-   Scope Scope,
-   string Subject) : IAuthorizationWithCode
+public record RefreshAuthorization(string RefreshToken, string ClientId, Scope Scope, string Subject) : IAuthorizationWithCode
 {
    public string Code => RefreshToken;
 
@@ -20,6 +17,10 @@ public record RefreshAuthorization(
          throw new InvalidOperationException($"{authorization.GetType().Name} has not been authenticated.");
       }
 
-      return new RefreshAuthorization(refreshToken, authorization.Scope, authorization.Subject);
+      return new RefreshAuthorization(
+         RefreshToken: refreshToken,
+         ClientId: authorization.ClientId,
+         Scope: authorization.Scope,
+         Subject: authorization.Subject);
    }
 }
