@@ -24,7 +24,7 @@ public class user_authorization_unsupported_response_type
       var openIdConfigurationResponse = await httpClient.GetWellKnownOpenIdConfigurationAsync();
 
       var authorizationUri =
-         $"{openIdConfigurationResponse.AuthorizationEndpoint}?response_type=token&client_id=AnyClientId&state=AnyState&redirect_uri=http://any-host/callback";
+         $"{openIdConfigurationResponse.AuthorizationEndpoint}?response_type=token&client_id=ValidClientId&state=ArbitraryState&redirect_uri=http://valid-host/callback";
 
       _httpResponse = await httpClient.GetAsync(authorizationUri);
    }

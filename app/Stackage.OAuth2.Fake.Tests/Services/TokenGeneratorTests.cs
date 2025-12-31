@@ -44,11 +44,11 @@ public class TokenGeneratorTests
    {
       var testSubject = CreateGenerator();
 
-      var authorization = AuthorizationStub.With(scope: (Scope)"valid_scope");
+      var authorization = AuthorizationStub.With(scope: (Scope)"arbitrary_scope");
 
       var response = testSubject.Generate(authorization);
 
-      Assert.That(response.Scope, Is.EqualTo("valid_scope"));
+      Assert.That(response.Scope, Is.EqualTo("arbitrary_scope"));
    }
 
    [Test]
@@ -133,9 +133,9 @@ public class TokenGeneratorTests
       var user = new User(
          Subject: "ArbitrarySubject",
          Claims: [
-            new Claim("name", "ValidName"),
-            new Claim("nickname", "ValidNickname"),
-            new Claim("picture", "ValidPicture"),
+            new Claim("name", "ArbitraryName"),
+            new Claim("nickname", "ArbitraryNickname"),
+            new Claim("picture", "ArbitraryPicture"),
          ]);
       var userStore = UserStoreStub.Returns(user);
 
@@ -154,9 +154,9 @@ public class TokenGeneratorTests
 
       var expectedClaims = new Dictionary<string, StringValues>
       {
-         ["name"] = "ValidName",
-         ["nickname"] = "ValidNickname",
-         ["picture"] = "ValidPicture",
+         ["name"] = "ArbitraryName",
+         ["nickname"] = "ArbitraryNickname",
+         ["picture"] = "ArbitraryPicture",
       };
 
       claims.ShouldBeEquivalentTo(expectedClaims);
@@ -168,7 +168,7 @@ public class TokenGeneratorTests
       var user = new User(
          Subject: "ArbitrarySubject",
          Claims: [
-            new Claim("name", "ValidName"),
+            new Claim("name", "ArbitraryName"),
          ]);
       var userStore = UserStoreStub.Returns(user);
 
@@ -187,7 +187,7 @@ public class TokenGeneratorTests
 
       var expectedClaims = new Dictionary<string, StringValues>
       {
-         ["name"] = "ValidName",
+         ["name"] = "ArbitraryName",
       };
 
       claims.ShouldBeEquivalentTo(expectedClaims);

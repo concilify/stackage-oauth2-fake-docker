@@ -23,7 +23,7 @@ public class create_token_with_openid_scope_with_audience
       var body = new
       {
          clientId = "ArbitraryClientId",
-         scopes = new[] { "any_scope", "openid" },
+         scopes = new[] { "arbitrary_scope", "openid" },
          subject = "arbitrary-subject",
          audiences = new[] { "arbitrary-audience" },
          claims = new { },
@@ -88,7 +88,7 @@ public class create_token_with_openid_scope_with_audience
       var scope = tokenResponse.ParseAccessTokenClaim("scope");
 
       Assert.That(scope, Is.Not.Null);
-      Assert.That(scope!.Value, Is.EqualTo("any_scope openid"));
+      Assert.That(scope!.Value, Is.EqualTo("arbitrary_scope openid"));
    }
 
    [Test]
@@ -134,7 +134,7 @@ public class create_token_with_openid_scope_with_audience
    {
       var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
 
-      Assert.That(tokenResponse.Scope, Is.EqualTo("any_scope openid"));
+      Assert.That(tokenResponse.Scope, Is.EqualTo("arbitrary_scope openid"));
    }
 
    [Test]

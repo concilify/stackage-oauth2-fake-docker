@@ -27,7 +27,7 @@ public class get_token_without_openid_or_offline_access_scope
 
       var authorizationResponse = await httpClient.StartAuthorizationAsync(
          openIdConfigurationResponse,
-         scopes: ["any_scope"]);
+         scopes: ["arbitrary_scope"]);
 
       var content = new FormUrlEncodedContent(new Dictionary<string, string>
       {
@@ -85,7 +85,7 @@ public class get_token_without_openid_or_offline_access_scope
       var scope = tokenResponse.ParseAccessTokenClaim("scope");
 
       Assert.That(scope, Is.Not.Null);
-      Assert.That(scope!.Value, Is.EqualTo("any_scope"));
+      Assert.That(scope!.Value, Is.EqualTo("arbitrary_scope"));
    }
 
    [Test]
@@ -109,7 +109,7 @@ public class get_token_without_openid_or_offline_access_scope
    {
       var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
 
-      Assert.That(tokenResponse.Scope, Is.EqualTo("any_scope"));
+      Assert.That(tokenResponse.Scope, Is.EqualTo("arbitrary_scope"));
    }
 
    [Test]

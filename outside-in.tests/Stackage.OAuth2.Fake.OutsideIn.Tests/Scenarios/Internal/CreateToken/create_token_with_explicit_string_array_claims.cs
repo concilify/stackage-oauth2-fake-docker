@@ -27,7 +27,7 @@ public class create_token_with_explicit_string_array_claims
       var body = new
       {
          clientId = "ArbitraryClientId",
-         subject = "valid-subject",
+         subject = "arbitrary-subject",
          claims = new JsonObject
          {
             ["http://oauth2.fake/claim-a"] = new JsonArray { "claim-a-one", "claim-a-two" },
@@ -74,7 +74,7 @@ public class create_token_with_explicit_string_array_claims
 
       var jwtSecurityToken = tokenResponse.ParseAccessTokenAsJwtSecurityToken();
 
-      Assert.That(jwtSecurityToken.Subject, Is.EqualTo("valid-subject"));
+      Assert.That(jwtSecurityToken.Subject, Is.EqualTo("arbitrary-subject"));
    }
 
    [Test]

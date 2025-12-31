@@ -24,7 +24,7 @@ public class get_token_with_openid_scope_and_audience
 
       var deviceAuthorizationResponse = await httpClient.StartDeviceAuthorizationAsync(
          openIdConfigurationResponse,
-         scopes: ["any_scope", "openid"],
+         scopes: ["arbitrary_scope", "openid"],
          audience: "arbitrary-audience");
 
       var content = new FormUrlEncodedContent(new Dictionary<string, string>
@@ -93,7 +93,7 @@ public class get_token_with_openid_scope_and_audience
       var scope = tokenResponse.ParseAccessTokenClaim("scope");
 
       Assert.That(scope, Is.Not.Null);
-      Assert.That(scope!.Value, Is.EqualTo("any_scope openid"));
+      Assert.That(scope!.Value, Is.EqualTo("arbitrary_scope openid"));
    }
 
    [Test]
@@ -139,7 +139,7 @@ public class get_token_with_openid_scope_and_audience
    {
       var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
 
-      Assert.That(tokenResponse.Scope, Is.EqualTo("any_scope openid"));
+      Assert.That(tokenResponse.Scope, Is.EqualTo("arbitrary_scope openid"));
    }
 
    [Test]

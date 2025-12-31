@@ -23,8 +23,8 @@ public class create_token_with_offline_access_scope
       var body = new
       {
          clientId = "ArbitraryClientId",
-         scopes = new[] { "any_scope", "offline_access" },
-         subject = "valid-subject",
+         scopes = new[] { "arbitrary_scope", "offline_access" },
+         subject = "arbitrary-subject",
          claims = new { },
       };
 
@@ -66,7 +66,7 @@ public class create_token_with_offline_access_scope
 
       var jwtSecurityToken = tokenResponse.ParseAccessTokenAsJwtSecurityToken();
 
-      Assert.That(jwtSecurityToken.Subject, Is.EqualTo("valid-subject"));
+      Assert.That(jwtSecurityToken.Subject, Is.EqualTo("arbitrary-subject"));
    }
 
    [Test]
@@ -77,7 +77,7 @@ public class create_token_with_offline_access_scope
       var scope = tokenResponse.ParseAccessTokenClaim("scope");
 
       Assert.That(scope, Is.Not.Null);
-      Assert.That(scope!.Value, Is.EqualTo("any_scope offline_access"));
+      Assert.That(scope!.Value, Is.EqualTo("arbitrary_scope offline_access"));
    }
 
    [Test]
@@ -101,7 +101,7 @@ public class create_token_with_offline_access_scope
    {
       var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
 
-      Assert.That(tokenResponse.Scope, Is.EqualTo("any_scope offline_access"));
+      Assert.That(tokenResponse.Scope, Is.EqualTo("arbitrary_scope offline_access"));
    }
 
    [Test]
