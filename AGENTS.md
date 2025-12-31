@@ -181,6 +181,8 @@ The application implements OAuth 2.0 and OpenID Connect specifications. Follow t
 - **[RFC 7519](https://tools.ietf.org/html/rfc7519)**: JSON Web Token (JWT)
 - **[RFC 7517](https://tools.ietf.org/html/rfc7517)**: JSON Web Key (JWK)
 - **[RFC 7523](https://datatracker.ietf.org/doc/html/rfc7523)**: JSON Web Token (JWT) Profile for OAuth 2.0 Client Authentication and Authorization Grants
+  - Defines how to use JWTs as authorization grants (using `urn:ietf:params:oauth:grant-type:jwt-bearer` grant type)
+  - Defines how to use JWTs for client authentication (using `urn:ietf:params:oauth:client-assertion-type:jwt-bearer` assertion type)
 
 ### Error Handling
 
