@@ -24,7 +24,7 @@ public class AuthorizationEndpointsTests
       var requestQuery = new Dictionary<string, string?>
       {
          ["response_type"] = "code",
-         ["client_id"] = "ArbitraryClientId",
+         ["client_id"] = "ValidClientId",
          ["redirect_uri"] = "http://arbitrary-host/callback",
          ["state"] = "ArbitraryState",
       };
@@ -48,8 +48,8 @@ public class AuthorizationEndpointsTests
       var requestQuery = new Dictionary<string, string?>
       {
          ["response_type"] = "code",
-         ["client_id"] = "ArbitraryClientId",
-         ["state"] = "ArbitraryState",
+         ["client_id"] = "ValidClientId",
+         ["state"] = "ValidState",
       };
 
       var httpResponse = await httpClient.GetAsync(QueryHelpers.AddQueryString("oauth2/authorize", requestQuery));
@@ -140,7 +140,7 @@ public class AuthorizationEndpointsTests
 
       var body = new Dictionary<string, string?>
       {
-         ["client_id"] = "ArbitraryClientId",
+         ["client_id"] = "ValidClientId",
       };
 
       var httpResponse = await httpClient.PostAsync(

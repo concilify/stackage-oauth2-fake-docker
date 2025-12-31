@@ -27,7 +27,7 @@ public class UserAuthorizationTests
    {
       var testSubject = CreateAuthorization();
 
-      testSubject.Authenticate("ArbitrarySubject");
+      testSubject.Authenticate("ValidSubject");
 
       Assert.That(testSubject.IsAuthenticated, Is.True);
    }

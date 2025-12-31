@@ -166,7 +166,7 @@ public class TokenGeneratorTests
    public void response_id_token_contains_available_user_claims_when_scope_includes_openid_and_profile()
    {
       var user = new User(
-         Subject: "ArbitrarySubject",
+         Subject: "arbitrary-subject",
          Claims: [
             new Claim("name", "ArbitraryName"),
          ]);
@@ -177,7 +177,7 @@ public class TokenGeneratorTests
 
       var authorization = AuthorizationStub.With(
          scope: (Scope)"openid profile",
-         subject: "ArbitrarySubject");
+         subject: "arbitrary-subject");
 
       var response = testSubject.Generate(authorization);
 
@@ -197,9 +197,10 @@ public class TokenGeneratorTests
    public void response_id_token_does_not_contain_unknown_user_claims_when_scope_includes_openid_and_profile()
    {
       var user = new User(
-         Subject: "ArbitrarySubject",
+         Subject: "arbitrary-subject",
          Claims: [
             new Claim("unknown-claim", "valid-value"),
+            new Claim("name", "arbitrary-name"),
          ]);
       var userStore = UserStoreStub.Returns(user);
 
@@ -208,7 +209,7 @@ public class TokenGeneratorTests
 
       var authorization = AuthorizationStub.With(
          scope: (Scope)"openid profile",
-         subject: "valid-subject");
+         subject: "arbitrary-subject");
 
       var response = testSubject.Generate(authorization);
 
@@ -216,7 +217,12 @@ public class TokenGeneratorTests
 
       var claims = jwtSecurityToken.ParseClaims("name", "nickname", "picture");
 
-      claims.ShouldBeEmpty();
+      var expectedClaims = new Dictionary<string, StringValues>
+      {
+         ["name"] = "arbitrary-name",
+      };
+
+      claims.ShouldBeEquivalentTo(expectedClaims);
    }
 
    [Test]
@@ -293,7 +299,7 @@ public class TokenGeneratorTests
 
       var authorization = AuthorizationStub.With(
          scope: (Scope)"offline_access",
-         subject: "ArbitrarySubject");
+         subject: "valid-subject");
 
       var response = testSubject.Generate(authorization);
 
