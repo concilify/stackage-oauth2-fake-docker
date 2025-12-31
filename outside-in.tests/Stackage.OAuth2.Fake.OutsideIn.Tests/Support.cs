@@ -53,7 +53,8 @@ public static class Support
       this HttpClient httpClient,
       OpenIdConfigurationResponse openIdConfigurationResponse,
       string clientId = "AnyClientId",
-      string[]? scopes = null)
+      string[]? scopes = null,
+      string? audience = null)
    {
       scopes ??= [];
 
@@ -70,6 +71,11 @@ public static class Support
          requestQuery["scope"] = string.Join(" ", scopes);
       }
 
+      if (audience != null)
+      {
+         requestQuery["audience"] = audience;
+      }
+
       var httpResponse = await httpClient.GetAsync(
          QueryHelpers.AddQueryString(openIdConfigurationResponse.AuthorizationEndpoint, requestQuery));
 
@@ -84,7 +90,8 @@ public static class Support
       this HttpClient httpClient,
       OpenIdConfigurationResponse openIdConfigurationResponse,
       string clientId = "AnyClientId",
-      string[]? scopes = null)
+      string[]? scopes = null,
+      string? audience = null)
    {
       scopes ??= [];
 
@@ -96,6 +103,11 @@ public static class Support
       if (scopes.Length != 0)
       {
          requestQuery["scope"] = string.Join(" ", scopes);
+      }
+
+      if (audience != null)
+      {
+         requestQuery["audience"] = audience;
       }
 
       var content = new FormUrlEncodedContent(requestQuery);
@@ -221,18 +233,20 @@ public static class Support
 
    public static void AssertAccessTokenIsSigned(
       this TokenResponse tokenResponse,
-      JsonWebKey jsonWebKey)
+      JsonWebKey jsonWebKey,
+      string[]? audiences = null)
    {
-      AssertTokenIsSigned(tokenResponse.AccessToken, jsonWebKey);
+      AssertTokenIsSigned(tokenResponse.AccessToken, jsonWebKey, audiences);
    }
 
    public static void AssertIdTokenIsSigned(
       this TokenResponse tokenResponse,
-      JsonWebKey jsonWebKey)
+      JsonWebKey jsonWebKey,
+      string[]? audiences = null)
    {
       Assert.That(tokenResponse.IdToken, Is.Not.Null);
 
-      AssertTokenIsSigned(tokenResponse.IdToken!, jsonWebKey);
+      AssertTokenIsSigned(tokenResponse.IdToken!, jsonWebKey, audiences);
    }
 
    public static JwtSecurityToken ParseAccessTokenAsJwtSecurityToken(this TokenResponse tokenResponse)
@@ -309,13 +323,15 @@ public static class Support
 
    private static void AssertTokenIsSigned(
       string token,
-      JsonWebKey jsonWebKey)
+      JsonWebKey jsonWebKey,
+      string[]? audiences = null)
    {
       var parameters = new TokenValidationParameters
       {
          IssuerSigningKey = jsonWebKey,
          ValidIssuer = Configuration.IssuerUrl,
-         ValidateAudience = false,
+         ValidateAudience = audiences is { Length: > 0 },
+         ValidAudiences = audiences,
       };
 
       new JwtSecurityTokenHandler().ValidateToken(

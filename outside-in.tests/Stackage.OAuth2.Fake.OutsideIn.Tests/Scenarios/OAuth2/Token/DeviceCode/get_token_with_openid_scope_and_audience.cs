@@ -10,7 +10,7 @@ using NUnit.Framework;
 using Stackage.OAuth2.Fake.OutsideIn.Tests.Model;
 
 // ReSharper disable once InconsistentNaming
-public class get_token_with_openid_scope
+public class get_token_with_openid_scope_and_audience
 {
    private HttpResponseMessage? _httpResponse;
 
@@ -24,7 +24,8 @@ public class get_token_with_openid_scope
 
       var deviceAuthorizationResponse = await httpClient.StartDeviceAuthorizationAsync(
          openIdConfigurationResponse,
-         scopes: ["any_scope", "openid"]);
+         scopes: ["any_scope", "openid"],
+         audience: "arbitrary-audience");
 
       var content = new FormUrlEncodedContent(new Dictionary<string, string>
       {
@@ -51,7 +52,7 @@ public class get_token_with_openid_scope
 
       var jsonWebKeySet = await Support.GetJsonWebKeySetAsync();
 
-      tokenResponse.AssertAccessTokenIsSigned(jsonWebKeySet.Keys[0]);
+      tokenResponse.AssertAccessTokenIsSigned(jsonWebKeySet.Keys[0], ["arbitrary-audience"]);
    }
 
    [Test]
@@ -75,13 +76,13 @@ public class get_token_with_openid_scope
    }
 
    [Test]
-   public async Task response_content_should_contain_access_token_without_audience()
+   public async Task response_content_should_contain_access_token_with_audience()
    {
       var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
 
       var jwtSecurityToken = tokenResponse.ParseAccessTokenAsJwtSecurityToken();
 
-      Assert.That(jwtSecurityToken.Audiences, Is.Empty);
+      Assert.That(jwtSecurityToken.Audiences, Is.EqualTo(["arbitrary-audience"]));
    }
 
    [Test]
@@ -102,7 +103,7 @@ public class get_token_with_openid_scope
 
       var jsonWebKeySet = await Support.GetJsonWebKeySetAsync();
 
-      tokenResponse.AssertIdTokenIsSigned(jsonWebKeySet.Keys[0]);
+      tokenResponse.AssertIdTokenIsSigned(jsonWebKeySet.Keys[0], ["AnyClientId"]);
    }
 
    [Test]
@@ -113,6 +114,16 @@ public class get_token_with_openid_scope
       var jwtSecurityToken = tokenResponse.ParseIdTokenAsJwtSecurityToken();
 
       Assert.That(jwtSecurityToken.Subject, Is.EqualTo("default-subject"));
+   }
+
+   [Test]
+   public async Task response_content_should_contain_id_token_with_audience()
+   {
+      var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
+
+      var jwtSecurityToken = tokenResponse.ParseIdTokenAsJwtSecurityToken();
+
+      Assert.That(jwtSecurityToken.Audiences, Is.EqualTo(["AnyClientId"]));
    }
 
    [Test]

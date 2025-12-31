@@ -41,6 +41,14 @@ public class TokenGenerator : ITokenGenerator
          new("client_id", authorization.ClientId),
       };
 
+      if (authorization is IAuthorizationWithAudiences { Audiences: not null } authorizationWithAudiences)
+      {
+         foreach (var audience in authorizationWithAudiences.Audiences)
+         {
+            accessTokenClaims.Add(new Claim(JwtRegisteredClaimNames.Aud, audience));
+         }
+      }
+
       if (authorization is IAuthorizationWithClaims authorizationWithClaims)
       {
          accessTokenClaims.AddRange(authorizationWithClaims.Claims);
@@ -61,46 +69,47 @@ public class TokenGenerator : ITokenGenerator
 
       if (!authorization.Scope.IsEmpty)
       {
-         if (authorization.Scope.Contains("openid"))
-         {
-            var idTokenClaims = new List<Claim>
-            {
-               new(JwtRegisteredClaimNames.Sub, authorization.Subject),
-            };
-
-            if (authorization.Scope.Contains("profile") && _userStore.TryGet(authorization.Subject, out var user))
-            {
-               string[] profileClaims =
-               [
-                  JwtRegisteredClaimNames.Name,
-                  JwtRegisteredClaimNames.Nickname,
-                  JwtRegisteredClaimNames.Picture,
-               ];
-
-               idTokenClaims.AddRange(user.GetClaims(profileClaims));
-            }
-
-            var idToken = Generate(idTokenClaims, expirySeconds);
-
-            response = response with { IdToken = idToken };
-         }
-
-         if (authorization.Scope.Contains("offline_access"))
-         {
-            var refreshToken = Guid.NewGuid().ToString();
-
-            response = response with { RefreshToken = refreshToken };
-
-            _authorizationCache.Add(() => RefreshAuthorization.Create(refreshToken, authorization));
-         }
-
          response = response with { Scope = authorization.Scope };
+      }
+
+      if (authorization.Scope.Contains("openid"))
+      {
+         var idTokenClaims = new List<Claim>
+         {
+            new(JwtRegisteredClaimNames.Sub, authorization.Subject),
+            new(JwtRegisteredClaimNames.Aud, authorization.ClientId),
+         };
+
+         if (authorization.Scope.Contains("profile") && _userStore.TryGet(authorization.Subject, out var user))
+         {
+            string[] profileClaims =
+            [
+               JwtRegisteredClaimNames.Name,
+               JwtRegisteredClaimNames.Nickname,
+               JwtRegisteredClaimNames.Picture,
+            ];
+
+            idTokenClaims.AddRange(user.GetClaims(profileClaims));
+         }
+
+         var idToken = Generate(idTokenClaims, expirySeconds);
+
+         response = response with { IdToken = idToken };
+      }
+
+      if (authorization.Scope.Contains("offline_access"))
+      {
+         var refreshToken = Guid.NewGuid().ToString();
+
+         response = response with { RefreshToken = refreshToken };
+
+         _authorizationCache.Add(() => RefreshAuthorization.Create(refreshToken, authorization));
       }
 
       return response;
    }
 
-   private string Generate(IList<Claim> claims, int expirySeconds)
+   private string Generate(IEnumerable<Claim> claims, int expirySeconds)
    {
       var jwk = _jsonWebKeyCache.JsonWebKeys.First();
 
