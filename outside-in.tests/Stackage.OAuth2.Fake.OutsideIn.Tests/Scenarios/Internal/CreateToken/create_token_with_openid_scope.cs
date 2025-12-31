@@ -24,7 +24,7 @@ public class create_token_with_openid_scope
       {
          clientId = "ArbitraryClientId",
          scopes = new[] { "any_scope", "openid" },
-         subject = "any-subject",
+         subject = "valid-subject",
          claims = new { },
       };
 
@@ -66,7 +66,7 @@ public class create_token_with_openid_scope
 
       var jwtSecurityToken = tokenResponse.ParseAccessTokenAsJwtSecurityToken();
 
-      Assert.That(jwtSecurityToken.Subject, Is.EqualTo("any-subject"));
+      Assert.That(jwtSecurityToken.Subject, Is.EqualTo("valid-subject"));
    }
 
    [Test]
@@ -97,7 +97,7 @@ public class create_token_with_openid_scope
 
       var jwtSecurityToken = tokenResponse.ParseIdTokenAsJwtSecurityToken();
 
-      Assert.That(jwtSecurityToken.Subject, Is.EqualTo("any-subject"));
+      Assert.That(jwtSecurityToken.Subject, Is.EqualTo("valid-subject"));
    }
 
    [Test]

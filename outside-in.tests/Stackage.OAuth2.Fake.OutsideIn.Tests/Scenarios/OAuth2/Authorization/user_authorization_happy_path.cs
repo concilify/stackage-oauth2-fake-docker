@@ -39,7 +39,7 @@ public class user_authorization_happy_path
    public void response_headers_should_contain_location_with_code_and_state_query_parameters()
    {
       Assert.That(_httpResponse?.Headers.Location, Is.Not.Null);
-      Assert.That(_httpResponse?.Headers.Location?.Host, Is.EqualTo("any-host"));
+      Assert.That(_httpResponse?.Headers.Location?.Host, Is.EqualTo("valid-host"));
       Assert.That(_httpResponse?.Headers.Location?.AbsolutePath, Is.EqualTo("/callback"));
       Assert.That(_httpResponse?.Headers.Location?.Query, Is.Not.Null);
 
@@ -49,6 +49,6 @@ public class user_authorization_happy_path
       Assert.That(queryString.Keys, Contains.Item("state"));
 
       Assert.That(Guid.TryParse(queryString["code"], out _), Is.True);
-      Assert.That(queryString["state"], Is.EqualTo("AnyState"));
+      Assert.That(queryString["state"], Is.EqualTo("ArbitraryState"));
    }
 }

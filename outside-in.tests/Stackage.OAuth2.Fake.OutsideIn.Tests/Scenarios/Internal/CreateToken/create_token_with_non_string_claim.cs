@@ -22,7 +22,7 @@ public class create_token_with_non_string_claim
       var body = new
       {
          clientId = "ArbitraryClientId",
-         subject = "any-subject",
+         subject = "valid-subject",
          claims = new
          {
             invalid_type = 136,

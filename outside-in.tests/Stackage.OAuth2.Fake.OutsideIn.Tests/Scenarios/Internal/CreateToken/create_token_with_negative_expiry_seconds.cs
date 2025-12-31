@@ -23,7 +23,7 @@ public class create_token_with_negative_expiry_seconds
       var body = new
       {
          clientId = "ArbitraryClientId",
-         subject = "any-subject",
+         subject = "valid-subject",
          tokenExpirySeconds = -120,
          claims = new { },
       };
@@ -66,7 +66,7 @@ public class create_token_with_negative_expiry_seconds
 
       var jwtSecurityToken = tokenResponse.ParseAccessTokenAsJwtSecurityToken();
 
-      Assert.That(jwtSecurityToken.Subject, Is.EqualTo("any-subject"));
+      Assert.That(jwtSecurityToken.Subject, Is.EqualTo("valid-subject"));
    }
 
    [Test]

@@ -22,7 +22,7 @@ public class create_token_without_claims_property
       var body = new
       {
          clientId = "ArbitraryClientId",
-         subject = "any-subject",
+         subject = "valid-subject",
       };
 
       var content = JsonContent.Create(body);

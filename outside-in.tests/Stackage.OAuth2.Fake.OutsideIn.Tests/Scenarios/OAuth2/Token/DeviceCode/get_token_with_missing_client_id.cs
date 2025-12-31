@@ -24,7 +24,7 @@ public class get_token_with_missing_client_id
       var content = new FormUrlEncodedContent(new Dictionary<string, string>
       {
          ["grant_type"] = "urn:ietf:params:oauth:grant-type:device_code",
-         ["device_code"] = "AnyDeviceCode",
+         ["device_code"] = "ArbitraryDeviceCode",
       });
 
       _httpResponse = await httpClient.PostAsync(

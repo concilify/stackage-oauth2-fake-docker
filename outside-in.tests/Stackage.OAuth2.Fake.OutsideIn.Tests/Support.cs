@@ -52,7 +52,7 @@ public static class Support
    public static async Task<AuthorizationResponse> StartAuthorizationAsync(
       this HttpClient httpClient,
       OpenIdConfigurationResponse openIdConfigurationResponse,
-      string clientId = "AnyClientId",
+      string clientId = "ArbitraryClientId",
       string[]? scopes = null,
       string? audience = null)
    {
@@ -62,8 +62,8 @@ public static class Support
       {
          ["response_type"] = "code",
          ["client_id"] = clientId,
-         ["state"] = "AnyState",
-         ["redirect_uri"] = "http://any-host/callback",
+         ["state"] = "ArbitraryState",
+         ["redirect_uri"] = "http://valid-host/callback",
       };
 
       if (scopes.Length != 0)
@@ -89,7 +89,7 @@ public static class Support
    public static async Task<DeviceAuthorizationResponse> StartDeviceAuthorizationAsync(
       this HttpClient httpClient,
       OpenIdConfigurationResponse openIdConfigurationResponse,
-      string clientId = "AnyClientId",
+      string clientId = "ArbitraryClientId",
       string[]? scopes = null,
       string? audience = null)
    {
@@ -126,7 +126,7 @@ public static class Support
    {
       var content = new FormUrlEncodedContent(new Dictionary<string, string>
       {
-         ["client_id"] = "AnyClientId",
+         ["client_id"] = "ArbitraryClientId",
          ["grant_type"] = "authorization_code",
          ["code"] = code,
       });
@@ -145,7 +145,7 @@ public static class Support
    {
       var content = new FormUrlEncodedContent(new Dictionary<string, string>
       {
-         ["client_id"] = "AnyClientId",
+         ["client_id"] = "ArbitraryClientId",
          ["grant_type"] = "urn:ietf:params:oauth:grant-type:device_code",
          ["device_code"] = deviceCode,
       });
@@ -159,8 +159,8 @@ public static class Support
 
    public static async Task<TokenResponse> CreateTokenAsync(
       this HttpClient httpClient,
-      string clientId = "AnyClientId",
-      string subject = "any-subject",
+      string clientId = "ArbitraryClientId",
+      string subject = "valid-subject",
       string[]? scopes = null)
    {
       var body = new JsonObject

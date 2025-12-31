@@ -41,6 +41,6 @@ public class user_authorization_missing_client_id
       var queryString = HttpUtility.ParseQueryString(_httpResponse!.Headers.Location!.Query!);
 
       Assert.That(queryString["error"], Is.EqualTo("invalid_request"));
-      Assert.That(queryString["state"], Is.EqualTo("AnyState"));
+      Assert.That(queryString["state"], Is.EqualTo("ArbitraryState"));
    }
 }

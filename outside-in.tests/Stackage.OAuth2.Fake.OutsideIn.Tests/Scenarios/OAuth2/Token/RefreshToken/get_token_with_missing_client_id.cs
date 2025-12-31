@@ -24,7 +24,7 @@ public class get_token_with_missing_client_id
       var content = new FormUrlEncodedContent(new Dictionary<string, string>
       {
          ["grant_type"] = "refresh_token",
-         ["refresh_token"] = "AnyRefreshToken",
+         ["refresh_token"] = "ArbitraryRefreshToken",
       });
 
       _httpResponse = await httpClient.PostAsync(

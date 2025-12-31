@@ -23,7 +23,7 @@ public class create_token_without_explicit_claims
       var body = new
       {
          clientId = "ArbitraryClientId",
-         subject = "any-subject",
+         subject = "valid-subject",
          claims = new { },
       };
 
@@ -65,7 +65,7 @@ public class create_token_without_explicit_claims
 
       var jwtSecurityToken = tokenResponse.ParseAccessTokenAsJwtSecurityToken();
 
-      Assert.That(jwtSecurityToken.Subject, Is.EqualTo("any-subject"));
+      Assert.That(jwtSecurityToken.Subject, Is.EqualTo("valid-subject"));
    }
 
    [Test]

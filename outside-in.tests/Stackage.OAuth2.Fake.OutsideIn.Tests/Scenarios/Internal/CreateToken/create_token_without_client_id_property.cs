@@ -21,7 +21,7 @@ public class create_token_without_client_id_property
 
       var body = new
       {
-         subject = "any-subject",
+         subject = "valid-subject",
          claims = new { },
       };
 

@@ -41,6 +41,6 @@ public class user_authorization_unsupported_response_type
       var queryString = HttpUtility.ParseQueryString(_httpResponse!.Headers.Location!.Query!);
 
       Assert.That(queryString["error"], Is.EqualTo("unsupported_response_type"));
-      Assert.That(queryString["state"], Is.EqualTo("AnyState"));
+      Assert.That(queryString["state"], Is.EqualTo("ArbitraryState"));
    }
 }

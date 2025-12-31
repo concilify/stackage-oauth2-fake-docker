@@ -24,7 +24,7 @@ public class create_token_with_offline_access_scope
       {
          clientId = "ArbitraryClientId",
          scopes = new[] { "any_scope", "offline_access" },
-         subject = "any-subject",
+         subject = "valid-subject",
          claims = new { },
       };
 
@@ -66,7 +66,7 @@ public class create_token_with_offline_access_scope
 
       var jwtSecurityToken = tokenResponse.ParseAccessTokenAsJwtSecurityToken();
 
-      Assert.That(jwtSecurityToken.Subject, Is.EqualTo("any-subject"));
+      Assert.That(jwtSecurityToken.Subject, Is.EqualTo("valid-subject"));
    }
 
    [Test]
