@@ -2,7 +2,7 @@ namespace Stackage.OAuth2.Fake.Model.Authorization;
 
 using System;
 
-public record UserAuthorization(string Code, string ClientId, Scope Scope, string[]? Audiences) : IAuthorizationWithCode
+public record UserAuthorization(string Code, string ClientId, Scope Scope, string[]? Audiences) : IAuthorizationWithCode, IAuthorizationWithAudiences
 {
    public bool IsAuthenticated => Subject != null;
 

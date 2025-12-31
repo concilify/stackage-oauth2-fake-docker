@@ -32,7 +32,7 @@ public class get_token_with_openid_scope_and_audience
 
       var content = new FormUrlEncodedContent(new Dictionary<string, string>
       {
-         ["client_id"] = "ArbitraryClientId",
+         ["client_id"] = "AnyClientId",
          ["grant_type"] = "authorization_code",
          ["code"] = authorizationResponse.Code,
       });
@@ -106,7 +106,7 @@ public class get_token_with_openid_scope_and_audience
 
       var jsonWebKeySet = await Support.GetJsonWebKeySetAsync();
 
-      tokenResponse.AssertIdTokenIsSigned(jsonWebKeySet.Keys[0], ["ArbitraryClientId"]);
+      tokenResponse.AssertIdTokenIsSigned(jsonWebKeySet.Keys[0], ["AnyClientId"]);
    }
 
    [Test]
@@ -126,7 +126,7 @@ public class get_token_with_openid_scope_and_audience
 
       var jwtSecurityToken = tokenResponse.ParseIdTokenAsJwtSecurityToken();
 
-      Assert.That(jwtSecurityToken.Audiences, Is.EqualTo(["ArbitraryClientId"]));
+      Assert.That(jwtSecurityToken.Audiences, Is.EqualTo(["AnyClientId"]));
    }
 
    [Test]

@@ -98,7 +98,7 @@ public class create_token_with_openid_scope_with_audience
 
       var jsonWebKeySet = await Support.GetJsonWebKeySetAsync();
 
-      tokenResponse.AssertIdTokenIsSigned(jsonWebKeySet.Keys[0], ["arbitrary-audience"]);
+      tokenResponse.AssertIdTokenIsSigned(jsonWebKeySet.Keys[0], ["AnyClientId"]);
    }
 
    [Test]
@@ -118,7 +118,7 @@ public class create_token_with_openid_scope_with_audience
 
       var jwtSecurityToken = tokenResponse.ParseIdTokenAsJwtSecurityToken();
 
-      Assert.That(jwtSecurityToken.Audiences, Is.EqualTo(["arbitrary-audience"]));
+      Assert.That(jwtSecurityToken.Audiences, Is.EqualTo(["AnyClientId"]));
    }
 
    [Test]
