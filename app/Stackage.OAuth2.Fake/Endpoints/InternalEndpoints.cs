@@ -64,6 +64,7 @@ public static class InternalEndpoints
             var authorization = new InternalAuthorization(
                ClientId: request.ClientId,
                Scope: (Scope?)request.Scopes ?? Scope.Empty,
+               request.Audiences,
                Subject: request.Subject,
                TokenExpirySeconds: request.TokenExpirySeconds,
                Claims: claims);
@@ -101,7 +102,8 @@ public static class InternalEndpoints
             var authorization = new UserAuthorization(
                request.Code,
                request.ClientId,
-               (Scope?)request.Scopes ?? Scope.Empty);
+               (Scope?)request.Scopes ?? Scope.Empty,
+               request.Audiences);
 
             authorization.Authenticate(request.Subject ?? settings.DefaultSubject);
 
@@ -132,6 +134,7 @@ public static class InternalEndpoints
                clientId = authorization.ClientId,
                scopes = authorization.Scope.ToArray(),
                subject = authorization.Subject,
+               audiences = authorization.Audiences,
             };
 
             return TypedResults.Json(response, statusCode: 200);
@@ -307,6 +310,7 @@ public static class InternalEndpoints
       [property: JsonPropertyName("clientId")] string? ClientId,
       [property: JsonPropertyName("scopes")] string[]? Scopes,
       [property: JsonPropertyName("subject")] string? Subject,
+      [property: JsonPropertyName("audiences")] string[]? Audiences,
       [property: JsonPropertyName("tokenExpirySeconds")] int? TokenExpirySeconds,
       [property: JsonPropertyName("claims")] JsonObject? Claims)
    {
@@ -318,7 +322,8 @@ public static class InternalEndpoints
       [property: JsonPropertyName("code")] string? Code,
       [property: JsonPropertyName("clientId")] string? ClientId,
       [property: JsonPropertyName("scopes")] string[]? Scopes,
-      [property: JsonPropertyName("subject")] string? Subject)
+      [property: JsonPropertyName("subject")] string? Subject,
+      [property: JsonPropertyName("audiences")] string[]? Audiences)
    {
       // ReSharper disable once UnusedMember.Local
       public static ValueTask<PostAuthorizationRequest?> BindAsync(HttpContext context) => BindAsync<PostAuthorizationRequest>(context);

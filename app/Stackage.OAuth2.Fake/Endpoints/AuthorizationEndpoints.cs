@@ -22,6 +22,7 @@ public static class AuthorizationEndpoints
             [FromQuery(Name = "redirect_uri")] string? redirectUri,
             [FromQuery(Name = "scope")] string? scope,
             [FromQuery(Name = "state")] string? state,
+            [FromQuery(Name = "audience")] string? audience,
             AuthorizationCache<UserAuthorization> authorizationCache) =>
          {
             // RFC 6749 Section 4.1.2.1: If the request fails due to a missing, invalid, or mismatching
@@ -60,7 +61,7 @@ public static class AuthorizationEndpoints
             }
 
             var authorization = authorizationCache.Add(
-               () => UserAuthorization.Create(clientId, (Scope?)scope ?? Scope.Empty));
+               () => UserAuthorization.Create(clientId, (Scope?)scope ?? Scope.Empty, audience));
 
             // This would normally redirect to an intermediate URL to allow the user to logon, but the code returned here
             // can be used immediately with the /oauth2/token endpoint using grant type authorization_code
@@ -74,6 +75,7 @@ public static class AuthorizationEndpoints
          (
             [FromForm(Name = "client_id")] string? clientId,
             [FromForm(Name = "scope")] string? scope,
+            [FromForm(Name = "audience")] string? audience,
             AuthorizationCache<DeviceAuthorization> authorizationCache) =>
          {
             // RFC 8628 Section 3.1: client_id is REQUIRED
@@ -83,7 +85,7 @@ public static class AuthorizationEndpoints
             }
 
             var authorization = authorizationCache.Add(
-               () => DeviceAuthorization.Create(clientId, (Scope?)scope ?? Scope.Empty));
+               () => DeviceAuthorization.Create(clientId, (Scope?)scope ?? Scope.Empty, audience));
 
             // This would normally need the user to visit the verification URL to allow the user to logon, but the code returned
             // here can be used immediately with the /oauth2/token endpoint using grant type urn:ietf:params:oauth:grant-type:device_code
