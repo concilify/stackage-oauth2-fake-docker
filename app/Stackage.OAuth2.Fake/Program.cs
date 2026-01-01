@@ -10,6 +10,7 @@ using Stackage.OAuth2.Fake.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddSingleton<IFileSystem, FileSystem>();
 builder.Services.AddSingleton<IUserStore, UserStore>();
 
 builder.Services.AddSingleton(builder.Configuration.Get<Settings>()!);

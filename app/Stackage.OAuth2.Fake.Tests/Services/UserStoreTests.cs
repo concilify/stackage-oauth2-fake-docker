@@ -1,8 +1,6 @@
 namespace Stackage.OAuth2.Fake.Tests.Services;
 
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using NUnit.Framework;
@@ -12,24 +10,10 @@ using Stackage.OAuth2.Fake.Tests.Stubs;
 
 public class UserStoreTests
 {
-   private const string UsersFilePath = "users.json";
-
-   [SetUp]
-   public void setup()
-   {
-      CleanupUsersFile();
-   }
-
-   [TearDown]
-   public void teardown()
-   {
-      CleanupUsersFile();
-   }
-
    [Test]
    public void try_get_returns_false_and_null_when_user_does_not_exist()
    {
-      var testSubject = CreateStore();
+      var testSubject = CreateStore(fileSystem: FileSystemStub.Empty());
 
       var result = testSubject.TryGet("valid-subject", out var user);
 
@@ -51,9 +35,9 @@ public class UserStoreTests
          ]
          """;
 
-      File.WriteAllText(UsersFilePath, usersJson);
+      var fileSystem = FileSystemStub.WithContent(usersJson);
 
-      var testSubject = CreateStore();
+      var testSubject = CreateStore(fileSystem: fileSystem);
 
       var result = testSubject.TryGet("arbitrary-subject", out var user);
 
@@ -77,13 +61,15 @@ public class UserStoreTests
          ]
          """;
 
-      File.WriteAllText(UsersFilePath, usersJson);
+      var fileSystem = FileSystemStub.WithContent(usersJson);
 
       var claimsParser = ClaimsParserStub.Returns(
          new Claim("nickname", "arbitrary-nickname"),
          new Claim("picture", "arbitrary-picture"));
 
-      var testSubject = CreateStore(claimsParser: claimsParser);
+      var testSubject = CreateStore(
+         fileSystem: fileSystem,
+         claimsParser: claimsParser);
 
       testSubject.TryGet("arbitrary-subject", out var user);
 
@@ -100,18 +86,13 @@ public class UserStoreTests
       user!.GetClaims(names).ToArray().ShouldBeEquivalentTo(expectedClaims);
    }
 
-   private static UserStore CreateStore(IClaimsParser? claimsParser = null)
+   private static UserStore CreateStore(
+      IFileSystem? fileSystem = null,
+      IClaimsParser? claimsParser = null)
    {
+      fileSystem ??= FileSystemStub.Empty();
       claimsParser ??= ClaimsParserStub.Valid();
 
-      return new UserStore(claimsParser);
-   }
-
-   private static void CleanupUsersFile()
-   {
-      if (File.Exists(UsersFilePath))
-      {
-         File.Delete(UsersFilePath);
-      }
+      return new UserStore(fileSystem, claimsParser);
    }
 }

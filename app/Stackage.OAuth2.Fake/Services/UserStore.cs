@@ -3,7 +3,6 @@ namespace Stackage.OAuth2.Fake.Services;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Text.Json;
@@ -16,9 +15,11 @@ public class UserStore : IUserStore
 
    private readonly Dictionary<string, User> _users;
 
-   public UserStore(IClaimsParser claimsParser)
+   public UserStore(
+      IFileSystem fileSystem,
+      IClaimsParser claimsParser)
    {
-      _users = ParseUsers(claimsParser).ToDictionary(u => u.Subject);
+      _users = ParseUsers(fileSystem, claimsParser).ToDictionary(u => u.Subject);
    }
 
    public bool TryAdd(User user)
@@ -38,14 +39,16 @@ public class UserStore : IUserStore
       return _users.TryGetValue(subject, out user);
    }
 
-   private static IEnumerable<User> ParseUsers(IClaimsParser claimsParser)
+   private static IEnumerable<User> ParseUsers(
+      IFileSystem fileSystem,
+      IClaimsParser claimsParser)
    {
-      if (!File.Exists(UsersFilePath))
+      if (!fileSystem.FileExists(UsersFilePath))
       {
          return [];
       }
 
-      var fileContent = File.ReadAllText(UsersFilePath);
+      var fileContent = fileSystem.ReadAllText(UsersFilePath);
       var options = new JsonSerializerOptions
       {
          PropertyNameCaseInsensitive = true,
