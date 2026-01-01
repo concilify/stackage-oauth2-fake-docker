@@ -2,9 +2,9 @@ namespace Stackage.OAuth2.Fake.Tests.Services;
 
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.IO;
 using System.Linq;
 using System.Security.Claims;
-using Microsoft.Extensions.Configuration;
 using NUnit.Framework;
 using Shouldly;
 using Stackage.OAuth2.Fake.Services;
@@ -12,11 +12,24 @@ using Stackage.OAuth2.Fake.Tests.Stubs;
 
 public class UserStoreTests
 {
+   private const string UsersFilePath = "users.json";
+
+   [SetUp]
+   public void setup()
+   {
+      CleanupUsersFile();
+   }
+
+   [TearDown]
+   public void teardown()
+   {
+      CleanupUsersFile();
+   }
+
    [Test]
    public void try_get_returns_false_and_null_when_user_does_not_exist()
    {
-      var testSubject = CreateStore(
-         configuration: ConfigurationStub.Empty());
+      var testSubject = CreateStore();
 
       var result = testSubject.TryGet("valid-subject", out var user);
 
@@ -27,14 +40,20 @@ public class UserStoreTests
    [Test]
    public void try_get_returns_true_and_user_when_user_exists()
    {
-      var users = new Dictionary<string, string?>
-      {
-         ["Users:0:Subject"] = "arbitrary-subject",
-         ["Users:0:Claims:Nickname"] = "valid-nickname",
-      };
+      var usersJson = """
+         [
+            {
+               "subject": "arbitrary-subject",
+               "claims": {
+                  "nickname": "valid-nickname"
+               }
+            }
+         ]
+         """;
 
-      var testSubject = CreateStore(
-         configuration: ConfigurationStub.With(users));
+      File.WriteAllText(UsersFilePath, usersJson);
+
+      var testSubject = CreateStore();
 
       var result = testSubject.TryGet("arbitrary-subject", out var user);
 
@@ -46,18 +65,25 @@ public class UserStoreTests
    [Test]
    public void try_get_returns_user_with_multiple_claims_when_multiple_claims_exists()
    {
-      var users = new Dictionary<string, string?>
-      {
-         ["Users:0:Subject"] = "arbitrary-subject",
-      };
+      var usersJson = """
+         [
+            {
+               "subject": "arbitrary-subject",
+               "claims": {
+                  "nickname": "arbitrary-nickname",
+                  "picture": "arbitrary-picture"
+               }
+            }
+         ]
+         """;
+
+      File.WriteAllText(UsersFilePath, usersJson);
 
       var claimsParser = ClaimsParserStub.Returns(
          new Claim("nickname", "arbitrary-nickname"),
          new Claim("picture", "arbitrary-picture"));
 
-      var testSubject = CreateStore(
-         configuration: ConfigurationStub.With(users),
-         claimsParser: claimsParser);
+      var testSubject = CreateStore(claimsParser: claimsParser);
 
       testSubject.TryGet("arbitrary-subject", out var user);
 
@@ -74,15 +100,18 @@ public class UserStoreTests
       user!.GetClaims(names).ToArray().ShouldBeEquivalentTo(expectedClaims);
    }
 
-   private static UserStore CreateStore(
-      IConfiguration? configuration = null,
-      IClaimsParser? claimsParser = null)
+   private static UserStore CreateStore(IClaimsParser? claimsParser = null)
    {
-      configuration ??= ConfigurationStub.Empty();
       claimsParser ??= ClaimsParserStub.Valid();
 
-      return new UserStore(
-         configuration,
-         claimsParser);
+      return new UserStore(claimsParser);
+   }
+
+   private static void CleanupUsersFile()
+   {
+      if (File.Exists(UsersFilePath))
+      {
+         File.Delete(UsersFilePath);
+      }
    }
 }

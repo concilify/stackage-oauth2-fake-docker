@@ -1,0 +1,16 @@
+[
+   {
+      "subject": "user-a-subject",
+      "claims": {
+         "nickname": "User A Nickname",
+         "picture": "user-a-picture"
+      }
+   },
+   {
+      "subject": "user-b-subject",
+      "claims": {
+         "nickname": "User B Nickname",
+         "picture": "user-b-picture"
+      }
+   }
+]

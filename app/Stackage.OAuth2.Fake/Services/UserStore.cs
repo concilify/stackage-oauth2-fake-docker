@@ -3,23 +3,22 @@ namespace Stackage.OAuth2.Fake.Services;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Linq;
 using System.Security.Claims;
+using System.Text.Json;
 using System.Text.Json.Nodes;
-using Microsoft.Extensions.Configuration;
 using Stackage.OAuth2.Fake.Model;
 
 public class UserStore : IUserStore
 {
+   private const string UsersFilePath = "users.json";
+
    private readonly Dictionary<string, User> _users;
 
-   public UserStore(
-      IConfiguration configuration,
-      IClaimsParser claimsParser)
+   public UserStore(IClaimsParser claimsParser)
    {
-      var usersSection = configuration.GetSection("Users");
-
-      _users = ParseUsers(usersSection, claimsParser).ToDictionary(u => u.Subject);
+      _users = ParseUsers(claimsParser).ToDictionary(u => u.Subject);
    }
 
    public bool TryAdd(User user)
@@ -39,26 +38,34 @@ public class UserStore : IUserStore
       return _users.TryGetValue(subject, out user);
    }
 
-   private static IEnumerable<User> ParseUsers(
-      IConfigurationSection usersSection,
-      IClaimsParser claimsParser)
+   private static IEnumerable<User> ParseUsers(IClaimsParser claimsParser)
    {
-      var configurationUsers = usersSection.Get<List<ConfigurationUser>>() ?? [];
+      if (!File.Exists(UsersFilePath))
+      {
+         return [];
+      }
 
-      return configurationUsers.Select(u => new User(u.Subject, ParseClaims(u.ClaimsSection, claimsParser)));
+      var fileContent = File.ReadAllText(UsersFilePath);
+      var options = new JsonSerializerOptions
+      {
+         PropertyNameCaseInsensitive = true,
+      };
+      var jsonUsers = JsonSerializer.Deserialize<List<JsonUser>>(fileContent, options);
+
+      if (jsonUsers == null)
+      {
+         return [];
+      }
+
+      return jsonUsers
+         .Where(u => u.Subject != null && u.Claims != null)
+         .Select(u => new User(u.Subject!, ParseClaims(u.Claims!, claimsParser)));
    }
 
    private static ImmutableArray<Claim> ParseClaims(
-         IConfigurationSection claimsSection,
-         IClaimsParser claimsParser)
+      JsonObject claimsObject,
+      IClaimsParser claimsParser)
    {
-      var claimsObject = new JsonObject();
-
-      foreach (var claim in claimsSection.GetChildren())
-      {
-         claimsObject.Add(claim.Key, claim.Value);
-      }
-
       if (claimsParser.TryParse(claimsObject, out var claims))
       {
          return claims;
@@ -67,12 +74,10 @@ public class UserStore : IUserStore
       return ImmutableArray<Claim>.Empty;
    }
 
-   // Following the upgrade to .NET 10, a primary constructor cannot be used as the binding fails
-   private record ConfigurationUser
+   private record JsonUser
    {
-      public required string Subject { get; init; }
+      public string? Subject { get; init; }
 
-      [ConfigurationKeyName("Claims")]
-      public required IConfigurationSection ClaimsSection { get; init; }
+      public JsonObject? Claims { get; init; }
    }
 }
