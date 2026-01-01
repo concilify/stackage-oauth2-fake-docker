@@ -48,21 +48,29 @@ public class UserStore : IUserStore
          return [];
       }
 
-      var fileContent = fileSystem.ReadAllText(UsersFilePath);
-      var options = new JsonSerializerOptions
+      try
       {
-         PropertyNameCaseInsensitive = true,
-      };
-      var jsonUsers = JsonSerializer.Deserialize<List<JsonUser>>(fileContent, options);
+         var fileContent = fileSystem.ReadAllText(UsersFilePath);
+         var options = new JsonSerializerOptions
+         {
+            PropertyNameCaseInsensitive = true,
+         };
+         var jsonUsers = JsonSerializer.Deserialize<List<JsonUser>>(fileContent, options);
 
-      if (jsonUsers == null)
+         if (jsonUsers == null)
+         {
+            return [];
+         }
+
+         return jsonUsers
+            .Where(u => u.Subject != null && u.Claims != null)
+            .Select(u => new User(u.Subject!, ParseClaims(u.Claims!, claimsParser)));
+      }
+      catch
       {
+         // If file reading or JSON deserialization fails, return empty collection
          return [];
       }
-
-      return jsonUsers
-         .Where(u => u.Subject != null && u.Claims != null)
-         .Select(u => new User(u.Subject!, ParseClaims(u.Claims!, claimsParser)));
    }
 
    private static ImmutableArray<Claim> ParseClaims(
