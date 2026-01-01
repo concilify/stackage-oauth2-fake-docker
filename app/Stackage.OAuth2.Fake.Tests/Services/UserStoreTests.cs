@@ -1,6 +1,7 @@
 namespace Stackage.OAuth2.Fake.Tests.Services;
 
 using System.IdentityModel.Tokens.Jwt;
+using System.IO.Abstractions;
 using System.Linq;
 using System.Security.Claims;
 using NUnit.Framework;
@@ -11,9 +12,26 @@ using Stackage.OAuth2.Fake.Tests.Stubs;
 public class UserStoreTests
 {
    [Test]
-   public void try_get_returns_false_and_null_when_user_does_not_exist()
+   public void try_get_returns_false_and_null_when_users_file_does_not_exist()
    {
-      var testSubject = CreateStore(fileSystem: FileSystemStub.Empty());
+      var fileSystem = FileSystemStub.With(FileStub.DoesNotExist());
+
+      var testSubject = CreateStore(fileSystem: fileSystem);
+
+      var result = testSubject.TryGet("valid-subject", out var user);
+
+      Assert.That(result, Is.False);
+      Assert.That(user, Is.Null);
+   }
+
+   [Test]
+   public void try_get_returns_false_and_null_when_users_file_is_empty()
+   {
+      const string usersJson = "[]";
+
+      var fileSystem = FileSystemStub.With(FileStub.Exists(usersJson));
+
+      var testSubject = CreateStore(fileSystem: fileSystem);
 
       var result = testSubject.TryGet("valid-subject", out var user);
 
@@ -24,18 +42,15 @@ public class UserStoreTests
    [Test]
    public void try_get_returns_true_and_user_when_user_exists()
    {
-      var usersJson = """
-         [
-            {
-               "subject": "arbitrary-subject",
-               "claims": {
-                  "nickname": "valid-nickname"
-               }
-            }
-         ]
-         """;
+      const string usersJson = """
+                               [
+                                  {
+                                     "subject": "arbitrary-subject"
+                                  }
+                               ]
+                               """;
 
-      var fileSystem = FileSystemStub.WithContent(usersJson);
+      var fileSystem = FileSystemStub.With(FileStub.Exists(usersJson));
 
       var testSubject = CreateStore(fileSystem: fileSystem);
 
@@ -49,19 +64,15 @@ public class UserStoreTests
    [Test]
    public void try_get_returns_user_with_multiple_claims_when_multiple_claims_exists()
    {
-      var usersJson = """
-         [
-            {
-               "subject": "arbitrary-subject",
-               "claims": {
-                  "nickname": "arbitrary-nickname",
-                  "picture": "arbitrary-picture"
-               }
-            }
-         ]
-         """;
+      const string usersJson = """
+                               [
+                                  {
+                                     "subject": "arbitrary-subject"
+                                  }
+                               ]
+                               """;
 
-      var fileSystem = FileSystemStub.WithContent(usersJson);
+      var fileSystem = FileSystemStub.With(FileStub.Exists(usersJson));
 
       var claimsParser = ClaimsParserStub.Returns(
          new Claim("nickname", "arbitrary-nickname"),
@@ -86,11 +97,17 @@ public class UserStoreTests
       user!.GetClaims(names).ToArray().ShouldBeEquivalentTo(expectedClaims);
    }
 
+   [Test]
+   public void Add()
+   {
+      Assert.Fail();
+   }
+
    private static UserStore CreateStore(
       IFileSystem? fileSystem = null,
       IClaimsParser? claimsParser = null)
    {
-      fileSystem ??= FileSystemStub.Empty();
+      fileSystem ??= FileSystemStub.Valid();
       claimsParser ??= ClaimsParserStub.Valid();
 
       return new UserStore(fileSystem, claimsParser);

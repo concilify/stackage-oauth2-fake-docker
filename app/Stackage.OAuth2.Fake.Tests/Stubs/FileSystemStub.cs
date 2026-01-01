@@ -1,26 +1,17 @@
 namespace Stackage.OAuth2.Fake.Tests.Stubs;
 
+using System.IO.Abstractions;
 using Moq;
-using Stackage.OAuth2.Fake.Services;
 
 public static class FileSystemStub
 {
-   public static IFileSystem Empty()
-   {
-      return WithContent(fileExists: false, fileContent: string.Empty);
-   }
+   public static IFileSystem Valid() => With(FileStub.DoesNotExist());
 
-   public static IFileSystem WithContent(string fileContent)
-   {
-      return WithContent(fileExists: true, fileContent: fileContent);
-   }
-
-   private static IFileSystem WithContent(bool fileExists, string fileContent)
+   public static IFileSystem With(IFile file)
    {
       var mock = new Mock<IFileSystem>();
 
-      mock.Setup(m => m.FileExists(It.IsAny<string>())).Returns(fileExists);
-      mock.Setup(m => m.ReadAllText(It.IsAny<string>())).Returns(fileContent);
+      mock.Setup(m => m.File).Returns(file);
 
       return mock.Object;
    }
