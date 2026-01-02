@@ -14,79 +14,94 @@ public class UserStore : IUserStore
 {
    private const string UsersFilePath = "users.json";
 
-   private readonly Dictionary<string, User> _users;
+   private static readonly JsonSerializerOptions SerializerOptions = new JsonSerializerOptions
+   {
+      PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+      PropertyNameCaseInsensitive = true,
+   };
+
+   private readonly IFileSystem _fileSystem;
+   private readonly IClaimsSerializer _claimsSerializer;
 
    public UserStore(
       IFileSystem fileSystem,
-      IClaimsParser claimsParser)
+      IClaimsSerializer claimsSerializer)
    {
-      _users = ParseUsers(fileSystem, claimsParser).ToDictionary(u => u.Subject);
+      _fileSystem = fileSystem;
+      _claimsSerializer = claimsSerializer;
    }
 
    public bool TryAdd(User user)
    {
-      return _users.TryAdd(user.Subject, user);
+      var users = Load();
+
+      if (!users.TryAdd(user.Subject, user))
+      {
+         return false;
+      }
+
+      Save(users);
+
+      return true;
    }
 
    public IReadOnlyList<User> GetAll()
    {
-      return _users.Values.ToList();
+      return Load().Values.ToList();
    }
 
    public bool TryGet(
       string subject,
       [MaybeNullWhen(false)] out User user)
    {
-      return _users.TryGetValue(subject, out user);
+      var users = Load();
+
+      return users.TryGetValue(subject, out user);
    }
 
-   private static IEnumerable<User> ParseUsers(
-      IFileSystem fileSystem,
-      IClaimsParser claimsParser)
+   private Dictionary<string, User> Load()
    {
-      if (!fileSystem.File.Exists(UsersFilePath))
+      if (!_fileSystem.File.Exists(UsersFilePath))
       {
-         return [];
+         return new Dictionary<string, User>();
       }
 
-      try
-      {
-         var fileContent = fileSystem.File.ReadAllText(UsersFilePath);
-         var options = new JsonSerializerOptions
-         {
-            PropertyNameCaseInsensitive = true,
-         };
-         var jsonUsers = JsonSerializer.Deserialize<List<ConfigurationUser>>(fileContent, options);
+      var usersJson = _fileSystem.File.ReadAllText(UsersFilePath);
+      var seededUsers = JsonSerializer.Deserialize<List<SeededUser>>(usersJson, SerializerOptions);
 
-         if (jsonUsers == null)
-         {
-            return [];
-         }
-
-         return jsonUsers
-            .Where(u => u.Subject != null && u.Claims != null)
-            .Select(u => new User(u.Subject!, ParseClaims(u.Claims!, claimsParser)));
-      }
-      catch
+      if (seededUsers == null)
       {
-         // If file reading or JSON deserialization fails, return empty collection
-         return [];
+         throw new JsonException("Failed to deserialize users.");
       }
+
+      return seededUsers
+         .Where(u => u is { Subject: not null, Claims: not null })
+         .Select(u => new User(u.Subject!, ParseClaims(u.Claims!)))
+         .ToDictionary(u => u.Subject);
    }
 
-   private static ImmutableArray<Claim> ParseClaims(
-      JsonObject claimsObject,
-      IClaimsParser claimsParser)
+   private void Save(IDictionary<string, User> users)
    {
-      if (claimsParser.TryParse(claimsObject, out var claims))
-      {
-         return claims;
-      }
+      var seededUsers = users
+         .Select(u => new SeededUser { Subject = u.Value.Subject, Claims = _claimsSerializer.Serialize(u.Value.Claims) })
+         .ToList();
 
-      return ImmutableArray<Claim>.Empty;
+      var usersJson = JsonSerializer.Serialize(seededUsers, SerializerOptions);
+
+      _fileSystem.File.WriteAllText(UsersFilePath, usersJson);
    }
 
-   private record ConfigurationUser
+   private ImmutableArray<Claim> ParseClaims(JsonObject claimsObject)
+   {
+      if (!_claimsSerializer.TryDeserialize(claimsObject, out var claims))
+      {
+         throw new JsonException("Failed to deserialize claims.");
+      }
+
+      return claims;
+   }
+
+   private record SeededUser
    {
       public string? Subject { get; init; }
 

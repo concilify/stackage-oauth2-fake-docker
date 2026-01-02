@@ -1,11 +1,14 @@
 namespace Stackage.OAuth2.Fake.Tests.Services;
 
+using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Security.Claims;
+using System.Text.Json.Nodes;
 using NUnit.Framework;
 using Shouldly;
+using Stackage.OAuth2.Fake.Model;
 using Stackage.OAuth2.Fake.Services;
 using Stackage.OAuth2.Fake.Tests.Stubs;
 
@@ -14,7 +17,7 @@ public class UserStoreTests
    [Test]
    public void try_get_returns_false_and_null_when_users_file_does_not_exist()
    {
-      var fileSystem = FileSystemStub.With(FileStub.DoesNotExist());
+      var fileSystem = FileSystemStub.With(FileStub.Empty());
 
       var testSubject = CreateStore(fileSystem: fileSystem);
 
@@ -25,11 +28,13 @@ public class UserStoreTests
    }
 
    [Test]
-   public void try_get_returns_false_and_null_when_users_file_is_empty()
+   public void try_get_returns_false_and_null_when_users_file_is_empty_json()
    {
-      const string usersJson = "[]";
-
-      var fileSystem = FileSystemStub.With(FileStub.Exists(usersJson));
+      var files = new Dictionary<string, string>
+      {
+         ["users.json"] = "[]",
+      };
+      var fileSystem = FileSystemStub.With(FileStub.Using(files));
 
       var testSubject = CreateStore(fileSystem: fileSystem);
 
@@ -42,15 +47,18 @@ public class UserStoreTests
    [Test]
    public void try_get_returns_true_and_user_when_user_exists()
    {
-      const string usersJson = """
-                               [
-                                  {
-                                     "subject": "arbitrary-subject"
-                                  }
-                               ]
-                               """;
-
-      var fileSystem = FileSystemStub.With(FileStub.Exists(usersJson));
+      var files = new Dictionary<string, string>
+      {
+         ["users.json"] = """
+                          [
+                             {
+                                "subject": "arbitrary-subject",
+                                "claims": {}
+                             }
+                          ]
+                          """,
+      };
+      var fileSystem = FileSystemStub.With(FileStub.Using(files));
 
       var testSubject = CreateStore(fileSystem: fileSystem);
 
@@ -64,23 +72,26 @@ public class UserStoreTests
    [Test]
    public void try_get_returns_user_with_multiple_claims_when_multiple_claims_exists()
    {
-      const string usersJson = """
-                               [
-                                  {
-                                     "subject": "arbitrary-subject"
-                                  }
-                               ]
-                               """;
+      var files = new Dictionary<string, string>
+      {
+         ["users.json"] = """
+                          [
+                             {
+                                "subject": "arbitrary-subject",
+                                "claims": {}
+                             }
+                          ]
+                          """,
+      };
+      var fileSystem = FileSystemStub.With(FileStub.Using(files));
 
-      var fileSystem = FileSystemStub.With(FileStub.Exists(usersJson));
-
-      var claimsParser = ClaimsParserStub.Returns(
+      var claimsParser = ClaimsSerializerStub.DeserializeReturns(
          new Claim("nickname", "arbitrary-nickname"),
          new Claim("picture", "arbitrary-picture"));
 
       var testSubject = CreateStore(
          fileSystem: fileSystem,
-         claimsParser: claimsParser);
+         claimsSerializer: claimsParser);
 
       testSubject.TryGet("arbitrary-subject", out var user);
 
@@ -98,18 +109,83 @@ public class UserStoreTests
    }
 
    [Test]
-   public void Add()
+   public void try_add_creates_file_when_does_not_exist()
    {
-      Assert.Fail();
+      var files = new Dictionary<string, string>();
+      var fileSystem = FileSystemStub.With(FileStub.Using(files));
+      var claimsSerializer = ClaimsSerializerStub.SerializeReturns(new JsonObject
+      {
+         ["arbitrary-claim"] = "arbitrary-value",
+      });
+
+      var testSubject = CreateStore(
+         fileSystem: fileSystem,
+         claimsSerializer: claimsSerializer);
+
+      var result = testSubject.TryAdd(new User("arbitrary-subject", []));
+
+      var expectedUsers = new JsonArray
+      {
+         new JsonObject
+         {
+            ["subject"] = "arbitrary-subject",
+            ["claims"] = new JsonObject
+            {
+               ["arbitrary-claim"] = "arbitrary-value",
+            },
+         },
+      };
+
+      Assert.That(result, Is.True);
+      Assert.That(files.ContainsKey("users.json"), Is.True);
+      Assert.That(files["users.json"], Is.EqualTo(expectedUsers.ToJsonString()));
+   }
+
+   [Test]
+   public void try_add_adds_user_to_empty_json_file()
+   {
+      var files = new Dictionary<string, string>
+      {
+         ["users.json"] = "[]",
+      };
+      var fileSystem = FileSystemStub.With(FileStub.Using(files));
+      var claimsSerializer = ClaimsSerializerStub.SerializeReturns(new JsonObject
+      {
+         ["arbitrary-claim"] = "arbitrary-value",
+      });
+
+      var testSubject = CreateStore(
+         fileSystem: fileSystem,
+         claimsSerializer: claimsSerializer);
+
+      var result = testSubject.TryAdd(new User("arbitrary-subject", []));
+
+      var expectedUsers = new JsonArray
+      {
+         new JsonObject
+         {
+            ["subject"] = "arbitrary-subject",
+            ["claims"] = new JsonObject
+            {
+               ["arbitrary-claim"] = "arbitrary-value",
+            },
+         },
+      };
+
+      Assert.That(result, Is.True);
+      Assert.That(files.ContainsKey("users.json"), Is.True);
+      Assert.That(files["users.json"], Is.EqualTo(expectedUsers.ToJsonString()));
    }
 
    private static UserStore CreateStore(
       IFileSystem? fileSystem = null,
-      IClaimsParser? claimsParser = null)
+      IClaimsSerializer? claimsSerializer = null)
    {
       fileSystem ??= FileSystemStub.Valid();
-      claimsParser ??= ClaimsParserStub.Valid();
+      claimsSerializer ??= ClaimsSerializerStub.Valid();
 
-      return new UserStore(fileSystem, claimsParser);
+      return new UserStore(
+         fileSystem,
+         claimsSerializer);
    }
 }

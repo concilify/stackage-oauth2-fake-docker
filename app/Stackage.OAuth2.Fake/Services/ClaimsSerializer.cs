@@ -8,12 +8,18 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using Microsoft.Extensions.Logging;
 
-public class ClaimsParser : IClaimsParser
+public class ClaimsSerializer : IClaimsSerializer
 {
-   public bool TryParse(
-      JsonObject claimsObject,
-      out ImmutableArray<Claim> claims)
+   private readonly ILogger<ClaimsSerializer> _logger;
+
+   public ClaimsSerializer(ILogger<ClaimsSerializer> logger)
+   {
+      _logger = logger;
+   }
+
+   public bool TryDeserialize(JsonObject claimsObject, out ImmutableArray<Claim> claims)
    {
       var results = ImmutableArray.CreateBuilder<Claim>();
 
@@ -29,13 +35,34 @@ public class ClaimsParser : IClaimsParser
          }
          else
          {
-            claims = ImmutableArray<Claim>.Empty;
+            _logger.LogWarning("Unexpected claim type {ClaimType}.", claimNode?.GetValueKind().ToString());
+
+            claims = [];
             return false;
          }
       }
 
       claims = results.ToImmutable();
       return true;
+   }
+
+   public JsonObject Serialize(ImmutableArray<Claim> claims)
+   {
+      var claimsObject = new JsonObject();
+
+      foreach (var claim in claims)
+      {
+         if (claim.ValueType == JsonClaimValueTypes.JsonArray)
+         {
+            claimsObject[claim.Type] = JsonNode.Parse(claim.Value);
+         }
+         else if (claim.ValueType == ClaimValueTypes.String)
+         {
+            claimsObject[claim.Type] = claim.Value;
+         }
+      }
+
+      return claimsObject;
    }
 
    private static bool TryParseArrayOfStrings(

@@ -5,7 +5,7 @@ using Moq;
 
 public static class FileSystemStub
 {
-   public static IFileSystem Valid() => With(FileStub.DoesNotExist());
+   public static IFileSystem Valid() => With(FileStub.Empty());
 
    public static IFileSystem With(IFile file)
    {

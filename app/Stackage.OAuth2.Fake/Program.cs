@@ -25,7 +25,7 @@ builder.Services.AddTransient<IGrantTypeHandler, AuthorizationCodeGrantTypeHandl
 builder.Services.AddTransient<IGrantTypeHandler, DeviceCodeGrantTypeHandler>();
 builder.Services.AddTransient<IGrantTypeHandler, RefreshTokenGrantTypeHandler>();
 builder.Services.AddTransient<ITokenGenerator, TokenGenerator>();
-builder.Services.AddTransient<IClaimsParser, ClaimsParser>();
+builder.Services.AddTransient<IClaimsSerializer, ClaimsSerializer>();
 
 builder.Services.AddTransient<RequestCaptureMiddleware>();
 
