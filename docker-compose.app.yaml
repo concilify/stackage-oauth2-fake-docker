@@ -4,8 +4,6 @@ services:
       context: app
     ports:
       - "32111:32111"
-    volumes:
-      - ./app/Stackage.OAuth2.Fake/users.json:/app/users.json
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=32111
@@ -16,3 +14,5 @@ services:
       - DEVICE_VERIFICATION_PATH=/oauth2/device/verify
       - DEFAULT_SUBJECT=default-subject
       - DEFAULT_TOKEN_EXPIRY_SECONDS=1200
+    volumes:
+      - ./app/Stackage.OAuth2.Fake/users.json:/app/users.json
