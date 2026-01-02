@@ -5,7 +5,7 @@ services:
     ports:
       - "32111:32111"
     volumes:
-      - ./app/Stackage.OAuth2.Fake/users.json:/app/users.json:ro
+      - ./app/Stackage.OAuth2.Fake/users.json:/app/users.json
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=32111

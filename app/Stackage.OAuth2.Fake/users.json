@@ -1,1 +1,16 @@
-[{"subject":"user-a-subject","claims":{"nickname":"User A Nickname","picture":"user-a-picture"}},{"subject":"user-b-subject","claims":{"nickname":"User B Nickname","picture":"user-b-picture"}},{"subject":"f249e0ef-41f0-4b25-8b7b-7ca8557b58b8","claims":{}},{"subject":"a85d3a34-4049-415d-8f10-d10a588cd92d","claims":{}},{"subject":"cb56ae23-49d0-4a60-adb1-4d0f6289f915","claims":{"claim_a":"claim-a","claim_b":"claim-b"}},{"subject":"c103be24-407b-492e-a431-4a7feb38fe1d","claims":{"claim_a":"claim-a","claim_b":"claim-b"}},{"subject":"d522e0e0-bba4-4672-aaa6-8b575922fb7f","claims":{"name":"name-claim","nickname":"nickname-claim","picture":"picture-claim"}},{"subject":"2cc7d6cd-078f-47d1-b895-1045c2709f3f","claims":{"name":"2cc7d6cd-078f-47d1-b895-1045c2709f3f-name","nickname":"2cc7d6cd-078f-47d1-b895-1045c2709f3f-nickname","picture":"2cc7d6cd-078f-47d1-b895-1045c2709f3f-picture"}},{"subject":"f0906d38-009d-40e3-b2c5-7c3ae08becce","claims":{"name":"f0906d38-009d-40e3-b2c5-7c3ae08becce-name","nickname":"f0906d38-009d-40e3-b2c5-7c3ae08becce-nickname","picture":"f0906d38-009d-40e3-b2c5-7c3ae08becce-picture"}}]
+[
+  {
+    "subject": "user-a-subject",
+    "claims": {
+      "nickname": "User A Nickname",
+      "picture": "user-a-picture"
+    }
+  },
+  {
+    "subject": "user-b-subject",
+    "claims": {
+      "nickname": "User B Nickname",
+      "picture": "user-b-picture"
+    }
+  }
+]
