@@ -1,4 +1,4 @@
-namespace Stackage.OAuth2.Fake.OutsideIn.Tests.Scenarios.Internal.Authorization;
+namespace Stackage.OAuth2.Fake.OutsideIn.Tests.Scenarios.Internal.DeviceAuthorization;
 
 using System;
 using System.Net;
@@ -21,16 +21,17 @@ public class create_with_duplicate_code
 
       var body = new
       {
-         code = Guid.NewGuid().ToString(),
+         deviceCode = Guid.NewGuid().ToString(),
+         userCode = Guid.NewGuid().ToString(),
          clientId = "ValidClientId",
       };
 
       var content = JsonContent.Create(body);
 
-      var firstHttpResponse = await httpClient.PostAsync(".internal/user-authorization", content);
+      var firstHttpResponse = await httpClient.PostAsync(".internal/device-authorization", content);
       firstHttpResponse.EnsureSuccessStatusCode();
 
-      _httpResponse = await httpClient.PostAsync(".internal/user-authorization", content);
+      _httpResponse = await httpClient.PostAsync(".internal/device-authorization", content);
    }
 
    [Test]
@@ -52,6 +53,6 @@ public class create_with_duplicate_code
    {
       var errorResponse = await _httpResponse!.ParseAsync<ErrorResponse>();
 
-      Assert.That(errorResponse.ErrorDescription, Is.EqualTo("The given code already exists"));
+      Assert.That(errorResponse.ErrorDescription, Is.EqualTo("The given deviceCode already exists"));
    }
 }

@@ -1,4 +1,4 @@
-namespace Stackage.OAuth2.Fake.OutsideIn.Tests.Scenarios.Internal.Authorization;
+namespace Stackage.OAuth2.Fake.OutsideIn.Tests.Scenarios.Internal.DeviceAuthorization;
 
 using System;
 using System.Net;
@@ -20,13 +20,14 @@ public class create_happy_path
 
       var body = new
       {
-         code = Guid.NewGuid().ToString(),
+         deviceCode = Guid.NewGuid().ToString(),
+         userCode = Guid.NewGuid().ToString(),
          clientId = "ValidClientId",
       };
 
       var content = JsonContent.Create(body);
 
-      _httpResponse = await httpClient.PostAsync(".internal/user-authorization", content);
+      _httpResponse = await httpClient.PostAsync(".internal/device-authorization", content);
    }
 
    [Test]

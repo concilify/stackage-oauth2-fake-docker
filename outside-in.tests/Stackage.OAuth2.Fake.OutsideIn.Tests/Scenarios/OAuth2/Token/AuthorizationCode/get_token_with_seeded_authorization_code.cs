@@ -28,7 +28,7 @@ public class get_token_with_seeded_authorization_code
 
       _code = Guid.NewGuid().ToString();
 
-      await httpClient.SeedAuthorizationAsync(
+      await httpClient.SeedUserAuthorizationAsync(
          code: _code,
          clientId: "ArbitraryClientId",
          scopes: ["offline_access"]);

@@ -1,4 +1,4 @@
-namespace Stackage.OAuth2.Fake.OutsideIn.Tests.Scenarios.OAuth2.Token.AuthorizationCode;
+namespace Stackage.OAuth2.Fake.OutsideIn.Tests.Scenarios.OAuth2.Token.DeviceCode;
 
 using System;
 using System.Collections.Generic;
@@ -6,16 +6,13 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Primitives;
 using NUnit.Framework;
-using Shouldly;
 using Stackage.OAuth2.Fake.OutsideIn.Tests.Model;
 
 // ReSharper disable once InconsistentNaming
-public class get_token_with_openid_and_profile_scopes
+public class get_token_with_seeded_authorization_code
 {
-   private string? _code;
-   private string? _subject;
+   private string? _deviceCode;
    private HttpResponseMessage? _httpResponse;
 
    [OneTimeSetUp]
@@ -29,29 +26,18 @@ public class get_token_with_openid_and_profile_scopes
 
       var openIdConfigurationResponse = await httpClient.GetWellKnownOpenIdConfigurationAsync();
 
-      _code = Guid.NewGuid().ToString();
-      _subject = Guid.NewGuid().ToString();
+      _deviceCode = Guid.NewGuid().ToString();
 
-      await httpClient.SeedUserAuthorizationAsync(
-         code: _code,
+      await httpClient.SeedDeviceAuthorizationAsync(
+         deviceCode: _deviceCode,
          clientId: "ArbitraryClientId",
-         scopes: ["openid", "profile"],
-         subject: _subject);
-
-      await httpClient.SeedUserAsync(
-         subject: _subject,
-         claims: new Dictionary<string, string>
-         {
-            ["name"] = $"{_subject}-name",
-            ["nickname"] = $"{_subject}-nickname",
-            ["picture"] = $"{_subject}-picture",
-         });
+         scopes: ["offline_access"]);
 
       var content = new FormUrlEncodedContent(new Dictionary<string, string>
       {
          ["client_id"] = "ArbitraryClientId",
-         ["grant_type"] = "authorization_code",
-         ["code"] = _code,
+         ["grant_type"] = "urn:ietf:params:oauth:grant-type:device_code",
+         ["device_code"] = _deviceCode,
       });
 
       _httpResponse = await httpClient.PostAsync(
@@ -92,7 +78,7 @@ public class get_token_with_openid_and_profile_scopes
 
       var jwtSecurityToken = tokenResponse.ParseAccessTokenAsJwtSecurityToken();
 
-      Assert.That(jwtSecurityToken.Subject, Is.EqualTo(_subject));
+      Assert.That(jwtSecurityToken.Subject, Is.EqualTo("default-subject"));
    }
 
    [Test]
@@ -103,60 +89,7 @@ public class get_token_with_openid_and_profile_scopes
       var scope = tokenResponse.ParseAccessTokenClaim("scope");
 
       Assert.That(scope, Is.Not.Null);
-      Assert.That(scope!.Value, Is.EqualTo("openid profile"));
-   }
-
-   [Test]
-   public async Task response_content_should_contain_id_token_signed_by_public_key()
-   {
-      var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
-
-      var jsonWebKeySet = await Support.GetJsonWebKeySetAsync();
-
-      tokenResponse.AssertIdTokenIsSigned(jsonWebKeySet.Keys[0]);
-   }
-
-   [Test]
-   public async Task response_content_should_contain_id_token_with_sub()
-   {
-      var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
-
-      var jwtSecurityToken = tokenResponse.ParseIdTokenAsJwtSecurityToken();
-
-      Assert.That(jwtSecurityToken.Subject, Is.EqualTo(_subject));
-   }
-
-   [Test]
-   public async Task response_content_should_contain_id_token_with_claims()
-   {
-      var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
-
-      var claims = tokenResponse.ParseIdTokenClaims("name", "nickname", "picture");
-
-      var expectedClaims = new Dictionary<string, StringValues>
-      {
-         [JwtRegisteredClaimNames.Name] = $"{_subject}-name",
-         [JwtRegisteredClaimNames.Nickname] = $"{_subject}-nickname",
-         [JwtRegisteredClaimNames.Picture] = $"{_subject}-picture",
-      };
-
-      claims.ShouldBeEquivalentTo(expectedClaims);
-   }
-
-   [Test]
-   public async Task response_content_should_not_contain_refresh_token()
-   {
-      var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
-
-      Assert.That(tokenResponse.RefreshToken, Is.Null);
-   }
-
-   [Test]
-   public async Task response_content_should_contain_scope()
-   {
-      var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
-
-      Assert.That(tokenResponse.Scope, Is.EqualTo("openid profile"));
+      Assert.That(scope!.Value, Is.EqualTo("offline_access"));
    }
 
    [Test]

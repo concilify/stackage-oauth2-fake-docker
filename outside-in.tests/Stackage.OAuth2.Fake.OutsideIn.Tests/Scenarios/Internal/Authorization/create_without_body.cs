@@ -18,7 +18,7 @@ public class create_without_body
       using var httpClient = new HttpClient();
       httpClient.BaseAddress = new Uri(Configuration.AppUrl);
 
-      _httpResponse = await httpClient.PostAsync(".internal/authorization", null);
+      _httpResponse = await httpClient.PostAsync(".internal/user-authorization", null);
    }
 
    [Test]

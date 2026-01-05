@@ -1,4 +1,4 @@
-namespace Stackage.OAuth2.Fake.OutsideIn.Tests.Scenarios.OAuth2.Token.AuthorizationCode;
+namespace Stackage.OAuth2.Fake.OutsideIn.Tests.Scenarios.OAuth2.Token.DeviceCode;
 
 using System;
 using System.Collections.Generic;
@@ -14,7 +14,7 @@ using Stackage.OAuth2.Fake.OutsideIn.Tests.Model;
 // ReSharper disable once InconsistentNaming
 public class get_token_with_openid_and_profile_scopes
 {
-   private string? _code;
+   private string? _deviceCode;
    private string? _subject;
    private HttpResponseMessage? _httpResponse;
 
@@ -29,11 +29,11 @@ public class get_token_with_openid_and_profile_scopes
 
       var openIdConfigurationResponse = await httpClient.GetWellKnownOpenIdConfigurationAsync();
 
-      _code = Guid.NewGuid().ToString();
+      _deviceCode = Guid.NewGuid().ToString();
       _subject = Guid.NewGuid().ToString();
 
-      await httpClient.SeedUserAuthorizationAsync(
-         code: _code,
+      await httpClient.SeedDeviceAuthorizationAsync(
+         deviceCode: _deviceCode,
          clientId: "ArbitraryClientId",
          scopes: ["openid", "profile"],
          subject: _subject);
@@ -50,8 +50,8 @@ public class get_token_with_openid_and_profile_scopes
       var content = new FormUrlEncodedContent(new Dictionary<string, string>
       {
          ["client_id"] = "ArbitraryClientId",
-         ["grant_type"] = "authorization_code",
-         ["code"] = _code,
+         ["grant_type"] = "urn:ietf:params:oauth:grant-type:device_code",
+         ["device_code"] = _deviceCode,
       });
 
       _httpResponse = await httpClient.PostAsync(

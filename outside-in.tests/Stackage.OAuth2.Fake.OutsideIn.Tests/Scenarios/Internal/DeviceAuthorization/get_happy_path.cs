@@ -1,4 +1,4 @@
-namespace Stackage.OAuth2.Fake.OutsideIn.Tests.Scenarios.Internal.Authorization;
+namespace Stackage.OAuth2.Fake.OutsideIn.Tests.Scenarios.Internal.DeviceAuthorization;
 
 using System;
 using System.Net;
@@ -11,7 +11,8 @@ using NUnit.Framework;
 // ReSharper disable once InconsistentNaming
 public class get_happy_path
 {
-   private string? _code;
+   private string? _deviceCode;
+   private string? _userCode;
    private HttpResponseMessage? _httpResponse;
 
    [OneTimeSetUp]
@@ -20,11 +21,13 @@ public class get_happy_path
       using var httpClient = new HttpClient();
       httpClient.BaseAddress = new Uri(Configuration.AppUrl);
 
-      _code = Guid.NewGuid().ToString();
+      _deviceCode = Guid.NewGuid().ToString();
+      _userCode = Guid.NewGuid().ToString();
 
       var body = new
       {
-         code = _code,
+         deviceCode = _deviceCode,
+         userCode = _userCode,
          scopes = new[] { "arbitrary-scope-a", "arbitrary-scope-b" },
          clientId = "ArbitraryClientId",
          subject = "ArbitrarySubject",
@@ -32,9 +35,9 @@ public class get_happy_path
 
       var content = JsonContent.Create(body);
 
-      await httpClient.PostAsync(".internal/user-authorization", content);
+      await httpClient.PostAsync(".internal/device-authorization", content);
 
-      _httpResponse = await httpClient.GetAsync($".internal/user-authorization?code={_code}");
+      _httpResponse = await httpClient.GetAsync($".internal/device-authorization?deviceCode={_deviceCode}");
    }
 
    [Test]
@@ -44,11 +47,19 @@ public class get_happy_path
    }
 
    [Test]
-   public async Task response_content_should_contain_code()
+   public async Task response_content_should_contain_device_code()
    {
       var authorizationResponse = await _httpResponse!.ParseAsync<AuthorizationResponse>();
 
-      Assert.That(authorizationResponse.Code, Is.EqualTo(_code));
+      Assert.That(authorizationResponse.DeviceCode, Is.EqualTo(_deviceCode));
+   }
+
+   [Test]
+   public async Task response_content_should_contain_user_code()
+   {
+      var authorizationResponse = await _httpResponse!.ParseAsync<AuthorizationResponse>();
+
+      Assert.That(authorizationResponse.UserCode, Is.EqualTo(_userCode));
    }
 
    [Test]
@@ -76,7 +87,8 @@ public class get_happy_path
    }
 
    private record AuthorizationResponse(
-      [property: JsonPropertyName("code")] string Code,
+      [property: JsonPropertyName("deviceCode")] string DeviceCode,
+      [property: JsonPropertyName("userCode")] string UserCode,
       [property: JsonPropertyName("scopes")] string[] Scopes,
       [property: JsonPropertyName("clientId")] string ClientId,
       [property: JsonPropertyName("subject")] string Subject);

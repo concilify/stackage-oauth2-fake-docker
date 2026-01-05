@@ -1,15 +1,14 @@
-namespace Stackage.OAuth2.Fake.OutsideIn.Tests.Scenarios.Internal.Authorization;
+namespace Stackage.OAuth2.Fake.OutsideIn.Tests.Scenarios.Internal.DeviceAuthorization;
 
 using System;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Json;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Stackage.OAuth2.Fake.OutsideIn.Tests.Model;
 
 // ReSharper disable once InconsistentNaming
-public class create_with_duplicate_code
+public class create_without_body
 {
    private HttpResponseMessage? _httpResponse;
 
@@ -19,18 +18,7 @@ public class create_with_duplicate_code
       using var httpClient = new HttpClient();
       httpClient.BaseAddress = new Uri(Configuration.AppUrl);
 
-      var body = new
-      {
-         code = Guid.NewGuid().ToString(),
-         clientId = "ValidClientId",
-      };
-
-      var content = JsonContent.Create(body);
-
-      var firstHttpResponse = await httpClient.PostAsync(".internal/user-authorization", content);
-      firstHttpResponse.EnsureSuccessStatusCode();
-
-      _httpResponse = await httpClient.PostAsync(".internal/user-authorization", content);
+      _httpResponse = await httpClient.PostAsync(".internal/device-authorization", null);
    }
 
    [Test]
@@ -52,6 +40,6 @@ public class create_with_duplicate_code
    {
       var errorResponse = await _httpResponse!.ParseAsync<ErrorResponse>();
 
-      Assert.That(errorResponse.ErrorDescription, Is.EqualTo("The given code already exists"));
+      Assert.That(errorResponse.ErrorDescription, Is.EqualTo("The request body was missing"));
    }
 }
