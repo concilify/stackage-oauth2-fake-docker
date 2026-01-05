@@ -27,8 +27,7 @@ public class get_token_happy_path
 
       var authorizationResponse = await httpClient.StartAuthorizationAsync(
          openIdConfigurationResponse,
-         clientId: "ArbitraryClientId",
-         scopes: ["openid", "profile"]);
+         clientId: "ArbitraryClientId");
 
       var content = new FormUrlEncodedContent(new Dictionary<string, string>
       {

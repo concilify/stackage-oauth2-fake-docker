@@ -1,14 +1,5 @@
 [
   {
-    "subject": "default-subject",
-    "claims": {
-      "nickname": "Nickname",
-      "picture": "picture",
-      "http://concilify/permissions": ["create:partitions:demo"],
-      "http://concilify/tenants": ["demo"]
-    }
-  },
-  {
     "subject": "user-a-subject",
     "claims": {
       "nickname": "User A Nickname",
