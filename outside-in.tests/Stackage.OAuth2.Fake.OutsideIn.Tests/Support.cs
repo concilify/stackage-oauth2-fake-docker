@@ -198,6 +198,27 @@ public static class Support
       await PostAsync(httpClient, ".internal/user-authorization", body);
    }
 
+   public static async Task SeedDeviceAuthorizationAsync(
+      this HttpClient httpClient,
+      string deviceCode,
+      string userCode = "ValidUserCode",
+      string clientId = "ValidClientId",
+      string[]? scopes = null,
+      string? subject = null)
+   {
+      var body = new JsonObject
+      {
+         ["deviceCode"] = deviceCode,
+         ["userCode"] = userCode,
+         ["clientId"] = clientId,
+      };
+
+      body.AddScopes(scopes);
+      body.AddSubject(subject);
+
+      await PostAsync(httpClient, ".internal/device-authorization", body);
+   }
+
    public static async Task SeedRefreshTokenAsync(
       this HttpClient httpClient,
       string refreshToken,

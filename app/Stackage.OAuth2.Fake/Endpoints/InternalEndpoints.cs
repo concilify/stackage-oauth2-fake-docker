@@ -80,7 +80,7 @@ public static class InternalEndpoints
       app.MapPost(
          "/.internal/user-authorization",
          (
-            [FromBody] PostAuthorizationRequest? request,
+            [FromBody] PostUserAuthorizationRequest? request,
             Settings settings,
             AuthorizationCache<UserAuthorization> authorizationCache) =>
          {
@@ -112,6 +112,47 @@ public static class InternalEndpoints
                : OAuth2Results.InvalidRequest("The given code already exists");
          });
 
+      app.MapPost(
+         "/.internal/device-authorization",
+         (
+            [FromBody] PostDeviceAuthorizationRequest? request,
+            Settings settings,
+            AuthorizationCache<DeviceAuthorization> authorizationCache) =>
+         {
+            if (request == null)
+            {
+               return OAuth2Results.InvalidRequest("The request body was missing");
+            }
+
+            if (request.DeviceCode == null)
+            {
+               return OAuth2Results.InvalidRequest("The deviceCode property was missing");
+            }
+
+            if (request.UserCode == null)
+            {
+               return OAuth2Results.InvalidRequest("The userCode property was missing");
+            }
+
+            if (request.ClientId == null)
+            {
+               return OAuth2Results.InvalidRequest("The clientId property was missing");
+            }
+
+            var authorization = new DeviceAuthorization(
+               request.DeviceCode,
+               request.UserCode,
+               request.ClientId,
+               (Scope?)request.Scopes ?? Scope.Empty,
+               request.Audiences);
+
+            authorization.Authenticate(request.Subject ?? settings.DefaultSubject);
+
+            return authorizationCache.TryAdd(authorization)
+               ? TypedResults.Ok()
+               : OAuth2Results.InvalidRequest("The given deviceCode already exists");
+         });
+
       app.MapGet(
          "/.internal/user-authorization",
          (
@@ -131,6 +172,35 @@ public static class InternalEndpoints
             var response = new
             {
                code = authorization.Code,
+               clientId = authorization.ClientId,
+               scopes = authorization.Scope.ToArray(),
+               subject = authorization.Subject,
+               audiences = authorization.Audiences,
+            };
+
+            return TypedResults.Json(response, statusCode: 200);
+         });
+
+      app.MapGet(
+         "/.internal/device-authorization",
+         (
+            [FromQuery(Name = "deviceCode")] string? deviceCode,
+            AuthorizationCache<DeviceAuthorization> authorizationCache) =>
+         {
+            if (deviceCode == null)
+            {
+               return OAuth2Results.InvalidRequest("The deviceCode parameter was missing");
+            }
+
+            if (!authorizationCache.TryGet(deviceCode, out var authorization))
+            {
+               return OAuth2Results.InvalidRequest("The given deviceCode was not found");
+            }
+
+            var response = new
+            {
+               deviceCode = authorization.DeviceCode,
+               userCode = authorization.UserCode,
                clientId = authorization.ClientId,
                scopes = authorization.Scope.ToArray(),
                subject = authorization.Subject,
@@ -318,7 +388,7 @@ public static class InternalEndpoints
       public static ValueTask<CreateTokenRequest?> BindAsync(HttpContext context) => BindAsync<CreateTokenRequest>(context);
    }
 
-   private record PostAuthorizationRequest(
+   private record PostUserAuthorizationRequest(
       [property: JsonPropertyName("code")] string? Code,
       [property: JsonPropertyName("clientId")] string? ClientId,
       [property: JsonPropertyName("scopes")] string[]? Scopes,
@@ -326,7 +396,19 @@ public static class InternalEndpoints
       [property: JsonPropertyName("audiences")] string[]? Audiences)
    {
       // ReSharper disable once UnusedMember.Local
-      public static ValueTask<PostAuthorizationRequest?> BindAsync(HttpContext context) => BindAsync<PostAuthorizationRequest>(context);
+      public static ValueTask<PostUserAuthorizationRequest?> BindAsync(HttpContext context) => BindAsync<PostUserAuthorizationRequest>(context);
+   }
+
+   private record PostDeviceAuthorizationRequest(
+      [property: JsonPropertyName("deviceCode")] string? DeviceCode,
+      [property: JsonPropertyName("userCode")] string? UserCode,
+      [property: JsonPropertyName("clientId")] string? ClientId,
+      [property: JsonPropertyName("scopes")] string[]? Scopes,
+      [property: JsonPropertyName("subject")] string? Subject,
+      [property: JsonPropertyName("audiences")] string[]? Audiences)
+   {
+      // ReSharper disable once UnusedMember.Local
+      public static ValueTask<PostDeviceAuthorizationRequest?> BindAsync(HttpContext context) => BindAsync<PostDeviceAuthorizationRequest>(context);
    }
 
    private record PostRefreshTokenRequest(
