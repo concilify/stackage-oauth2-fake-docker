@@ -27,10 +27,10 @@ public class create_with_duplicate_code
 
       var content = JsonContent.Create(body);
 
-      var firstHttpResponse = await httpClient.PostAsync(".internal/authorization", content);
+      var firstHttpResponse = await httpClient.PostAsync(".internal/user-authorization", content);
       firstHttpResponse.EnsureSuccessStatusCode();
 
-      _httpResponse = await httpClient.PostAsync(".internal/authorization", content);
+      _httpResponse = await httpClient.PostAsync(".internal/user-authorization", content);
    }
 
    [Test]

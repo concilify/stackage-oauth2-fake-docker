@@ -179,7 +179,7 @@ public static class Support
       return await httpResponse.ParseAsync<TokenResponse>();
    }
 
-   public static async Task SeedAuthorizationAsync(
+   public static async Task SeedUserAuthorizationAsync(
       this HttpClient httpClient,
       string code,
       string clientId = "ValidClientId",
@@ -195,7 +195,7 @@ public static class Support
       body.AddScopes(scopes);
       body.AddSubject(subject);
 
-      await PostAsync(httpClient, ".internal/authorization", body);
+      await PostAsync(httpClient, ".internal/user-authorization", body);
    }
 
    public static async Task SeedRefreshTokenAsync(

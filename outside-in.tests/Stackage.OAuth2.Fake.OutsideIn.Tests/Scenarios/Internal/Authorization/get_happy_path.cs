@@ -32,9 +32,9 @@ public class get_happy_path
 
       var content = JsonContent.Create(body);
 
-      await httpClient.PostAsync(".internal/authorization", content);
+      await httpClient.PostAsync(".internal/user-authorization", content);
 
-      _httpResponse = await httpClient.GetAsync($".internal/authorization?code={_code}");
+      _httpResponse = await httpClient.GetAsync($".internal/user-authorization?code={_code}");
    }
 
    [Test]

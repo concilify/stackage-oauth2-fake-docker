@@ -24,7 +24,7 @@ public class get_after_token_request
 
       var openIdConfigurationResponse = await httpClient.GetWellKnownOpenIdConfigurationAsync();
 
-      await httpClient.SeedAuthorizationAsync(
+      await httpClient.SeedUserAuthorizationAsync(
          "the-code",
          clientId: "ArbitraryClientId");
 
