@@ -26,7 +26,7 @@ public class create_happy_path
 
       var content = JsonContent.Create(body);
 
-      _httpResponse = await httpClient.PostAsync(".internal/authorization", content);
+      _httpResponse = await httpClient.PostAsync(".internal/user-authorization", content);
    }
 
    [Test]

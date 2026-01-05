@@ -32,7 +32,7 @@ public class get_token_with_openid_and_profile_scopes
       _code = Guid.NewGuid().ToString();
       _subject = Guid.NewGuid().ToString();
 
-      await httpClient.SeedAuthorizationAsync(
+      await httpClient.SeedUserAuthorizationAsync(
          code: _code,
          clientId: "ArbitraryClientId",
          scopes: ["openid", "profile"],

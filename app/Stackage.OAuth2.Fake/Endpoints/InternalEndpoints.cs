@@ -78,7 +78,7 @@ public static class InternalEndpoints
    private static void MapInternalAuthorizationEndpoints(this WebApplication app)
    {
       app.MapPost(
-         "/.internal/authorization",
+         "/.internal/user-authorization",
          (
             [FromBody] PostAuthorizationRequest? request,
             Settings settings,
@@ -113,7 +113,7 @@ public static class InternalEndpoints
          });
 
       app.MapGet(
-         "/.internal/authorization",
+         "/.internal/user-authorization",
          (
             [FromQuery(Name = "code")] string? code,
             AuthorizationCache<UserAuthorization> authorizationCache) =>

@@ -26,7 +26,7 @@ public class create_without_code
 
       var content = JsonContent.Create(body);
 
-      _httpResponse = await httpClient.PostAsync(".internal/authorization", content);
+      _httpResponse = await httpClient.PostAsync(".internal/user-authorization", content);
    }
 
    [Test]
