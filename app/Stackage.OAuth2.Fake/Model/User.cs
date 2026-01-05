@@ -10,11 +10,11 @@ public record User(string Subject, ImmutableArray<Claim> Claims)
 {
    public IEnumerable<Claim> GetClaims(IEnumerable<string> names)
    {
-      return Claims.Join(
-         names,
-         claim => claim.Type,
-         name => name,
-         (claim, _) => claim,
-         StringComparer.InvariantCultureIgnoreCase);
+      return Claims.Where(claim => names.Any(name => string.Equals(claim.Type, name, StringComparison.InvariantCultureIgnoreCase)));
+   }
+
+   public IEnumerable<Claim> GetClaimsWithout(IEnumerable<string> names)
+   {
+      return Claims.Where(claim => !names.Any(name => string.Equals(claim.Type, name, StringComparison.InvariantCultureIgnoreCase)));
    }
 }
