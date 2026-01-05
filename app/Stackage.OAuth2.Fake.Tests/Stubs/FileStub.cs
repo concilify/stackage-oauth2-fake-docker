@@ -1,4 +1,4 @@
-﻿namespace Stackage.OAuth2.Fake.Tests.Stubs;
+namespace Stackage.OAuth2.Fake.Tests.Stubs;
 
 using System.Collections.Generic;
 using System.IO.Abstractions;
