@@ -1,8 +1,10 @@
 namespace Stackage.OAuth2.Fake.Services;
 
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Security.Claims;
@@ -12,9 +14,9 @@ using Stackage.OAuth2.Fake.Model;
 
 public class UserStore : IUserStore
 {
-   private const string UsersFilePath = "users.json";
+   private const string UsersFilename = "users.json";
 
-   private static readonly JsonSerializerOptions SerializerOptions = new JsonSerializerOptions
+   private static readonly JsonSerializerOptions SerializerOptions = new()
    {
       PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
       PropertyNameCaseInsensitive = true,
@@ -22,6 +24,7 @@ public class UserStore : IUserStore
 
    private readonly IFileSystem _fileSystem;
    private readonly IClaimsSerializer _claimsSerializer;
+   private readonly string _usersPath;
 
    public UserStore(
       IFileSystem fileSystem,
@@ -29,6 +32,7 @@ public class UserStore : IUserStore
    {
       _fileSystem = fileSystem;
       _claimsSerializer = claimsSerializer;
+      _usersPath = Path.Combine(AppContext.BaseDirectory, UsersFilename);
    }
 
    public bool TryAdd(User user)
@@ -61,12 +65,12 @@ public class UserStore : IUserStore
 
    private Dictionary<string, User> Load()
    {
-      if (!_fileSystem.File.Exists(UsersFilePath))
+      if (!_fileSystem.File.Exists(_usersPath))
       {
          return new Dictionary<string, User>();
       }
 
-      var usersJson = _fileSystem.File.ReadAllText(UsersFilePath);
+      var usersJson = _fileSystem.File.ReadAllText(_usersPath);
       var seededUsers = JsonSerializer.Deserialize<List<SeededUser>>(usersJson, SerializerOptions);
 
       if (seededUsers == null)
@@ -88,7 +92,7 @@ public class UserStore : IUserStore
 
       var usersJson = JsonSerializer.Serialize(seededUsers, SerializerOptions);
 
-      _fileSystem.File.WriteAllText(UsersFilePath, usersJson);
+      _fileSystem.File.WriteAllText(_usersPath, usersJson);
    }
 
    private ImmutableArray<Claim> ParseClaims(JsonObject claimsObject)

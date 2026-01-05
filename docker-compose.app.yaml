@@ -1,4 +1,12 @@
 services:
+  init-volume:
+    image: alpine:latest
+    command: ["/bin/sh", "-c", "cp /source/users.json /target/users.json"]
+    volumes:
+      - ./app/Stackage.OAuth2.Fake/users.json:/source/users.json:ro
+      - users-config:/target
+    restart: no
+
   app:
     build:
       context: app
@@ -15,4 +23,9 @@ services:
       - DEFAULT_SUBJECT=default-subject
       - DEFAULT_TOKEN_EXPIRY_SECONDS=1200
     volumes:
-      - ./app/Stackage.OAuth2.Fake/users.json:/app/users.json
+      - users-config:/app
+    depends_on:
+      - init-volume
+
+volumes:
+  users-config:

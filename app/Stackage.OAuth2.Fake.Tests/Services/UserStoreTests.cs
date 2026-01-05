@@ -1,7 +1,9 @@
 namespace Stackage.OAuth2.Fake.Tests.Services;
 
+using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Security.Claims;
@@ -14,6 +16,14 @@ using Stackage.OAuth2.Fake.Tests.Stubs;
 
 public class UserStoreTests
 {
+   private string _usersPath = string.Empty;
+
+   [OneTimeSetUp]
+   public void setup_once_before_all_tests()
+   {
+      _usersPath = Path.Combine(AppContext.BaseDirectory, "users.json");
+   }
+
    [Test]
    public void try_get_returns_false_and_null_when_users_file_does_not_exist()
    {
@@ -32,7 +42,7 @@ public class UserStoreTests
    {
       var files = new Dictionary<string, string>
       {
-         ["users.json"] = "[]",
+         [_usersPath] = "[]",
       };
       var fileSystem = FileSystemStub.With(FileStub.Using(files));
 
@@ -49,7 +59,7 @@ public class UserStoreTests
    {
       var files = new Dictionary<string, string>
       {
-         ["users.json"] = """
+         [_usersPath] = """
                           [
                              {
                                 "subject": "arbitrary-subject",
@@ -74,7 +84,7 @@ public class UserStoreTests
    {
       var files = new Dictionary<string, string>
       {
-         ["users.json"] = """
+         [_usersPath] = """
                           [
                              {
                                 "subject": "arbitrary-subject",
@@ -137,8 +147,8 @@ public class UserStoreTests
       };
 
       Assert.That(result, Is.True);
-      Assert.That(files.ContainsKey("users.json"), Is.True);
-      Assert.That(files["users.json"], Is.EqualTo(expectedUsers.ToJsonString()));
+      Assert.That(files.ContainsKey(_usersPath), Is.True);
+      Assert.That(files[_usersPath], Is.EqualTo(expectedUsers.ToJsonString()));
    }
 
    [Test]
@@ -146,7 +156,7 @@ public class UserStoreTests
    {
       var files = new Dictionary<string, string>
       {
-         ["users.json"] = "[]",
+         [_usersPath] = "[]",
       };
       var fileSystem = FileSystemStub.With(FileStub.Using(files));
       var claimsSerializer = ClaimsSerializerStub.SerializeReturns(new JsonObject
@@ -173,8 +183,8 @@ public class UserStoreTests
       };
 
       Assert.That(result, Is.True);
-      Assert.That(files.ContainsKey("users.json"), Is.True);
-      Assert.That(files["users.json"], Is.EqualTo(expectedUsers.ToJsonString()));
+      Assert.That(files.ContainsKey(_usersPath), Is.True);
+      Assert.That(files[_usersPath], Is.EqualTo(expectedUsers.ToJsonString()));
    }
 
    private static UserStore CreateStore(
