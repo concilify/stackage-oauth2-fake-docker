@@ -20,6 +20,7 @@ services:
       - AUTHORIZATION_PATH=/oauth2/authorize
       - DEVICE_AUTHORIZATION_PATH=/oauth2/device/authorize
       - DEVICE_VERIFICATION_PATH=/oauth2/device/verify
+      - LOGOUT_PATH=/logout
       - DEFAULT_SUBJECT=default-subject
       - DEFAULT_TOKEN_EXPIRY_SECONDS=1200
     volumes:
