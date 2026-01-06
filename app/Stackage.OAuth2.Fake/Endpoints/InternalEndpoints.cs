@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Stackage.OAuth2.Fake.Model;
 using Stackage.OAuth2.Fake.Model.Authorization;
 using Stackage.OAuth2.Fake.Services;
@@ -32,12 +34,18 @@ public static class InternalEndpoints
       app.MapPost(
          "/.internal/create-token",
          (
+            HttpContext httpContext,
             [FromBody] CreateTokenRequest? request,
             [FromServices] IClaimsSerializer claimsSerializer,
             ITokenGenerator tokenGenerator) =>
          {
             if (request == null)
             {
+               if (httpContext.Items.ContainsKey("JsonDeserializationFailed"))
+               {
+                  return OAuth2Results.InvalidRequest("The request body contained invalid JSON");
+               }
+
                return OAuth2Results.InvalidRequest("The request body was missing");
             }
 
@@ -361,18 +369,33 @@ public static class InternalEndpoints
       });
    }
 
-   private static ValueTask<T?> BindAsync<T>(HttpContext context)
+   private static async ValueTask<T?> BindAsync<T>(HttpContext context)
       where T : class
    {
       try
       {
-         var request = JsonSerializer.Deserialize<T>(context.Request.Body);
+         var request = await JsonSerializer.DeserializeAsync<T>(context.Request.Body);
 
-         return ValueTask.FromResult(request);
+         return request;
       }
-      catch (Exception)
+      catch (JsonException ex)
       {
-         return ValueTask.FromResult<T?>(null);
+         var loggerFactory = context.RequestServices.GetRequiredService<ILoggerFactory>();
+         var logger = loggerFactory.CreateLogger("Stackage.OAuth2.Fake.Endpoints.InternalEndpoints");
+         logger.LogWarning(ex, "Failed to deserialize request body as {RequestType}. Invalid JSON.", typeof(T).Name);
+
+         // Use a special marker to distinguish between missing and invalid body
+         context.Items["JsonDeserializationFailed"] = true;
+         return null;
+      }
+      catch (Exception ex)
+      {
+         var loggerFactory = context.RequestServices.GetRequiredService<ILoggerFactory>();
+         var logger = loggerFactory.CreateLogger("Stackage.OAuth2.Fake.Endpoints.InternalEndpoints");
+         logger.LogWarning(ex, "Unexpected error while binding request body as {RequestType}", typeof(T).Name);
+
+         context.Items["JsonDeserializationFailed"] = true;
+         return null;
       }
    }
 
