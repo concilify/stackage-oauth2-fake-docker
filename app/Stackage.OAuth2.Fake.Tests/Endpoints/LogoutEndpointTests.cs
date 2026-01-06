@@ -33,7 +33,7 @@ public class LogoutEndpointTests
    }
 
    [Test]
-   public async Task logout_returns_error_when_returnTo_is_missing()
+   public async Task logout_returns_error_when_return_to_is_missing()
    {
       var factory = new OAuth2FakeWebApplicationFactory();
       factory.ClientOptions.AllowAutoRedirect = false;
@@ -51,7 +51,7 @@ public class LogoutEndpointTests
    }
 
    [Test]
-   public async Task logout_redirects_when_returnTo_is_provided()
+   public async Task logout_redirects_when_return_to_is_provided()
    {
       var factory = new OAuth2FakeWebApplicationFactory();
       factory.ClientOptions.AllowAutoRedirect = false;
@@ -61,13 +61,13 @@ public class LogoutEndpointTests
       var requestQuery = new Dictionary<string, string?>
       {
          ["client_id"] = "ValidClientId",
-         ["returnTo"] = "http://valid-host/callback",
+         ["returnTo"] = "http://arbitrary-host/callback",
       };
 
       var httpResponse = await httpClient.GetAsync(QueryHelpers.AddQueryString("/logout", requestQuery));
 
       Assert.That(httpResponse.StatusCode, Is.EqualTo(HttpStatusCode.Redirect));
-      Assert.That(httpResponse.Headers.Location?.AbsoluteUri, Is.EqualTo("http://valid-host/callback"));
+      Assert.That(httpResponse.Headers.Location?.AbsoluteUri, Is.EqualTo("http://arbitrary-host/callback"));
    }
 
    [Test]
@@ -80,12 +80,12 @@ public class LogoutEndpointTests
 
       var requestQuery = new Dictionary<string, string?>
       {
-         ["returnTo"] = "http://valid-host/callback",
+         ["returnTo"] = "http://arbitrary-host/callback",
       };
 
       var httpResponse = await httpClient.GetAsync(QueryHelpers.AddQueryString("/logout", requestQuery));
 
       Assert.That(httpResponse.StatusCode, Is.EqualTo(HttpStatusCode.Redirect));
-      Assert.That(httpResponse.Headers.Location?.AbsoluteUri, Is.EqualTo("http://valid-host/callback"));
+      Assert.That(httpResponse.Headers.Location?.AbsoluteUri, Is.EqualTo("http://arbitrary-host/callback"));
    }
 }
