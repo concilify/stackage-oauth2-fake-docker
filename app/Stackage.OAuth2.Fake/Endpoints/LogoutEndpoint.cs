@@ -17,14 +17,11 @@ public static class LogoutEndpoint
             [FromQuery(Name = "client_id")] string? clientId,
             [FromQuery(Name = "returnTo")] string? returnTo) =>
          {
-            // client_id is optional but commonly passed by Auth0 clients
-            // returnTo is required for the redirect
             if (string.IsNullOrEmpty(returnTo))
             {
                return OAuth2Results.InvalidRequest("The returnTo parameter is required");
             }
 
-            // Return a 302 redirect to the returnTo URL
             return Results.Redirect(returnTo);
          });
    }

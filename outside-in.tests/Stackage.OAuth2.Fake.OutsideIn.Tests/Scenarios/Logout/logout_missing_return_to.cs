@@ -20,7 +20,7 @@ public class logout_missing_return_to
       var httpClient = new HttpClient(handler);
       httpClient.BaseAddress = new Uri(Configuration.AppUrl);
 
-      var logoutUri = "/logout?client_id=ValidClientId";
+      const string logoutUri = "/logout?client_id=ValidClientId";
 
       _httpResponse = await httpClient.GetAsync(logoutUri);
    }

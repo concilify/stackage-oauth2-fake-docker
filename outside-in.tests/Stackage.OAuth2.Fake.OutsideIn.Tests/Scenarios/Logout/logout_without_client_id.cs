@@ -20,7 +20,7 @@ public class logout_without_client_id
       var httpClient = new HttpClient(handler);
       httpClient.BaseAddress = new Uri(Configuration.AppUrl);
 
-      var logoutUri = "/logout?returnTo=http%3A%2F%2Flocalhost%3A9002";
+      const string logoutUri = "/logout?returnTo=http%3A%2F%2Farbitrary-host%3A9002";
 
       _httpResponse = await httpClient.GetAsync(logoutUri);
    }
@@ -35,6 +35,6 @@ public class logout_without_client_id
    public void response_headers_should_contain_location_with_return_to_url()
    {
       Assert.That(_httpResponse?.Headers.Location, Is.Not.Null);
-      Assert.That(_httpResponse?.Headers.Location?.AbsoluteUri, Is.EqualTo("http://localhost:9002/"));
+      Assert.That(_httpResponse?.Headers.Location?.AbsoluteUri, Is.EqualTo("http://arbitrary-host:9002/"));
    }
 }
