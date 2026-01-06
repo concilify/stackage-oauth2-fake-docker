@@ -11,6 +11,13 @@ using Stackage.OAuth2.Fake.Model.Authorization;
 
 public class TokenGenerator : ITokenGenerator
 {
+   private static readonly string[] ProfileClaims =
+   [
+      JwtRegisteredClaimNames.Name,
+      JwtRegisteredClaimNames.Nickname,
+      JwtRegisteredClaimNames.Picture,
+   ];
+
    private readonly JsonWebKeyCache _jsonWebKeyCache;
    private readonly IUserStore _userStore;
    private readonly Settings _settings;
@@ -35,11 +42,18 @@ public class TokenGenerator : ITokenGenerator
          throw new InvalidOperationException($"{authorization.GetType().Name} has not been authenticated.");
       }
 
+      var user = GetUser(authorization.Subject);
+
       var accessTokenClaims = new List<Claim>
       {
          new(JwtRegisteredClaimNames.Sub, authorization.Subject),
          new("client_id", authorization.ClientId),
       };
+
+      if (user != null)
+      {
+         accessTokenClaims.AddRange(user.GetClaimsWithout(ProfileClaims));
+      }
 
       if (authorization is IAuthorizationWithAudiences { Audiences: not null } authorizationWithAudiences)
       {
@@ -80,16 +94,9 @@ public class TokenGenerator : ITokenGenerator
             new(JwtRegisteredClaimNames.Aud, authorization.ClientId),
          };
 
-         if (authorization.Scope.Contains("profile") && _userStore.TryGet(authorization.Subject, out var user))
+         if (user != null && authorization.Scope.Contains("profile"))
          {
-            string[] profileClaims =
-            [
-               JwtRegisteredClaimNames.Name,
-               JwtRegisteredClaimNames.Nickname,
-               JwtRegisteredClaimNames.Picture,
-            ];
-
-            idTokenClaims.AddRange(user.GetClaims(profileClaims));
+            idTokenClaims.AddRange(user.GetClaims(ProfileClaims));
          }
 
          var idToken = Generate(idTokenClaims, expirySeconds);
@@ -135,5 +142,15 @@ public class TokenGenerator : ITokenGenerator
       var token = tokenHandler.CreateToken(tokenDescriptor);
 
       return tokenHandler.WriteToken(token);
+   }
+
+   private User? GetUser(string subject)
+   {
+      if (_userStore.TryGet(subject, out var user))
+      {
+         return user;
+      }
+
+      return null;
    }
 }

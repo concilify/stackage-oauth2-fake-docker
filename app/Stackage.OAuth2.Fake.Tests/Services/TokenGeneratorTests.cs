@@ -52,6 +52,71 @@ public class TokenGeneratorTests
    }
 
    [Test]
+   public void response_access_token_contains_claims()
+   {
+      var user = new User(
+         Subject: "arbitrary-subject",
+         Claims: [
+            new Claim("arbitrary-claim-a", "ArbitraryValueA"),
+            new Claim("arbitrary-claim-b", "ArbitraryValueB"),
+         ]);
+      var userStore = UserStoreStub.Returns(user);
+
+      var testSubject = CreateGenerator(
+         userStore: userStore);
+
+      var authorization = AuthorizationStub.With(
+         subject: "arbitrary-subject");
+
+      var response = testSubject.Generate(authorization);
+
+      var jwtSecurityToken = (JwtSecurityToken)new JwtSecurityTokenHandler().ReadToken(response.AccessToken);
+
+      var claims = jwtSecurityToken.ParseClaims("arbitrary-claim-a", "arbitrary-claim-b");
+
+      var expectedClaims = new Dictionary<string, StringValues>
+      {
+         ["arbitrary-claim-a"] = "ArbitraryValueA",
+         ["arbitrary-claim-b"] = "ArbitraryValueB",
+      };
+
+      claims.ShouldBeEquivalentTo(expectedClaims);
+   }
+
+   [TestCase("name")]
+   [TestCase("nickname")]
+   [TestCase("picture")]
+   public void response_access_token_does_not_contain_profile_claims(string claim)
+   {
+      var user = new User(
+         Subject: "arbitrary-subject",
+         Claims: [
+            new Claim(claim, "ValidValue"),
+            new Claim("arbitrary-claim", "ArbitraryValue"),
+         ]);
+      var userStore = UserStoreStub.Returns(user);
+
+      var testSubject = CreateGenerator(
+         userStore: userStore);
+
+      var authorization = AuthorizationStub.With(
+         subject: "arbitrary-subject");
+
+      var response = testSubject.Generate(authorization);
+
+      var jwtSecurityToken = (JwtSecurityToken)new JwtSecurityTokenHandler().ReadToken(response.AccessToken);
+
+      var claims = jwtSecurityToken.ParseClaims(claim, "arbitrary-claim");
+
+      var expectedClaims = new Dictionary<string, StringValues>
+      {
+         ["arbitrary-claim"] = "ArbitraryValue",
+      };
+
+      claims.ShouldBeEquivalentTo(expectedClaims);
+   }
+
+   [Test]
    public void response_refresh_token_is_null_when_scope_is_empty()
    {
       var testSubject = CreateGenerator();

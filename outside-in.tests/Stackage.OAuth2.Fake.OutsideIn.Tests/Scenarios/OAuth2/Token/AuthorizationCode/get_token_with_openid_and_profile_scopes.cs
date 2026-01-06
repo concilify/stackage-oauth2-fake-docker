@@ -45,6 +45,7 @@ public class get_token_with_openid_and_profile_scopes
             ["name"] = $"{_subject}-name",
             ["nickname"] = $"{_subject}-nickname",
             ["picture"] = $"{_subject}-picture",
+            ["arbitrary-claim"] = "arbitrary-value",
          });
 
       var content = new FormUrlEncodedContent(new Dictionary<string, string>
@@ -104,6 +105,21 @@ public class get_token_with_openid_and_profile_scopes
 
       Assert.That(scope, Is.Not.Null);
       Assert.That(scope!.Value, Is.EqualTo("openid profile"));
+   }
+
+   [Test]
+   public async Task response_content_should_contain_access_token_with_claims()
+   {
+      var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
+
+      var claims = tokenResponse.ParseAccessTokenClaims("name", "nickname", "picture", "arbitrary-claim");
+
+      var expectedClaims = new Dictionary<string, StringValues>
+      {
+         ["arbitrary-claim"] = "arbitrary-value",
+      };
+
+      claims.ShouldBeEquivalentTo(expectedClaims);
    }
 
    [Test]

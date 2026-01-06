@@ -6,11 +6,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="System.IO.Abstractions" Version="10.0.10" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.15.0" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- We don't want this in the Docker image -->
+    <None Update="users.json" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="Never" />
   </ItemGroup>
 
 </Project>

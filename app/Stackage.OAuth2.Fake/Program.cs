@@ -1,3 +1,4 @@
+using System.IO.Abstractions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,6 +11,7 @@ using Stackage.OAuth2.Fake.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddSingleton<IFileSystem, FileSystem>();
 builder.Services.AddSingleton<IUserStore, UserStore>();
 
 builder.Services.AddSingleton(builder.Configuration.Get<Settings>()!);
@@ -23,7 +25,7 @@ builder.Services.AddTransient<IGrantTypeHandler, AuthorizationCodeGrantTypeHandl
 builder.Services.AddTransient<IGrantTypeHandler, DeviceCodeGrantTypeHandler>();
 builder.Services.AddTransient<IGrantTypeHandler, RefreshTokenGrantTypeHandler>();
 builder.Services.AddTransient<ITokenGenerator, TokenGenerator>();
-builder.Services.AddTransient<IClaimsParser, ClaimsParser>();
+builder.Services.AddTransient<IClaimsSerializer, ClaimsSerializer>();
 
 builder.Services.AddTransient<RequestCaptureMiddleware>();
 

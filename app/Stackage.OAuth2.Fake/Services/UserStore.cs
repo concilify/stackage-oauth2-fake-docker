@@ -1,78 +1,114 @@
 namespace Stackage.OAuth2.Fake.Services;
 
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 using System.Security.Claims;
+using System.Text.Json;
 using System.Text.Json.Nodes;
-using Microsoft.Extensions.Configuration;
 using Stackage.OAuth2.Fake.Model;
 
 public class UserStore : IUserStore
 {
-   private readonly Dictionary<string, User> _users;
+   private const string UsersFilename = "users.json";
+
+   private static readonly JsonSerializerOptions SerializerOptions = new()
+   {
+      PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+      PropertyNameCaseInsensitive = true,
+   };
+
+   private readonly IFileSystem _fileSystem;
+   private readonly IClaimsSerializer _claimsSerializer;
+   private readonly string _usersPath;
 
    public UserStore(
-      IConfiguration configuration,
-      IClaimsParser claimsParser)
+      IFileSystem fileSystem,
+      IClaimsSerializer claimsSerializer)
    {
-      var usersSection = configuration.GetSection("Users");
-
-      _users = ParseUsers(usersSection, claimsParser).ToDictionary(u => u.Subject);
+      _fileSystem = fileSystem;
+      _claimsSerializer = claimsSerializer;
+      _usersPath = Path.Combine(AppContext.BaseDirectory, UsersFilename);
    }
 
    public bool TryAdd(User user)
    {
-      return _users.TryAdd(user.Subject, user);
+      var users = Load();
+
+      if (!users.TryAdd(user.Subject, user))
+      {
+         return false;
+      }
+
+      Save(users);
+
+      return true;
    }
 
    public IReadOnlyList<User> GetAll()
    {
-      return _users.Values.ToList();
+      return Load().Values.ToList();
    }
 
    public bool TryGet(
       string subject,
       [MaybeNullWhen(false)] out User user)
    {
-      return _users.TryGetValue(subject, out user);
+      var users = Load();
+
+      return users.TryGetValue(subject, out user);
    }
 
-   private static IEnumerable<User> ParseUsers(
-      IConfigurationSection usersSection,
-      IClaimsParser claimsParser)
+   private Dictionary<string, User> Load()
    {
-      var configurationUsers = usersSection.Get<List<ConfigurationUser>>() ?? [];
-
-      return configurationUsers.Select(u => new User(u.Subject, ParseClaims(u.ClaimsSection, claimsParser)));
-   }
-
-   private static ImmutableArray<Claim> ParseClaims(
-         IConfigurationSection claimsSection,
-         IClaimsParser claimsParser)
-   {
-      var claimsObject = new JsonObject();
-
-      foreach (var claim in claimsSection.GetChildren())
+      if (!_fileSystem.File.Exists(_usersPath))
       {
-         claimsObject.Add(claim.Key, claim.Value);
+         return new Dictionary<string, User>();
       }
 
-      if (claimsParser.TryParse(claimsObject, out var claims))
+      var usersJson = _fileSystem.File.ReadAllText(_usersPath);
+      var seededUsers = JsonSerializer.Deserialize<List<SeededUser>>(usersJson, SerializerOptions);
+
+      if (seededUsers == null)
       {
-         return claims;
+         throw new JsonException("Failed to deserialize users.");
       }
 
-      return ImmutableArray<Claim>.Empty;
+      return seededUsers
+         .Where(u => u is { Subject: not null, Claims: not null })
+         .Select(u => new User(u.Subject!, ParseClaims(u.Claims!)))
+         .ToDictionary(u => u.Subject);
    }
 
-   // Following the upgrade to .NET 10, a primary constructor cannot be used as the binding fails
-   private record ConfigurationUser
+   private void Save(IDictionary<string, User> users)
    {
-      public required string Subject { get; init; }
+      var seededUsers = users
+         .Select(u => new SeededUser { Subject = u.Value.Subject, Claims = _claimsSerializer.Serialize(u.Value.Claims) })
+         .ToList();
 
-      [ConfigurationKeyName("Claims")]
-      public required IConfigurationSection ClaimsSection { get; init; }
+      var usersJson = JsonSerializer.Serialize(seededUsers, SerializerOptions);
+
+      _fileSystem.File.WriteAllText(_usersPath, usersJson);
+   }
+
+   private ImmutableArray<Claim> ParseClaims(JsonObject claimsObject)
+   {
+      if (!_claimsSerializer.TryDeserialize(claimsObject, out var claims))
+      {
+         throw new JsonException("Failed to deserialize claims.");
+      }
+
+      return claims;
+   }
+
+   private record SeededUser
+   {
+      public string? Subject { get; init; }
+
+      public JsonObject? Claims { get; init; }
    }
 }

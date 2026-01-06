@@ -33,7 +33,7 @@ public static class InternalEndpoints
          "/.internal/create-token",
          (
             [FromBody] CreateTokenRequest? request,
-            [FromServices] IClaimsParser claimsParser,
+            [FromServices] IClaimsSerializer claimsSerializer,
             ITokenGenerator tokenGenerator) =>
          {
             if (request == null)
@@ -56,7 +56,7 @@ public static class InternalEndpoints
                return OAuth2Results.InvalidRequest("The claims property was missing");
             }
 
-            if (!claimsParser.TryParse(request.Claims, out var claims))
+            if (!claimsSerializer.TryDeserialize(request.Claims, out var claims))
             {
                return OAuth2Results.InvalidRequest("The claims property must contain string properties or string array properties");
             }
@@ -280,7 +280,7 @@ public static class InternalEndpoints
          "/.internal/users",
          (
             [FromBody] PostUserRequest? request,
-            [FromServices] IClaimsParser claimsParser,
+            [FromServices] IClaimsSerializer claimsSerializer,
             IUserStore userStore) =>
          {
             if (request == null)
@@ -298,7 +298,7 @@ public static class InternalEndpoints
                return OAuth2Results.InvalidRequest("The claims property was missing");
             }
 
-            if (!claimsParser.TryParse(request.Claims, out var claims))
+            if (!claimsSerializer.TryDeserialize(request.Claims, out var claims))
             {
                return OAuth2Results.InvalidRequest("The claims property must contain string properties or string array properties");
             }
