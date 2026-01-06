@@ -26,7 +26,7 @@ public class LogoutEndpointTests
          ["returnTo"] = "http://arbitrary-host/logged-out",
       };
 
-      var httpResponse = await httpClient.GetAsync(QueryHelpers.AddQueryString(path, requestQuery));
+      var httpResponse = await httpClient.GetAsync(QueryHelpers.AddQueryString($"/{path}", requestQuery));
 
       Assert.That(httpResponse.StatusCode, Is.EqualTo(HttpStatusCode.Redirect));
 
@@ -46,7 +46,7 @@ public class LogoutEndpointTests
          ["client_id"] = "ValidClientId",
       };
 
-      var httpResponse = await httpClient.GetAsync(QueryHelpers.AddQueryString("logout", requestQuery));
+      var httpResponse = await httpClient.GetAsync(QueryHelpers.AddQueryString("/logout", requestQuery));
 
       Assert.That(httpResponse.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
    }
@@ -65,7 +65,7 @@ public class LogoutEndpointTests
          ["returnTo"] = "http://valid-host/callback",
       };
 
-      var httpResponse = await httpClient.GetAsync(QueryHelpers.AddQueryString("logout", requestQuery));
+      var httpResponse = await httpClient.GetAsync(QueryHelpers.AddQueryString("/logout", requestQuery));
 
       Assert.That(httpResponse.StatusCode, Is.EqualTo(HttpStatusCode.Redirect));
       Assert.That(httpResponse.Headers.Location?.AbsoluteUri, Is.EqualTo("http://valid-host/callback"));
@@ -84,7 +84,7 @@ public class LogoutEndpointTests
          ["returnTo"] = "http://valid-host/callback",
       };
 
-      var httpResponse = await httpClient.GetAsync(QueryHelpers.AddQueryString("logout", requestQuery));
+      var httpResponse = await httpClient.GetAsync(QueryHelpers.AddQueryString("/logout", requestQuery));
 
       Assert.That(httpResponse.StatusCode, Is.EqualTo(HttpStatusCode.Redirect));
       Assert.That(httpResponse.Headers.Location?.AbsoluteUri, Is.EqualTo("http://valid-host/callback"));
