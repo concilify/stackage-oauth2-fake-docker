@@ -88,12 +88,18 @@ public static class InternalEndpoints
       app.MapPost(
          "/.internal/user-authorization",
          (
+            HttpContext httpContext,
             [FromBody] PostUserAuthorizationRequest? request,
             Settings settings,
             AuthorizationCache<UserAuthorization> authorizationCache) =>
          {
             if (request == null)
             {
+               if (httpContext.Items.ContainsKey("JsonDeserializationFailed"))
+               {
+                  return OAuth2Results.InvalidRequest("The request body contained invalid JSON");
+               }
+
                return OAuth2Results.InvalidRequest("The request body was missing");
             }
 
@@ -123,12 +129,18 @@ public static class InternalEndpoints
       app.MapPost(
          "/.internal/device-authorization",
          (
+            HttpContext httpContext,
             [FromBody] PostDeviceAuthorizationRequest? request,
             Settings settings,
             AuthorizationCache<DeviceAuthorization> authorizationCache) =>
          {
             if (request == null)
             {
+               if (httpContext.Items.ContainsKey("JsonDeserializationFailed"))
+               {
+                  return OAuth2Results.InvalidRequest("The request body contained invalid JSON");
+               }
+
                return OAuth2Results.InvalidRequest("The request body was missing");
             }
 
@@ -224,12 +236,18 @@ public static class InternalEndpoints
       app.MapPost(
          "/.internal/refresh-token",
          (
+            HttpContext httpContext,
             [FromBody] PostRefreshTokenRequest? request,
             Settings settings,
             AuthorizationCache<RefreshAuthorization> authorizationCache) =>
          {
             if (request == null)
             {
+               if (httpContext.Items.ContainsKey("JsonDeserializationFailed"))
+               {
+                  return OAuth2Results.InvalidRequest("The request body contained invalid JSON");
+               }
+
                return OAuth2Results.InvalidRequest("The request body was missing");
             }
 
@@ -287,12 +305,18 @@ public static class InternalEndpoints
       app.MapPost(
          "/.internal/users",
          (
+            HttpContext httpContext,
             [FromBody] PostUserRequest? request,
             [FromServices] IClaimsSerializer claimsSerializer,
             IUserStore userStore) =>
          {
             if (request == null)
             {
+               if (httpContext.Items.ContainsKey("JsonDeserializationFailed"))
+               {
+                  return OAuth2Results.InvalidRequest("The request body contained invalid JSON");
+               }
+
                return OAuth2Results.InvalidRequest("The request body was missing");
             }
 
