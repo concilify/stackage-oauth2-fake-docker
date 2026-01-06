@@ -18,6 +18,8 @@ using Stackage.OAuth2.Fake.Services;
 
 public static class InternalEndpoints
 {
+   private const string LoggerCategoryName = "Stackage.OAuth2.Fake.Endpoints.InternalEndpoints";
+
    public static void MapInternalEndpoints(this WebApplication app)
    {
       app.MapGet("/.internal/health", () => TypedResults.Ok());
@@ -396,6 +398,9 @@ public static class InternalEndpoints
    private static async ValueTask<T?> BindAsync<T>(HttpContext context)
       where T : class
    {
+      var loggerFactory = context.RequestServices.GetRequiredService<ILoggerFactory>();
+      var logger = loggerFactory.CreateLogger(LoggerCategoryName);
+
       try
       {
          var request = await JsonSerializer.DeserializeAsync<T>(context.Request.Body);
@@ -404,8 +409,6 @@ public static class InternalEndpoints
       }
       catch (JsonException ex)
       {
-         var loggerFactory = context.RequestServices.GetRequiredService<ILoggerFactory>();
-         var logger = loggerFactory.CreateLogger("Stackage.OAuth2.Fake.Endpoints.InternalEndpoints");
          logger.LogWarning(ex, "Failed to deserialize request body as {RequestType}. Invalid JSON.", typeof(T).Name);
 
          // Use a special marker to distinguish between missing and invalid body
@@ -414,8 +417,6 @@ public static class InternalEndpoints
       }
       catch (Exception ex)
       {
-         var loggerFactory = context.RequestServices.GetRequiredService<ILoggerFactory>();
-         var logger = loggerFactory.CreateLogger("Stackage.OAuth2.Fake.Endpoints.InternalEndpoints");
          logger.LogWarning(ex, "Unexpected error while binding request body as {RequestType}", typeof(T).Name);
 
          context.Items["JsonDeserializationFailed"] = true;
