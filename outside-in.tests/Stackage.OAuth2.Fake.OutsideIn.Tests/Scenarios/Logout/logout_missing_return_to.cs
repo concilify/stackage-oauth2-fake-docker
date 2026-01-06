@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using NUnit.Framework;
 
 // ReSharper disable once InconsistentNaming
-public class logout_missing_returnTo
+public class logout_missing_return_to
 {
    private HttpResponseMessage? _httpResponse;
 

@@ -2,7 +2,6 @@ namespace Stackage.OAuth2.Fake.Tests.Endpoints;
 
 using System.Collections.Generic;
 using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.WebUtilities;
 using NUnit.Framework;

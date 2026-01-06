@@ -32,7 +32,7 @@ public class logout_happy_path
    }
 
    [Test]
-   public void response_headers_should_contain_location_with_returnTo_url()
+   public void response_headers_should_contain_location_with_return_to_url()
    {
       Assert.That(_httpResponse?.Headers.Location, Is.Not.Null);
       Assert.That(_httpResponse?.Headers.Location?.AbsoluteUri, Is.EqualTo("http://localhost:9002/"));
