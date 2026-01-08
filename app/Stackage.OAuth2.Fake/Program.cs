@@ -37,6 +37,7 @@ app.UseMiddleware<RequestCaptureMiddleware>();
 app.MapWellKnownEndpoints();
 app.MapAuthorizationEndpoints();
 app.MapTokenEndpoint();
+app.MapLogoutEndpoint();
 app.MapInternalEndpoints();
 
 app.Run();

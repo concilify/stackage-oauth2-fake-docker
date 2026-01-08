@@ -19,6 +19,9 @@ public record Settings
    [ConfigurationKeyName("DEVICE_VERIFICATION_PATH")]
    public string DeviceVerificationPath { get; init; } = "/oauth2/device/verify";
 
+   [ConfigurationKeyName("LOGOUT_PATH")]
+   public string LogoutPath { get; init; } = "/logout";
+
    [ConfigurationKeyName("DEFAULT_SUBJECT")]
    public string DefaultSubject { get; init; } = string.Empty;
 
