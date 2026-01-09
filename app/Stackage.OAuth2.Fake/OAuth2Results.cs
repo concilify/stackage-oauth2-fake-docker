@@ -4,11 +4,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.WebUtilities;
+using Stackage.OAuth2.Fake.Model;
 
 public static class OAuth2Results
 {
-   public static IResult SuccessRedirect(string redirectUri, string code, string? state)
+   public static RedirectHttpResult SuccessRedirect(string redirectUri, string code, string? state)
    {
       return Redirect(redirectUri, new Dictionary<string, string?>
       {
@@ -17,7 +19,7 @@ public static class OAuth2Results
       });
    }
 
-   public static IResult InvalidRequestRedirect(string redirectUri, string description, string? state)
+   public static RedirectHttpResult InvalidRequestRedirect(string redirectUri, string description, string? state)
    {
       return Redirect(redirectUri, new Dictionary<string, string?>
       {
@@ -27,7 +29,7 @@ public static class OAuth2Results
       });
    }
 
-   public static IResult UnsupportedResponseTypeRedirect(string redirectUri, string description, string? state)
+   public static RedirectHttpResult UnsupportedResponseTypeRedirect(string redirectUri, string description, string? state)
    {
       return Redirect(redirectUri, new Dictionary<string, string?>
       {
@@ -37,28 +39,24 @@ public static class OAuth2Results
       });
    }
 
-   public static IResult UnsupportedGrantType()
-      => BadRequest("unsupported_grant_type", "The given grant_type is not supported");
+   public static BadRequest<ErrorResponse> UnsupportedGrantTypeBadRequest() =>
+      BadRequest("unsupported_grant_type", "The given grant_type is not supported");
 
-   public static IResult InvalidRequest(string description) => BadRequest("invalid_request", description);
+   public static BadRequest<ErrorResponse> InvalidRequestBadRequest(string description) => BadRequest("invalid_request", description);
 
-   public static IResult InvalidGrant(string description) => BadRequest("invalid_grant", description);
+   public static BadRequest<ErrorResponse> InvalidGrantBadRequest(string description) => BadRequest("invalid_grant", description);
 
-   private static IResult Redirect(string redirectUri, IDictionary<string, string?> parameters)
+   private static RedirectHttpResult Redirect(string redirectUri, IDictionary<string, string?> parameters)
    {
       var sanitisedParameters = parameters
          .Where(kvp => !string.IsNullOrEmpty(kvp.Value))
          .ToDictionary(kvp => kvp.Key, string? (kvp) => Uri.EscapeDataString(kvp.Value!));
 
-      return Results.Redirect(QueryHelpers.AddQueryString(redirectUri, sanitisedParameters));
+      return TypedResults.Redirect(QueryHelpers.AddQueryString(redirectUri, sanitisedParameters));
    }
 
-   private static IResult BadRequest(string error, string description)
+   private static BadRequest<ErrorResponse> BadRequest(string error, string description)
    {
-      return TypedResults.BadRequest(new
-      {
-         error,
-         error_description = description,
-      });
+      return TypedResults.BadRequest(new ErrorResponse { Error = error, Description = description });
    }
 }

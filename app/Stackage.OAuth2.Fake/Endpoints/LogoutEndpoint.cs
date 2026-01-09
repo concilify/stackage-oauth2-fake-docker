@@ -19,7 +19,7 @@ public static class LogoutEndpoint
          {
             if (string.IsNullOrEmpty(returnTo))
             {
-               return OAuth2Results.InvalidRequest("The returnTo parameter is required");
+               return OAuth2Results.InvalidRequestBadRequest("The returnTo parameter is required");
             }
 
             return Results.Redirect(returnTo);
