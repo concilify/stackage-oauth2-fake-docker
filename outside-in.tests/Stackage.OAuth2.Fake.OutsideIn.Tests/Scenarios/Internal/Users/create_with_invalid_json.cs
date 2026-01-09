@@ -1,4 +1,4 @@
-namespace Stackage.OAuth2.Fake.OutsideIn.Tests.Scenarios.Internal.CreateToken;
+namespace Stackage.OAuth2.Fake.OutsideIn.Tests.Scenarios.Internal.Users;
 
 using System;
 using System.Net;
@@ -9,7 +9,7 @@ using NUnit.Framework;
 using Stackage.OAuth2.Fake.OutsideIn.Tests.Model;
 
 // ReSharper disable once InconsistentNaming
-public class create_token_with_invalid_json
+public class create_with_invalid_json
 {
    private HttpResponseMessage? _httpResponse;
 
@@ -21,7 +21,7 @@ public class create_token_with_invalid_json
 
       var content = new StringContent("InvalidJson", Encoding.UTF8, "application/json");
 
-      _httpResponse = await httpClient.PostAsync(".internal/create-token", content);
+      _httpResponse = await httpClient.PostAsync(".internal/users", content);
    }
 
    [Test]

@@ -1,15 +1,14 @@
-namespace Stackage.OAuth2.Fake.OutsideIn.Tests.Scenarios.Internal.CreateToken;
+namespace Stackage.OAuth2.Fake.OutsideIn.Tests.Scenarios.Internal.Users;
 
 using System;
 using System.Net;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Stackage.OAuth2.Fake.OutsideIn.Tests.Model;
 
 // ReSharper disable once InconsistentNaming
-public class create_token_with_invalid_json
+public class create_without_content
 {
    private HttpResponseMessage? _httpResponse;
 
@@ -19,15 +18,13 @@ public class create_token_with_invalid_json
       using var httpClient = new HttpClient();
       httpClient.BaseAddress = new Uri(Configuration.AppUrl);
 
-      var content = new StringContent("InvalidJson", Encoding.UTF8, "application/json");
-
-      _httpResponse = await httpClient.PostAsync(".internal/create-token", content);
+      _httpResponse = await httpClient.PostAsync(".internal/users", null);
    }
 
    [Test]
-   public void response_status_should_be_bad_request()
+   public void response_status_should_be_unsupported_media_type()
    {
-      Assert.That(_httpResponse?.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
+      Assert.That(_httpResponse?.StatusCode, Is.EqualTo(HttpStatusCode.UnsupportedMediaType));
    }
 
    [Test]
@@ -43,6 +40,6 @@ public class create_token_with_invalid_json
    {
       var errorResponse = await _httpResponse!.ParseAsync<ErrorResponse>();
 
-      Assert.That(errorResponse.ErrorDescription, Is.EqualTo("The request body contained malformed JSON"));
+      Assert.That(errorResponse.ErrorDescription, Is.EqualTo("The Content-Type header must be application/json"));
    }
 }

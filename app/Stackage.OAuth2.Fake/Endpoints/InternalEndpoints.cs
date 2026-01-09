@@ -9,17 +9,14 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Stackage.OAuth2.Fake.Model;
 using Stackage.OAuth2.Fake.Model.Authorization;
 using Stackage.OAuth2.Fake.Services;
 
 public static class InternalEndpoints
 {
-   private const string LoggerCategoryName = "Stackage.OAuth2.Fake.Endpoints.InternalEndpoints";
-
    public static void MapInternalEndpoints(this WebApplication app)
    {
       app.MapGet("/.internal/health", () => TypedResults.Ok());
@@ -35,53 +32,45 @@ public static class InternalEndpoints
    {
       app.MapPost(
          "/.internal/create-token",
-         (
+         async Task<Results<JsonHttpResult<TokenResponse>, JsonHttpResult<ErrorResponse>, BadRequest<ErrorResponse>>> (
             HttpContext httpContext,
-            [FromBody] CreateTokenRequest? request,
             [FromServices] IClaimsSerializer claimsSerializer,
             ITokenGenerator tokenGenerator) =>
          {
-            if (request == null)
+            return await HandleJsonRequestAsync<CreateTokenRequest, JsonHttpResult<TokenResponse>>(httpContext, request =>
             {
-               if (httpContext.Items.ContainsKey("JsonDeserializationFailed"))
+               if (request.ClientId == null)
                {
-                  return OAuth2Results.InvalidRequest("The request body contained invalid JSON");
+                  return OAuth2Results.InvalidRequestBadRequest("The clientId property was missing");
                }
 
-               return OAuth2Results.InvalidRequest("The request body was missing");
-            }
+               if (request.Subject == null)
+               {
+                  return OAuth2Results.InvalidRequestBadRequest("The subject property was missing");
+               }
 
-            if (request.ClientId == null)
-            {
-               return OAuth2Results.InvalidRequest("The clientId property was missing");
-            }
+               if (request.Claims == null)
+               {
+                  return OAuth2Results.InvalidRequestBadRequest("The claims property was missing");
+               }
 
-            if (request.Subject == null)
-            {
-               return OAuth2Results.InvalidRequest("The subject property was missing");
-            }
+               if (!claimsSerializer.TryDeserialize(request.Claims, out var claims))
+               {
+                  return OAuth2Results.InvalidRequestBadRequest("The claims property must contain string properties or string array properties");
+               }
 
-            if (request.Claims == null)
-            {
-               return OAuth2Results.InvalidRequest("The claims property was missing");
-            }
+               var authorization = new InternalAuthorization(
+                  ClientId: request.ClientId,
+                  Scope: (Scope?)request.Scopes ?? Scope.Empty,
+                  request.Audiences,
+                  Subject: request.Subject,
+                  TokenExpirySeconds: request.TokenExpirySeconds,
+                  Claims: claims);
 
-            if (!claimsSerializer.TryDeserialize(request.Claims, out var claims))
-            {
-               return OAuth2Results.InvalidRequest("The claims property must contain string properties or string array properties");
-            }
+               var response = tokenGenerator.Generate(authorization);
 
-            var authorization = new InternalAuthorization(
-               ClientId: request.ClientId,
-               Scope: (Scope?)request.Scopes ?? Scope.Empty,
-               request.Audiences,
-               Subject: request.Subject,
-               TokenExpirySeconds: request.TokenExpirySeconds,
-               Claims: claims);
-
-            var response = tokenGenerator.Generate(authorization);
-
-            return TypedResults.Json(response, statusCode: 200);
+               return TypedResults.Json(response, statusCode: 200);
+            });
          });
    }
 
@@ -89,145 +78,125 @@ public static class InternalEndpoints
    {
       app.MapPost(
          "/.internal/user-authorization",
-         (
+         async Task<Results<Ok, JsonHttpResult<ErrorResponse>, BadRequest<ErrorResponse>>> (
             HttpContext httpContext,
-            [FromBody] PostUserAuthorizationRequest? request,
             Settings settings,
             AuthorizationCache<UserAuthorization> authorizationCache) =>
          {
-            if (request == null)
+            return await HandleJsonRequestAsync<PostUserAuthorizationRequest, Ok>(httpContext, request =>
             {
-               if (httpContext.Items.ContainsKey("JsonDeserializationFailed"))
+               if (request.Code == null)
                {
-                  return OAuth2Results.InvalidRequest("The request body contained invalid JSON");
+                  return OAuth2Results.InvalidRequestBadRequest("The code property was missing");
                }
 
-               return OAuth2Results.InvalidRequest("The request body was missing");
-            }
+               if (request.ClientId == null)
+               {
+                  return OAuth2Results.InvalidRequestBadRequest("The clientId property was missing");
+               }
 
-            if (request.Code == null)
-            {
-               return OAuth2Results.InvalidRequest("The code property was missing");
-            }
+               var authorization = new UserAuthorization(
+                  request.Code,
+                  request.ClientId,
+                  (Scope?)request.Scopes ?? Scope.Empty,
+                  request.Audiences);
 
-            if (request.ClientId == null)
-            {
-               return OAuth2Results.InvalidRequest("The clientId property was missing");
-            }
+               authorization.Authenticate(request.Subject ?? settings.DefaultSubject);
 
-            var authorization = new UserAuthorization(
-               request.Code,
-               request.ClientId,
-               (Scope?)request.Scopes ?? Scope.Empty,
-               request.Audiences);
-
-            authorization.Authenticate(request.Subject ?? settings.DefaultSubject);
-
-            return authorizationCache.TryAdd(authorization)
-               ? TypedResults.Ok()
-               : OAuth2Results.InvalidRequest("The given code already exists");
+               return authorizationCache.TryAdd(authorization)
+                  ? TypedResults.Ok()
+                  : OAuth2Results.InvalidRequestBadRequest("The given code already exists");
+            });
          });
 
       app.MapPost(
          "/.internal/device-authorization",
-         (
+         async Task<Results<Ok, JsonHttpResult<ErrorResponse>, BadRequest<ErrorResponse>>> (
             HttpContext httpContext,
-            [FromBody] PostDeviceAuthorizationRequest? request,
             Settings settings,
             AuthorizationCache<DeviceAuthorization> authorizationCache) =>
          {
-            if (request == null)
+            return await HandleJsonRequestAsync<PostDeviceAuthorizationRequest, Ok>(httpContext, request =>
             {
-               if (httpContext.Items.ContainsKey("JsonDeserializationFailed"))
+               if (request.DeviceCode == null)
                {
-                  return OAuth2Results.InvalidRequest("The request body contained invalid JSON");
+                  return OAuth2Results.InvalidRequestBadRequest("The deviceCode property was missing");
                }
 
-               return OAuth2Results.InvalidRequest("The request body was missing");
-            }
+               if (request.UserCode == null)
+               {
+                  return OAuth2Results.InvalidRequestBadRequest("The userCode property was missing");
+               }
 
-            if (request.DeviceCode == null)
-            {
-               return OAuth2Results.InvalidRequest("The deviceCode property was missing");
-            }
+               if (request.ClientId == null)
+               {
+                  return OAuth2Results.InvalidRequestBadRequest("The clientId property was missing");
+               }
 
-            if (request.UserCode == null)
-            {
-               return OAuth2Results.InvalidRequest("The userCode property was missing");
-            }
+               var authorization = new DeviceAuthorization(
+                  request.DeviceCode,
+                  request.UserCode,
+                  request.ClientId,
+                  (Scope?)request.Scopes ?? Scope.Empty,
+                  request.Audiences);
 
-            if (request.ClientId == null)
-            {
-               return OAuth2Results.InvalidRequest("The clientId property was missing");
-            }
+               authorization.Authenticate(request.Subject ?? settings.DefaultSubject);
 
-            var authorization = new DeviceAuthorization(
-               request.DeviceCode,
-               request.UserCode,
-               request.ClientId,
-               (Scope?)request.Scopes ?? Scope.Empty,
-               request.Audiences);
-
-            authorization.Authenticate(request.Subject ?? settings.DefaultSubject);
-
-            return authorizationCache.TryAdd(authorization)
-               ? TypedResults.Ok()
-               : OAuth2Results.InvalidRequest("The given deviceCode already exists");
+               return authorizationCache.TryAdd(authorization)
+                  ? TypedResults.Ok()
+                  : OAuth2Results.InvalidRequestBadRequest("The given deviceCode already exists");
+            });
          });
 
       app.MapGet(
          "/.internal/user-authorization",
-         (
+         Results<JsonHttpResult<GetUserAuthorizationResponse>, BadRequest<ErrorResponse>> (
             [FromQuery(Name = "code")] string? code,
             AuthorizationCache<UserAuthorization> authorizationCache) =>
          {
             if (code == null)
             {
-               return OAuth2Results.InvalidRequest("The code parameter was missing");
+               return OAuth2Results.InvalidRequestBadRequest("The code parameter was missing");
             }
 
             if (!authorizationCache.TryGet(code, out var authorization))
             {
-               return OAuth2Results.InvalidRequest("The given code was not found");
+               return OAuth2Results.InvalidRequestBadRequest("The given code was not found");
             }
 
-            var response = new
-            {
-               code = authorization.Code,
-               clientId = authorization.ClientId,
-               scopes = authorization.Scope.ToArray(),
-               subject = authorization.Subject,
-               audiences = authorization.Audiences,
-            };
+            var response = new GetUserAuthorizationResponse(
+               Code: authorization.Code,
+               ClientId: authorization.ClientId,
+               Scopes: authorization.Scope.ToArray(),
+               Subject: authorization.Subject,
+               Audiences: authorization.Audiences);
 
             return TypedResults.Json(response, statusCode: 200);
          });
 
       app.MapGet(
          "/.internal/device-authorization",
-         (
+         Results<JsonHttpResult<GetDeviceAuthorizationResponse>, BadRequest<ErrorResponse>> (
             [FromQuery(Name = "deviceCode")] string? deviceCode,
             AuthorizationCache<DeviceAuthorization> authorizationCache) =>
          {
             if (deviceCode == null)
             {
-               return OAuth2Results.InvalidRequest("The deviceCode parameter was missing");
+               return OAuth2Results.InvalidRequestBadRequest("The deviceCode parameter was missing");
             }
 
             if (!authorizationCache.TryGet(deviceCode, out var authorization))
             {
-               return OAuth2Results.InvalidRequest("The given deviceCode was not found");
+               return OAuth2Results.InvalidRequestBadRequest("The given deviceCode was not found");
             }
 
-            var response = new
-            {
-               deviceCode = authorization.DeviceCode,
-               userCode = authorization.UserCode,
-               clientId = authorization.ClientId,
-               scopes = authorization.Scope.ToArray(),
-               subject = authorization.Subject,
-               audiences = authorization.Audiences,
-            };
+            var response = new GetDeviceAuthorizationResponse(
+               DeviceCode: authorization.DeviceCode,
+               UserCode: authorization.UserCode,
+               ClientId: authorization.ClientId,
+               Scopes: authorization.Scope.ToArray(),
+               Subject: authorization.Subject,
+               Audiences: authorization.Audiences);
 
             return TypedResults.Json(response, statusCode: 200);
          });
@@ -237,66 +206,56 @@ public static class InternalEndpoints
    {
       app.MapPost(
          "/.internal/refresh-token",
-         (
+         async Task<Results<Ok, JsonHttpResult<ErrorResponse>, BadRequest<ErrorResponse>>> (
             HttpContext httpContext,
-            [FromBody] PostRefreshTokenRequest? request,
             Settings settings,
             AuthorizationCache<RefreshAuthorization> authorizationCache) =>
          {
-            if (request == null)
+            return await HandleJsonRequestAsync<PostRefreshTokenRequest, Ok>(httpContext, request =>
             {
-               if (httpContext.Items.ContainsKey("JsonDeserializationFailed"))
+               if (request.RefreshToken == null)
                {
-                  return OAuth2Results.InvalidRequest("The request body contained invalid JSON");
+                  return OAuth2Results.InvalidRequestBadRequest("The refreshToken property was missing");
                }
 
-               return OAuth2Results.InvalidRequest("The request body was missing");
-            }
+               if (request.ClientId == null)
+               {
+                  return OAuth2Results.InvalidRequestBadRequest("The clientId property was missing");
+               }
 
-            if (request.RefreshToken == null)
-            {
-               return OAuth2Results.InvalidRequest("The refreshToken property was missing");
-            }
+               var authorization = new RefreshAuthorization(
+                  request.RefreshToken,
+                  request.ClientId,
+                  (Scope?)request.Scopes ?? Scope.Empty,
+                  request.Subject ?? settings.DefaultSubject);
 
-            if (request.ClientId == null)
-            {
-               return OAuth2Results.InvalidRequest("The clientId property was missing");
-            }
-
-            var authorization = new RefreshAuthorization(
-               request.RefreshToken,
-               request.ClientId,
-               (Scope?)request.Scopes ?? Scope.Empty,
-               request.Subject ?? settings.DefaultSubject);
-
-            return authorizationCache.TryAdd(authorization)
-               ? TypedResults.Ok()
-               : OAuth2Results.InvalidRequest("The given refreshToken already exists");
+               return authorizationCache.TryAdd(authorization)
+                  ? TypedResults.Ok()
+                  : OAuth2Results.InvalidRequestBadRequest("The given refreshToken already exists");
+            });
          });
 
       app.MapGet(
          "/.internal/refresh-token",
-         (
+         Results<JsonHttpResult<PostRefreshTokenResponse>, BadRequest<ErrorResponse>> (
             [FromQuery(Name = "refresh_token")] string? refreshToken,
             AuthorizationCache<RefreshAuthorization> authorizationCache) =>
          {
             if (refreshToken == null)
             {
-               return OAuth2Results.InvalidRequest("The refresh_token parameter was missing");
+               return OAuth2Results.InvalidRequestBadRequest("The refresh_token parameter was missing");
             }
 
             if (!authorizationCache.TryGet(refreshToken, out var authorization))
             {
-               return OAuth2Results.InvalidRequest("The given refresh_token was not found");
+               return OAuth2Results.InvalidRequestBadRequest("The given refresh_token was not found");
             }
 
-            var response = new
-            {
-               refresh_token = authorization.RefreshToken,
-               clientId = authorization.ClientId,
-               scopes = authorization.Scope.ToArray(),
-               subject = authorization.Subject,
-            };
+            var response = new PostRefreshTokenResponse(
+               RefreshToken: authorization.RefreshToken,
+               ClientId: authorization.ClientId,
+               Scopes: authorization.Scope.ToArray(),
+               Subject: authorization.Subject);
 
             return TypedResults.Json(response, statusCode: 200);
          });
@@ -306,47 +265,39 @@ public static class InternalEndpoints
    {
       app.MapPost(
          "/.internal/users",
-         (
+         async Task<Results<Ok, JsonHttpResult<ErrorResponse>, BadRequest<ErrorResponse>>> (
             HttpContext httpContext,
-            [FromBody] PostUserRequest? request,
             [FromServices] IClaimsSerializer claimsSerializer,
             IUserStore userStore) =>
          {
-            if (request == null)
+            return await HandleJsonRequestAsync<PostUserRequest, Ok>(httpContext, request =>
             {
-               if (httpContext.Items.ContainsKey("JsonDeserializationFailed"))
+               if (request.Subject == null)
                {
-                  return OAuth2Results.InvalidRequest("The request body contained invalid JSON");
+                  return OAuth2Results.InvalidRequestBadRequest("The subject property was missing");
                }
 
-               return OAuth2Results.InvalidRequest("The request body was missing");
-            }
+               if (request.Claims == null)
+               {
+                  return OAuth2Results.InvalidRequestBadRequest("The claims property was missing");
+               }
 
-            if (request.Subject == null)
-            {
-               return OAuth2Results.InvalidRequest("The subject property was missing");
-            }
+               if (!claimsSerializer.TryDeserialize(request.Claims, out var claims))
+               {
+                  return OAuth2Results.InvalidRequestBadRequest("The claims property must contain string properties or string array properties");
+               }
 
-            if (request.Claims == null)
-            {
-               return OAuth2Results.InvalidRequest("The claims property was missing");
-            }
+               var user = new User(request.Subject, claims);
 
-            if (!claimsSerializer.TryDeserialize(request.Claims, out var claims))
-            {
-               return OAuth2Results.InvalidRequest("The claims property must contain string properties or string array properties");
-            }
-
-            var user = new User(request.Subject, claims);
-
-            return userStore.TryAdd(user)
-               ? TypedResults.Ok()
-               : OAuth2Results.InvalidRequest("The given subject already exists");
+               return userStore.TryAdd(user)
+                  ? TypedResults.Ok()
+                  : OAuth2Results.InvalidRequestBadRequest("The given subject already exists");
+            });
          });
 
       app.MapGet(
          "/.internal/users",
-         (
+         Results<JsonHttpResult<IReadOnlyList<GetUserResponse.User>>, BadRequest<ErrorResponse>> (
             [FromQuery(Name = "subject")] string? subject,
             IUserStore userStore) =>
          {
@@ -360,21 +311,19 @@ public static class InternalEndpoints
             {
                if (!userStore.TryGet(subject, out var user))
                {
-                  return OAuth2Results.InvalidRequest("The given subject was not found");
+                  return OAuth2Results.InvalidRequestBadRequest("The given subject was not found");
                }
 
                users = [user];
             }
 
             var response = users
-               .Select(u => new
-               {
-                  subject = u.Subject,
-                  claims = u.Claims.ToDictionary(c => c.Type, c => c.Value),
-               })
-               .ToArray();
+               .Select(u => new GetUserResponse.User(
+                  Subject: u.Subject,
+                  Claims: u.Claims.ToDictionary(c => c.Type, c => c.Value)))
+               .ToList();
 
-            return TypedResults.Json(response, statusCode: 200);
+            return TypedResults.Json<IReadOnlyList<GetUserResponse.User>>(response, statusCode: 200);
          });
    }
 
@@ -395,33 +344,39 @@ public static class InternalEndpoints
       });
    }
 
-   private static async ValueTask<T?> BindAsync<T>(HttpContext context)
-      where T : class
+   private static async Task<Results<TResponse, JsonHttpResult<ErrorResponse>, BadRequest<ErrorResponse>>> HandleJsonRequestAsync<TRequest, TResponse>(
+      HttpContext httpContext,
+      Func<TRequest, Results<TResponse, JsonHttpResult<ErrorResponse>, BadRequest<ErrorResponse>>> handler)
+      where TResponse : IResult
    {
-      var loggerFactory = context.RequestServices.GetRequiredService<ILoggerFactory>();
-      var logger = loggerFactory.CreateLogger(LoggerCategoryName);
+      if (!httpContext.Request.HasJsonContentType())
+      {
+         return OAuth2Results.InvalidRequestUnsupportedMediaType("The Content-Type header must be application/json");
+      }
+
+      if (httpContext.Request.ContentLength == 0)
+      {
+         return OAuth2Results.InvalidRequestBadRequest("The request body was missing");
+      }
+
+      TRequest? request;
 
       try
       {
-         var request = await JsonSerializer.DeserializeAsync<T>(context.Request.Body);
-
-         return request;
+         request = await httpContext.Request.ReadFromJsonAsync<TRequest>();
       }
-      catch (JsonException ex)
+      catch (JsonException)
       {
-         logger.LogWarning(ex, "Failed to deserialize request body as {RequestType}. Invalid JSON.", typeof(T).Name);
-
-         // Use a special marker to distinguish between missing and invalid body
-         context.Items["JsonDeserializationFailed"] = true;
-         return null;
+         return OAuth2Results.InvalidRequestBadRequest("The request body contained malformed JSON");
       }
-      catch (Exception ex)
+
+      if (request == null)
       {
-         logger.LogWarning(ex, "Unexpected error while binding request body as {RequestType}", typeof(T).Name);
-
-         context.Items["JsonDeserializationFailed"] = true;
-         return null;
+         // This shouldn't be possible
+         throw new JsonException("Failed to deserialize the request body.");
       }
+
+      return handler(request);
    }
 
    private record CreateTokenRequest(
@@ -430,22 +385,21 @@ public static class InternalEndpoints
       [property: JsonPropertyName("subject")] string? Subject,
       [property: JsonPropertyName("audiences")] string[]? Audiences,
       [property: JsonPropertyName("tokenExpirySeconds")] int? TokenExpirySeconds,
-      [property: JsonPropertyName("claims")] JsonObject? Claims)
-   {
-      // ReSharper disable once UnusedMember.Local
-      public static ValueTask<CreateTokenRequest?> BindAsync(HttpContext context) => BindAsync<CreateTokenRequest>(context);
-   }
+      [property: JsonPropertyName("claims")] JsonObject? Claims);
 
    private record PostUserAuthorizationRequest(
       [property: JsonPropertyName("code")] string? Code,
       [property: JsonPropertyName("clientId")] string? ClientId,
       [property: JsonPropertyName("scopes")] string[]? Scopes,
       [property: JsonPropertyName("subject")] string? Subject,
-      [property: JsonPropertyName("audiences")] string[]? Audiences)
-   {
-      // ReSharper disable once UnusedMember.Local
-      public static ValueTask<PostUserAuthorizationRequest?> BindAsync(HttpContext context) => BindAsync<PostUserAuthorizationRequest>(context);
-   }
+      [property: JsonPropertyName("audiences")] string[]? Audiences);
+
+   private record GetUserAuthorizationResponse(
+      [property: JsonPropertyName("code")] string Code,
+      [property: JsonPropertyName("clientId")] string ClientId,
+      [property: JsonPropertyName("scopes")] string[] Scopes,
+      [property: JsonPropertyName("subject")] string? Subject,
+      [property: JsonPropertyName("audiences")] string[]? Audiences);
 
    private record PostDeviceAuthorizationRequest(
       [property: JsonPropertyName("deviceCode")] string? DeviceCode,
@@ -453,27 +407,34 @@ public static class InternalEndpoints
       [property: JsonPropertyName("clientId")] string? ClientId,
       [property: JsonPropertyName("scopes")] string[]? Scopes,
       [property: JsonPropertyName("subject")] string? Subject,
-      [property: JsonPropertyName("audiences")] string[]? Audiences)
-   {
-      // ReSharper disable once UnusedMember.Local
-      public static ValueTask<PostDeviceAuthorizationRequest?> BindAsync(HttpContext context) => BindAsync<PostDeviceAuthorizationRequest>(context);
-   }
+      [property: JsonPropertyName("audiences")] string[]? Audiences);
+
+   private record GetDeviceAuthorizationResponse(
+      [property: JsonPropertyName("deviceCode")] string DeviceCode,
+      [property: JsonPropertyName("userCode")] string UserCode,
+      [property: JsonPropertyName("clientId")] string ClientId,
+      [property: JsonPropertyName("scopes")] string[] Scopes,
+      [property: JsonPropertyName("subject")] string? Subject,
+      [property: JsonPropertyName("audiences")] string[]? Audiences);
 
    private record PostRefreshTokenRequest(
       [property: JsonPropertyName("refreshToken")] string? RefreshToken,
       [property: JsonPropertyName("clientId")] string? ClientId,
       [property: JsonPropertyName("scopes")] string[]? Scopes,
-      [property: JsonPropertyName("subject")] string? Subject)
-   {
-      // ReSharper disable once UnusedMember.Local
-      public static ValueTask<PostRefreshTokenRequest?> BindAsync(HttpContext context) => BindAsync<PostRefreshTokenRequest>(context);
-   }
+      [property: JsonPropertyName("subject")] string? Subject);
+
+   private record PostRefreshTokenResponse(
+      [property: JsonPropertyName("refresh_token")] string RefreshToken,
+      [property: JsonPropertyName("clientId")] string ClientId,
+      [property: JsonPropertyName("scopes")] string[] Scopes,
+      [property: JsonPropertyName("subject")] string? Subject);
 
    private record PostUserRequest(
       [property: JsonPropertyName("subject")] string? Subject,
-      [property: JsonPropertyName("claims")] JsonObject? Claims)
+      [property: JsonPropertyName("claims")] JsonObject? Claims);
+
+   private class GetUserResponse
    {
-      // ReSharper disable once UnusedMember.Local
-      public static ValueTask<PostUserRequest?> BindAsync(HttpContext context) => BindAsync<PostUserRequest>(context);
+      public record User(string Subject, IDictionary<string, string> Claims);
    }
 }

@@ -1,4 +1,4 @@
-namespace Stackage.OAuth2.Fake.OutsideIn.Tests.Scenarios.Internal.CreateToken;
+namespace Stackage.OAuth2.Fake.OutsideIn.Tests.Scenarios.Internal.RefreshToken;
 
 using System;
 using System.Net;
@@ -9,7 +9,7 @@ using NUnit.Framework;
 using Stackage.OAuth2.Fake.OutsideIn.Tests.Model;
 
 // ReSharper disable once InconsistentNaming
-public class create_token_with_invalid_json
+public class create_with_empty_body
 {
    private HttpResponseMessage? _httpResponse;
 
@@ -19,9 +19,9 @@ public class create_token_with_invalid_json
       using var httpClient = new HttpClient();
       httpClient.BaseAddress = new Uri(Configuration.AppUrl);
 
-      var content = new StringContent("InvalidJson", Encoding.UTF8, "application/json");
+      var content = new StringContent(string.Empty, Encoding.UTF8, "application/json");
 
-      _httpResponse = await httpClient.PostAsync(".internal/create-token", content);
+      _httpResponse = await httpClient.PostAsync(".internal/refresh-token", content);
    }
 
    [Test]
@@ -43,6 +43,6 @@ public class create_token_with_invalid_json
    {
       var errorResponse = await _httpResponse!.ParseAsync<ErrorResponse>();
 
-      Assert.That(errorResponse.ErrorDescription, Is.EqualTo("The request body contained malformed JSON"));
+      Assert.That(errorResponse.ErrorDescription, Is.EqualTo("The request body was missing"));
    }
 }

@@ -1,7 +1,9 @@
 namespace Stackage.OAuth2.Fake.Endpoints;
 
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Stackage.OAuth2.Fake.Model;
@@ -16,7 +18,7 @@ public static class AuthorizationEndpoints
 
       app.MapGet(
          settings.AuthorizationPath,
-         (
+         Results<RedirectHttpResult, BadRequest<ErrorResponse>> (
             [FromQuery(Name = "response_type")] string? responseType,
             [FromQuery(Name = "client_id")] string? clientId,
             [FromQuery(Name = "redirect_uri")] string? redirectUri,
@@ -30,7 +32,7 @@ public static class AuthorizationEndpoints
             // and MUST NOT automatically redirect the user-agent to the invalid redirection URI.
             if (string.IsNullOrEmpty(redirectUri))
             {
-               return OAuth2Results.InvalidRequest("The redirect_uri parameter is required");
+               return OAuth2Results.InvalidRequestBadRequest("The redirect_uri parameter is required");
             }
 
             // RFC 6749 Section 3.1: response_type is REQUIRED
@@ -72,7 +74,7 @@ public static class AuthorizationEndpoints
 
       app.MapPost(
          settings.DeviceAuthorizationPath,
-         (
+         Results<JsonHttpResult<PostDeviceAuthorizationResponse>, BadRequest<ErrorResponse>> (
             [FromForm(Name = "client_id")] string? clientId,
             [FromForm(Name = "scope")] string? scope,
             [FromForm(Name = "audience")] string? audience,
@@ -81,7 +83,7 @@ public static class AuthorizationEndpoints
             // RFC 8628 Section 3.1: client_id is REQUIRED
             if (string.IsNullOrEmpty(clientId))
             {
-               return OAuth2Results.InvalidRequest("The client_id parameter is required");
+               return OAuth2Results.InvalidRequestBadRequest("The client_id parameter is required");
             }
 
             var authorization = authorizationCache.Add(
@@ -91,18 +93,24 @@ public static class AuthorizationEndpoints
             // here can be used immediately with the /oauth2/token endpoint using grant type urn:ietf:params:oauth:grant-type:device_code
             authorization.Authenticate(settings.DefaultSubject);
 
-            var response = new
-            {
-               device_code = authorization.DeviceCode,
-               user_code = authorization.UserCode,
-               verification_uri = $"{settings.IssuerUrl}{settings.DeviceVerificationPath}",
-               verification_uri_complete = $"{settings.IssuerUrl}{settings.DeviceVerificationPath}?user_code={authorization.UserCode}",
-               expires_in = 600,
-               interval = 5,
-            };
+            var response = new PostDeviceAuthorizationResponse(
+               DeviceCode: authorization.DeviceCode,
+               UserCode: authorization.UserCode,
+               VerificationUri: $"{settings.IssuerUrl}{settings.DeviceVerificationPath}",
+               VerificationUriComplete: $"{settings.IssuerUrl}{settings.DeviceVerificationPath}?user_code={authorization.UserCode}",
+               ExpiresIn: 600,
+               Interval: 5);
 
             return TypedResults.Json(response);
          })
          .DisableAntiforgery();
    }
+
+   private record PostDeviceAuthorizationResponse(
+      [property: JsonPropertyName("device_code")] string DeviceCode,
+      [property: JsonPropertyName("user_code")] string UserCode,
+      [property: JsonPropertyName("verification_uri")] string VerificationUri,
+      [property: JsonPropertyName("verification_uri_complete")] string VerificationUriComplete,
+      [property: JsonPropertyName("expires_in")] int ExpiresIn,
+      [property: JsonPropertyName("interval")] int Interval);
 }
