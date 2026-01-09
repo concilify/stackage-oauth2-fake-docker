@@ -46,6 +46,9 @@ public static class OAuth2Results
 
    public static BadRequest<ErrorResponse> InvalidGrantBadRequest(string description) => BadRequest("invalid_grant", description);
 
+   public static JsonHttpResult<ErrorResponse> InvalidRequestUnsupportedMediaType(string description) =>
+      Json("invalid_request", description, statusCode: StatusCodes.Status415UnsupportedMediaType);
+
    private static RedirectHttpResult Redirect(string redirectUri, IDictionary<string, string?> parameters)
    {
       var sanitisedParameters = parameters
@@ -58,5 +61,10 @@ public static class OAuth2Results
    private static BadRequest<ErrorResponse> BadRequest(string error, string description)
    {
       return TypedResults.BadRequest(new ErrorResponse { Error = error, Description = description });
+   }
+
+   private static JsonHttpResult<ErrorResponse> Json(string error, string description, int? statusCode = null)
+   {
+      return TypedResults.Json(new ErrorResponse { Error = error, Description = description }, statusCode: statusCode);
    }
 }

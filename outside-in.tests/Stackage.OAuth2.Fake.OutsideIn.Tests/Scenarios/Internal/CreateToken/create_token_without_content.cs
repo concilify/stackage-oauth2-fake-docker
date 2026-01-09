@@ -1,4 +1,4 @@
-namespace Stackage.OAuth2.Fake.OutsideIn.Tests.Scenarios.Internal.DeviceAuthorization;
+namespace Stackage.OAuth2.Fake.OutsideIn.Tests.Scenarios.Internal.CreateToken;
 
 using System;
 using System.Net;
@@ -8,7 +8,7 @@ using NUnit.Framework;
 using Stackage.OAuth2.Fake.OutsideIn.Tests.Model;
 
 // ReSharper disable once InconsistentNaming
-public class create_without_body
+public class create_token_without_content
 {
    private HttpResponseMessage? _httpResponse;
 
@@ -18,13 +18,13 @@ public class create_without_body
       using var httpClient = new HttpClient();
       httpClient.BaseAddress = new Uri(Configuration.AppUrl);
 
-      _httpResponse = await httpClient.PostAsync(".internal/device-authorization", null);
+      _httpResponse = await httpClient.PostAsync(".internal/create-token", null);
    }
 
    [Test]
-   public void response_status_should_be_bad_request()
+   public void response_status_should_be_unsupported_media_type()
    {
-      Assert.That(_httpResponse?.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
+      Assert.That(_httpResponse?.StatusCode, Is.EqualTo(HttpStatusCode.UnsupportedMediaType));
    }
 
    [Test]
@@ -40,6 +40,6 @@ public class create_without_body
    {
       var errorResponse = await _httpResponse!.ParseAsync<ErrorResponse>();
 
-      Assert.That(errorResponse.ErrorDescription, Is.EqualTo("The request body was missing"));
+      Assert.That(errorResponse.ErrorDescription, Is.EqualTo("The Content-Type header must be application/json"));
    }
 }

@@ -1,14 +1,15 @@
-namespace Stackage.OAuth2.Fake.OutsideIn.Tests.Scenarios.Internal.CreateToken;
+namespace Stackage.OAuth2.Fake.OutsideIn.Tests.Scenarios.Internal.DeviceAuthorization;
 
 using System;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Stackage.OAuth2.Fake.OutsideIn.Tests.Model;
 
 // ReSharper disable once InconsistentNaming
-public class create_token_without_body
+public class create_with_empty_body
 {
    private HttpResponseMessage? _httpResponse;
 
@@ -18,7 +19,9 @@ public class create_token_without_body
       using var httpClient = new HttpClient();
       httpClient.BaseAddress = new Uri(Configuration.AppUrl);
 
-      _httpResponse = await httpClient.PostAsync(".internal/create-token", null);
+      var content = new StringContent(string.Empty, Encoding.UTF8, "application/json");
+
+      _httpResponse = await httpClient.PostAsync(".internal/device-authorization", content);
    }
 
    [Test]
