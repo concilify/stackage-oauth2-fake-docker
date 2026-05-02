@@ -135,11 +135,15 @@ To build the Docker image locally:
 docker compose -f docker-compose.app.yaml build
 ```
 
+> **Note:** The unit/integration tests are run as part of the Docker build process. If any tests fail, the build will fail.
+
 ### Running Tests
 
 The project has two test suites:
 
 **1. Unit/Integration Tests**
+
+These are run automatically during the Docker build (see above). To run them independently without building the image:
 
 ```powershell
 dotnet test app/Stackage.OAuth2.Fake.Tests/Stackage.OAuth2.Fake.Tests.csproj
