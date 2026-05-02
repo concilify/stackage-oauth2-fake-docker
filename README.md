@@ -4,9 +4,9 @@
 
 ## Overview
 
-This repository publishes a Docker Image (`ghcr.io/concilify/stackage-oauth2-fake`) that can be used as a drop-in replacement for OAuth 2.0 Identity Providers such as Auth0, Okta, Keycloak, and FusionAuth when testing components that depend on such providers.
+This repository publishes a Docker Image (`ghcr.io/concilify/stackage-oauth2-fake`) that can be used as a replacement for OAuth 2.0 Identity Providers such as Auth0, Okta, Keycloak, and FusionAuth when testing components that depend on such providers. It has currently only been tested as a replacement for Auth0.
 
-The image implements a minimal but functional OAuth 2.0 and OpenID Connect server, supporting the following specifications:
+The image implements a minimal but functional OAuth 2.0 and OpenID Connect server, supporting parts of the following specifications:
 
 - **[RFC 6749](https://tools.ietf.org/html/rfc6749)** – The OAuth 2.0 Authorization Framework (Authorization Code Grant, Token Endpoint, Refresh Tokens)
 - **[RFC 8628](https://tools.ietf.org/html/rfc8628)** – OAuth 2.0 Device Authorization Grant
@@ -19,6 +19,10 @@ The image implements a minimal but functional OAuth 2.0 and OpenID Connect serve
 ---
 
 ## Consumers
+
+### Prerequisites
+
+- [Docker](https://www.docker.com/) with Docker Compose
 
 ### Pulling the Docker Image
 
@@ -35,6 +39,8 @@ Replace `{version}` with the desired release version (e.g. `1.0`).
 ```yaml
 services:
   init-volume:
+    # users.json is copied into a named volume rather than bound directly so that the
+    # application can update the file at runtime without affecting the file in the repository.
     image: alpine:latest
     command: ["/bin/sh", "-c", "cp /source/users.json /target/users.json"]
     volumes:
@@ -49,7 +55,13 @@ services:
     environment:
       - ASPNETCORE_HTTP_PORTS=32111
       - ISSUER_URL=http://localhost:32111
+      - TOKEN_PATH=/oauth2/token
+      - AUTHORIZATION_PATH=/oauth2/authorize
+      - DEVICE_AUTHORIZATION_PATH=/oauth2/device/authorize
+      - DEVICE_VERIFICATION_PATH=/oauth2/device/verify
+      - LOGOUT_PATH=/logout
       - DEFAULT_SUBJECT=default-subject
+      - DEFAULT_TOKEN_EXPIRY_SECONDS=1200
     volumes:
       - users-config:/app
     depends_on:
@@ -119,7 +131,7 @@ The following internal endpoints are provided to assist with test setup and veri
 
 To build the Docker image locally:
 
-```bash
+```powershell
 docker compose -f docker-compose.app.yaml build
 ```
 
@@ -129,21 +141,29 @@ The project has two test suites:
 
 **1. Unit/Integration Tests**
 
-```bash
+```powershell
 dotnet test app/Stackage.OAuth2.Fake.Tests/Stackage.OAuth2.Fake.Tests.csproj
 ```
 
 **2. Outside-In Tests**
 
-These tests run against the Docker container and require it to be running first:
+These tests run against the Docker container and require it to be running first.
 
-```bash
+The simplest way to run everything is with the included `build.ps1` script, which builds the image, starts the container, and runs the outside-in tests:
+
+```powershell
+./build.ps1
+```
+
+Alternatively, run the steps manually:
+
+```powershell
 # Start the application container
 docker compose -f docker-compose.app.yaml up --detach --renew-anon-volumes app
 
 # Set required environment variables
-export STACKAGEOAUTH2FAKETESTS_APP_URL="http://localhost:32111/"
-export STACKAGEOAUTH2FAKETESTS_ISSUER_URL="http://localhost:32111"
+$env:STACKAGEOAUTH2FAKETESTS_APP_URL = "http://localhost:32111/"
+$env:STACKAGEOAUTH2FAKETESTS_ISSUER_URL = "http://localhost:32111"
 
 # Run the outside-in tests
 dotnet test outside-in.tests/Stackage.OAuth2.Fake.OutsideIn.Tests/Stackage.OAuth2.Fake.OutsideIn.Tests.csproj
@@ -151,9 +171,9 @@ dotnet test outside-in.tests/Stackage.OAuth2.Fake.OutsideIn.Tests/Stackage.OAuth
 
 ### Verifying Code Formatting
 
-Before submitting a pull request, verify that the code is correctly formatted:
+Before submitting a pull request, verify that the code is correctly formatted. `dotnet format` is built into the .NET SDK and requires no additional installation:
 
-```bash
+```powershell
 dotnet format --verify-no-changes
 ```
 
@@ -171,23 +191,23 @@ Publication is automated via GitHub Actions and is triggered by pushing a versio
 
 **Release build** (triggers [`release.yml`](.github/workflows/release.yml)):
 
-```bash
+```powershell
 git tag v{major}.{minor}
 git push origin v{major}.{minor}
 ```
 
-For example: `git tag v1.2 && git push origin v1.2`
+For example: `git tag v1.2; git push origin v1.2`
 
 This workflow verifies that the tagged commit exists on `main`, runs the outside-in tests, and pushes the image to GHCR as `ghcr.io/concilify/stackage-oauth2-fake:{major}.{minor}`.
 
 **Preview build** (triggers [`release-preview.yml`](.github/workflows/release-preview.yml)):
 
-```bash
+```powershell
 git tag v{major}.{minor}-preview{NNN}
 git push origin v{major}.{minor}-preview{NNN}
 ```
 
-For example: `git tag v1.2-preview001 && git push origin v1.2-preview001`
+For example: `git tag v1.2-preview001; git push origin v1.2-preview001`
 
 This workflow builds and pushes the image without running tests, useful for publishing a candidate image for early testing.
 
