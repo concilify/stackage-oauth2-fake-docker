@@ -122,6 +122,8 @@ public class ClaimsSerializerTests
    [TestCase("Nickname", "nickname")]
    [TestCase("PICTURE", "picture")]
    [TestCase("Picture", "picture")]
+   [TestCase("EMAIL", "email")]
+   [TestCase("Email", "email")]
    public void try_deserialize_normalises_known_claim_name(string name, string expectedName)
    {
       var testSubject = CreateSerializer();

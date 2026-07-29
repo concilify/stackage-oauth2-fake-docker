@@ -59,6 +59,7 @@ public class get_all_after_create
          {
             ["nickname"] = "User A Nickname",
             ["picture"] = "user-a-picture",
+            ["email"] = "user-a@example.com",
          });
 
       var expectedUserB = new UsersResponse.User(
@@ -67,6 +68,7 @@ public class get_all_after_create
          {
             ["nickname"] = "User B Nickname",
             ["picture"] = "user-b-picture",
+            ["email"] = "user-b@example.com",
          });
 
       var expectedNewUser = new UsersResponse.User(

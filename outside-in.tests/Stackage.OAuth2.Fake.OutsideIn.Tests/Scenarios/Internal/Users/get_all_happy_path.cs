@@ -41,6 +41,7 @@ public class get_all_happy_path
          {
             ["nickname"] = "User A Nickname",
             ["picture"] = "user-a-picture",
+            ["email"] = "user-a@example.com",
          });
 
       var expectedUserB = new UsersResponse.User(
@@ -49,6 +50,7 @@ public class get_all_happy_path
          {
             ["nickname"] = "User B Nickname",
             ["picture"] = "user-b-picture",
+            ["email"] = "user-b@example.com",
          });
 
       // Can't use ShouldContain as it doesn't check for equivalence
