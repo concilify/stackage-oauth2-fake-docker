@@ -25,6 +25,7 @@ public static class AuthorizationEndpoints
             [FromQuery(Name = "client_id")] string? clientId,
             [FromQuery(Name = "redirect_uri")] string? redirectUri,
             [FromQuery(Name = "scope")] string? scope,
+            [FromQuery(Name = "nonce")] string? nonce,
             [FromQuery(Name = "state")] string? state,
             [FromQuery(Name = "audience")] string? audience,
             [FromQuery(Name = "login_hint")] string? loginHint,
@@ -66,8 +67,20 @@ public static class AuthorizationEndpoints
                   state);
             }
 
+            var parsedScope = (Scope?)scope ?? Scope.Empty;
+
+            // OpenID Connect Core 1.0 Section 3.1.2.1 defines nonce for replay mitigation. This fake provider
+            // requires nonce whenever "openid" is requested so tests can consistently validate nonce behavior.
+            if (parsedScope.Contains("openid") && string.IsNullOrWhiteSpace(nonce))
+            {
+               return OAuth2Results.InvalidRequestRedirect(
+                  redirectUri,
+                  "The nonce parameter is required when the scope includes openid",
+                  state);
+            }
+
             var authorization = authorizationCache.Add(
-               () => UserAuthorization.Create(clientId, (Scope?)scope ?? Scope.Empty, audience));
+               () => UserAuthorization.Create(clientId, parsedScope, audience, nonce));
 
             // This would normally redirect to an intermediate URL to allow the user to logon, but the code returned here
             // can be used immediately with the /oauth2/token endpoint using grant type authorization_code

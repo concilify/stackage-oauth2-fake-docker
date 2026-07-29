@@ -100,6 +100,11 @@ public class TokenGenerator : ITokenGenerator
             idTokenClaims.AddRange(user.GetClaims(ProfileClaims));
          }
 
+         if (authorization is IAuthorizationWithNonce { Nonce: not null } authorizationWithNonce)
+         {
+            idTokenClaims.Add(new Claim("nonce", authorizationWithNonce.Nonce));
+         }
+
          var idToken = Generate(idTokenClaims, expirySeconds);
 
          response = response with { IdToken = idToken };

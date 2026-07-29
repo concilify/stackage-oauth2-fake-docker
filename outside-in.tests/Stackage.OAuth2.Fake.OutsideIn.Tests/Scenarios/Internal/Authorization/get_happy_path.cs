@@ -28,6 +28,7 @@ public class get_happy_path
          scopes = new[] { "arbitrary-scope-a", "arbitrary-scope-b" },
          clientId = "ArbitraryClientId",
          subject = "ArbitrarySubject",
+         nonce = "ArbitraryNonce",
       };
 
       var content = JsonContent.Create(body);
@@ -75,9 +76,18 @@ public class get_happy_path
       Assert.That(authorizationResponse.Subject, Is.EqualTo("ArbitrarySubject"));
    }
 
+   [Test]
+   public async Task response_content_should_not_contain_nonce_when_scopes_do_not_include_openid()
+   {
+      var authorizationResponse = await _httpResponse!.ParseAsync<AuthorizationResponse>();
+
+      Assert.That(authorizationResponse.Nonce, Is.Null);
+   }
+
    private record AuthorizationResponse(
       [property: JsonPropertyName("code")] string Code,
       [property: JsonPropertyName("scopes")] string[] Scopes,
       [property: JsonPropertyName("clientId")] string ClientId,
-      [property: JsonPropertyName("subject")] string Subject);
+      [property: JsonPropertyName("subject")] string Subject,
+      [property: JsonPropertyName("nonce")] string? Nonce);
 }

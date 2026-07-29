@@ -3,6 +3,7 @@ namespace Stackage.OAuth2.Fake.OutsideIn.Tests.Scenarios.OAuth2.Token.Authorizat
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -28,7 +29,8 @@ public class get_token_with_openid_scope
       var authorizationResponse = await httpClient.StartAuthorizationAsync(
          openIdConfigurationResponse,
          clientId: "ArbitraryClientId",
-         scopes: ["arbitrary_scope", "openid"]);
+         scopes: ["arbitrary_scope", "openid"],
+         nonce: "ArbitraryNonce");
 
       var content = new FormUrlEncodedContent(new Dictionary<string, string>
       {
@@ -117,6 +119,28 @@ public class get_token_with_openid_scope
       var jwtSecurityToken = tokenResponse.ParseIdTokenAsJwtSecurityToken();
 
       Assert.That(jwtSecurityToken.Subject, Is.EqualTo("default-subject"));
+   }
+
+   [Test]
+   public async Task response_content_should_contain_id_token_with_nonce()
+   {
+      var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
+
+      var jwtSecurityToken = tokenResponse.ParseIdTokenAsJwtSecurityToken();
+      var nonce = jwtSecurityToken.Claims.SingleOrDefault(c => c.Type == "nonce");
+
+      Assert.That(nonce, Is.Not.Null);
+      Assert.That(nonce!.Value, Is.EqualTo("ArbitraryNonce"));
+   }
+
+   [Test]
+   public async Task response_content_should_contain_access_token_without_nonce()
+   {
+      var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
+
+      var nonce = tokenResponse.ParseAccessTokenClaim("nonce");
+
+      Assert.That(nonce, Is.Null);
    }
 
    [Test]

@@ -26,7 +26,7 @@ public class user_authorization_happy_path
       var openIdConfigurationResponse = await httpClient.GetWellKnownOpenIdConfigurationAsync();
 
       var authorizationUri =
-         $"{openIdConfigurationResponse.AuthorizationEndpoint}?response_type=code&client_id=ValidClientId&state=ArbitraryState&redirect_uri=http://arbitrary-host/callback";
+         $"{openIdConfigurationResponse.AuthorizationEndpoint}?response_type=code&client_id=ValidClientId&scope=openid&nonce=ArbitraryNonce&state=ArbitraryState&redirect_uri=http://arbitrary-host/callback";
 
       _httpResponse = await httpClient.GetAsync(authorizationUri);
 
@@ -70,5 +70,20 @@ public class user_authorization_happy_path
       Assert.That(authorizationResponse.Subject, Is.EqualTo("default-subject"));
    }
 
-   private record AuthorizationResponse([property: JsonPropertyName("subject")] string Subject);
+   [Test]
+   public async Task response_should_seed_internal_authorization_with_nonce()
+   {
+      using var httpClient = new HttpClient();
+      httpClient.BaseAddress = new Uri(Configuration.AppUrl);
+      Assert.That(_authorizationCode, Is.Not.Null);
+
+      var httpResponse = await httpClient.GetAsync($".internal/user-authorization?code={_authorizationCode}");
+      var authorizationResponse = await httpResponse.ParseAsync<AuthorizationResponse>();
+
+      Assert.That(authorizationResponse.Nonce, Is.EqualTo("ArbitraryNonce"));
+   }
+
+   private record AuthorizationResponse(
+      [property: JsonPropertyName("subject")] string Subject,
+      [property: JsonPropertyName("nonce")] string? Nonce);
 }

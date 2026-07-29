@@ -344,6 +344,75 @@ public class TokenGeneratorTests
    }
 
    [Test]
+   public void response_id_token_contains_nonce_when_scope_includes_openid_and_authorization_contains_nonce()
+   {
+      var testSubject = CreateGenerator();
+
+      var authorization = UserAuthorization.Create(
+         clientId: "ArbitraryClientId",
+         scope: (Scope)"openid",
+         audience: null,
+         nonce: "ArbitraryNonce");
+      authorization.Authenticate("arbitrary-subject");
+
+      var response = testSubject.Generate(authorization);
+
+      var jwtSecurityToken = (JwtSecurityToken)new JwtSecurityTokenHandler().ReadToken(response.IdToken);
+
+      var claims = jwtSecurityToken.ParseClaims("nonce");
+
+      var expectedClaims = new Dictionary<string, StringValues>
+      {
+         ["nonce"] = "ArbitraryNonce",
+      };
+
+      claims.ShouldBeEquivalentTo(expectedClaims);
+   }
+
+   [Test]
+   public void response_access_token_does_not_contain_nonce_when_scope_includes_openid_and_authorization_contains_nonce()
+   {
+      var testSubject = CreateGenerator();
+
+      var authorization = UserAuthorization.Create(
+         clientId: "ArbitraryClientId",
+         scope: (Scope)"openid",
+         audience: null,
+         nonce: "ArbitraryNonce");
+      authorization.Authenticate("arbitrary-subject");
+
+      var response = testSubject.Generate(authorization);
+
+      var jwtSecurityToken = (JwtSecurityToken)new JwtSecurityTokenHandler().ReadToken(response.AccessToken);
+
+      var claims = jwtSecurityToken.ParseClaims("nonce");
+
+      claims.ShouldBeEmpty();
+   }
+
+   [Test]
+   public void response_id_token_does_not_contain_nonce_when_generated_from_refresh_authorization()
+   {
+      var testSubject = CreateGenerator();
+
+      var userAuthorization = UserAuthorization.Create(
+         clientId: "ArbitraryClientId",
+         scope: (Scope)"openid offline_access",
+         audience: null,
+         nonce: "ArbitraryNonce");
+      userAuthorization.Authenticate("arbitrary-subject");
+      var refreshAuthorization = RefreshAuthorization.Create("ArbitraryRefreshToken", userAuthorization);
+
+      var response = testSubject.Generate(refreshAuthorization);
+
+      var jwtSecurityToken = (JwtSecurityToken)new JwtSecurityTokenHandler().ReadToken(response.IdToken);
+
+      var claims = jwtSecurityToken.ParseClaims("nonce");
+
+      claims.ShouldBeEmpty();
+   }
+
+   [Test]
    public void authorization_cache_is_not_added_to_when_scope_is_not_offline_access()
    {
       var authorizationCache = new AuthorizationCache<RefreshAuthorization>();

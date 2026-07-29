@@ -95,11 +95,14 @@ public static class InternalEndpoints
                   return OAuth2Results.InvalidRequestBadRequest("The clientId property was missing");
                }
 
+               var scope = (Scope?)request.Scopes ?? Scope.Empty;
+
                var authorization = new UserAuthorization(
                   request.Code,
                   request.ClientId,
-                  (Scope?)request.Scopes ?? Scope.Empty,
-                  request.Audiences);
+                  scope,
+                  request.Audiences,
+                  scope.Contains("openid") ? request.Nonce : null);
 
                authorization.Authenticate(request.Subject ?? settings.DefaultSubject);
 
@@ -169,7 +172,8 @@ public static class InternalEndpoints
                ClientId: authorization.ClientId,
                Scopes: authorization.Scope.ToArray(),
                Subject: authorization.Subject,
-               Audiences: authorization.Audiences);
+               Audiences: authorization.Audiences,
+               Nonce: authorization.Nonce);
 
             return TypedResults.Json(response, statusCode: 200);
          });
@@ -392,14 +396,16 @@ public static class InternalEndpoints
       [property: JsonPropertyName("clientId")] string? ClientId,
       [property: JsonPropertyName("scopes")] string[]? Scopes,
       [property: JsonPropertyName("subject")] string? Subject,
-      [property: JsonPropertyName("audiences")] string[]? Audiences);
+      [property: JsonPropertyName("audiences")] string[]? Audiences,
+      [property: JsonPropertyName("nonce")] string? Nonce);
 
    private record GetUserAuthorizationResponse(
       [property: JsonPropertyName("code")] string Code,
       [property: JsonPropertyName("clientId")] string ClientId,
       [property: JsonPropertyName("scopes")] string[] Scopes,
       [property: JsonPropertyName("subject")] string? Subject,
-      [property: JsonPropertyName("audiences")] string[]? Audiences);
+      [property: JsonPropertyName("audiences")] string[]? Audiences,
+      [property: JsonPropertyName("nonce")] string? Nonce);
 
    private record PostDeviceAuthorizationRequest(
       [property: JsonPropertyName("deviceCode")] string? DeviceCode,
