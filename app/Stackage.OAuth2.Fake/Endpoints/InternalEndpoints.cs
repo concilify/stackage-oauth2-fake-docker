@@ -231,8 +231,7 @@ public static class InternalEndpoints
                   request.RefreshToken,
                   request.ClientId,
                   (Scope?)request.Scopes ?? Scope.Empty,
-                  request.Subject ?? settings.DefaultSubject,
-                  null);
+                  request.Subject ?? settings.DefaultSubject);
 
                return authorizationCache.TryAdd(authorization)
                   ? TypedResults.Ok()

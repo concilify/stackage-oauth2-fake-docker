@@ -2,7 +2,7 @@ namespace Stackage.OAuth2.Fake.Model.Authorization;
 
 using System;
 
-public record RefreshAuthorization(string RefreshToken, string ClientId, Scope Scope, string Subject, string? Nonce) : IAuthorizationWithCode, IAuthorizationWithNonce
+public record RefreshAuthorization(string RefreshToken, string ClientId, Scope Scope, string Subject) : IAuthorizationWithCode
 {
    public string Code => RefreshToken;
 
@@ -21,7 +21,6 @@ public record RefreshAuthorization(string RefreshToken, string ClientId, Scope S
          RefreshToken: refreshToken,
          ClientId: authorization.ClientId,
          Scope: authorization.Scope,
-         Subject: authorization.Subject,
-         Nonce: authorization is IAuthorizationWithNonce authorizationWithNonce ? authorizationWithNonce.Nonce : null);
+         Subject: authorization.Subject);
    }
 }

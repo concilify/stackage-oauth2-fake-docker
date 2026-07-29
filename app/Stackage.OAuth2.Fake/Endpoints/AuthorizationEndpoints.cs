@@ -69,6 +69,8 @@ public static class AuthorizationEndpoints
 
             var parsedScope = (Scope?)scope ?? Scope.Empty;
 
+            // OpenID Connect Core 1.0 Section 3.1.2.1 defines nonce for replay mitigation. This fake provider
+            // requires nonce whenever "openid" is requested so tests can consistently validate nonce behavior.
             if (parsedScope.Contains("openid") && string.IsNullOrWhiteSpace(nonce))
             {
                return OAuth2Results.InvalidRequestRedirect(
