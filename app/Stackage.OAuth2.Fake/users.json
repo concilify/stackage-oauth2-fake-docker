@@ -4,7 +4,7 @@
     "claims": {
       "nickname": "User A Nickname",
       "picture": "user-a-picture",
-      "EmailAddress": "user-a@example.com"
+      "emailAddress": "user-a@example.com"
     }
   },
   {
@@ -12,7 +12,7 @@
     "claims": {
       "nickname": "User B Nickname",
       "picture": "user-b-picture",
-      "EmailAddress": "user-b@example.com"
+      "emailAddress": "user-b@example.com"
     }
   }
 ]
