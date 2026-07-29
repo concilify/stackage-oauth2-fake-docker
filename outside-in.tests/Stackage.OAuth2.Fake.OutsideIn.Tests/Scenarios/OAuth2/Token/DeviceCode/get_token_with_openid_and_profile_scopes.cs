@@ -45,6 +45,7 @@ public class get_token_with_openid_and_profile_scopes
             ["name"] = $"{_subject}-name",
             ["nickname"] = $"{_subject}-nickname",
             ["picture"] = $"{_subject}-picture",
+            ["emailAddress"] = $"{_subject}@example.test",
             ["arbitrary-claim"] = "arbitrary-value",
          });
 
@@ -147,13 +148,14 @@ public class get_token_with_openid_and_profile_scopes
    {
       var tokenResponse = await _httpResponse!.ParseAsync<TokenResponse>();
 
-      var claims = tokenResponse.ParseIdTokenClaims("name", "nickname", "picture");
+      var claims = tokenResponse.ParseIdTokenClaims("name", "nickname", "picture", "email");
 
       var expectedClaims = new Dictionary<string, StringValues>
       {
          [JwtRegisteredClaimNames.Name] = $"{_subject}-name",
          [JwtRegisteredClaimNames.Nickname] = $"{_subject}-nickname",
          [JwtRegisteredClaimNames.Picture] = $"{_subject}-picture",
+         [JwtRegisteredClaimNames.Email] = $"{_subject}@example.test",
       };
 
       claims.ShouldBeEquivalentTo(expectedClaims);
