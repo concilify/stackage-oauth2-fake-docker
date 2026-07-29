@@ -42,14 +42,36 @@ public class UserAuthorizationTests
       Assert.That(testSubject.Subject, Is.EqualTo("ArbitrarySubject"));
    }
 
+   [Test]
+   public void nonce_is_available_when_scope_includes_openid()
+   {
+      var testSubject = CreateAuthorization(
+         scope: "openid",
+         nonce: "ArbitraryNonce");
+
+      Assert.That(testSubject.Nonce, Is.EqualTo("ArbitraryNonce"));
+   }
+
+   [Test]
+   public void nonce_is_null_when_scope_does_not_include_openid()
+   {
+      var testSubject = CreateAuthorization(
+         scope: "arbitrary-scope",
+         nonce: "ArbitraryNonce");
+
+      Assert.That(testSubject.Nonce, Is.Null);
+   }
+
    private static UserAuthorization CreateAuthorization(
       string clientId = "ValidClientId",
       string? scope = null,
-      string? audience = null)
+      string? audience = null,
+      string? nonce = null)
    {
       return UserAuthorization.Create(
          clientId: clientId,
          scope: (Scope?)scope ?? Scope.Empty,
-         audience: audience);
+         audience: audience,
+         nonce: nonce);
    }
 }

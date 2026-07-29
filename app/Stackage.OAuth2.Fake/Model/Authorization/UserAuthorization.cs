@@ -2,7 +2,7 @@ namespace Stackage.OAuth2.Fake.Model.Authorization;
 
 using System;
 
-public record UserAuthorization(string Code, string ClientId, Scope Scope, string[]? Audiences) : IAuthorizationWithCode, IAuthorizationWithAudiences
+public record UserAuthorization(string Code, string ClientId, Scope Scope, string[]? Audiences, string? Nonce) : IAuthorizationWithCode, IAuthorizationWithAudiences, IAuthorizationWithNonce
 {
    public bool IsAuthenticated => Subject != null;
 
@@ -15,12 +15,13 @@ public record UserAuthorization(string Code, string ClientId, Scope Scope, strin
       Subject = subject;
    }
 
-   public static UserAuthorization Create(string clientId, Scope scope, string? audience)
+   public static UserAuthorization Create(string clientId, Scope scope, string? audience, string? nonce = null)
    {
       return new UserAuthorization(
          Code: Guid.NewGuid().ToString(),
          ClientId: clientId,
          Scope: scope,
-         Audiences: audience != null ? [audience] : null);
+         Audiences: audience != null ? [audience] : null,
+         Nonce: scope.Contains("openid") ? nonce : null);
    }
 }

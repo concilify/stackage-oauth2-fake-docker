@@ -124,6 +124,30 @@ public class AuthorizationEndpointsTests
       Assert.That(httpResponse.Headers.Location?.Query, Does.Contain("state=ArbitraryState"));
    }
 
+   [Test]
+   public async Task authorize_redirects_with_error_when_nonce_is_missing_for_openid_scope()
+   {
+      var factory = new OAuth2FakeWebApplicationFactory();
+      factory.ClientOptions.AllowAutoRedirect = false;
+
+      var httpClient = factory.CreateClient();
+
+      var requestQuery = new Dictionary<string, string?>
+      {
+         ["response_type"] = "code",
+         ["client_id"] = "ValidClientId",
+         ["redirect_uri"] = "http://valid-host/callback",
+         ["scope"] = "openid arbitrary_scope",
+         ["state"] = "ArbitraryState",
+      };
+
+      var httpResponse = await httpClient.GetAsync(QueryHelpers.AddQueryString("oauth2/authorize", requestQuery));
+
+      Assert.That(httpResponse.StatusCode, Is.EqualTo(HttpStatusCode.Redirect));
+      Assert.That(httpResponse.Headers.Location?.Query, Does.Contain("error=invalid_request"));
+      Assert.That(httpResponse.Headers.Location?.Query, Does.Contain("state=ArbitraryState"));
+   }
+
    [TestCase("oauth2/device/authorize", "oauth2/device/verify")]
    [TestCase("alternate/device/authorize", "alternate/device/verify")]
    public async Task device_authorize_and_verify_path_can_be_varied(string authorizePath, string verifyPath)

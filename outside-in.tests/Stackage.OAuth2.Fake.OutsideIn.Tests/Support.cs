@@ -54,7 +54,8 @@ public static class Support
       OpenIdConfigurationResponse openIdConfigurationResponse,
       string clientId = "ValidClientId",
       string[]? scopes = null,
-      string? audience = null)
+      string? audience = null,
+      string? nonce = null)
    {
       scopes ??= [];
 
@@ -74,6 +75,16 @@ public static class Support
       if (audience != null)
       {
          requestQuery["audience"] = audience;
+      }
+
+      if (scopes.Contains("openid") && nonce == null)
+      {
+         nonce = "ValidNonce";
+      }
+
+      if (nonce != null)
+      {
+         requestQuery["nonce"] = nonce;
       }
 
       var httpResponse = await httpClient.GetAsync(
@@ -184,7 +195,8 @@ public static class Support
       string code,
       string clientId = "ValidClientId",
       string[]? scopes = null,
-      string? subject = null)
+      string? subject = null,
+      string? nonce = null)
    {
       var body = new JsonObject
       {
@@ -194,6 +206,7 @@ public static class Support
 
       body.AddScopes(scopes);
       body.AddSubject(subject);
+      body.AddNonce(nonce);
 
       await PostAsync(httpClient, ".internal/user-authorization", body);
    }
@@ -384,6 +397,16 @@ public static class Support
       if (subject != null)
       {
          body["subject"] = subject;
+      }
+   }
+
+   private static void AddNonce(
+      this JsonObject body,
+      string? nonce = null)
+   {
+      if (nonce != null)
+      {
+         body["nonce"] = nonce;
       }
    }
 
