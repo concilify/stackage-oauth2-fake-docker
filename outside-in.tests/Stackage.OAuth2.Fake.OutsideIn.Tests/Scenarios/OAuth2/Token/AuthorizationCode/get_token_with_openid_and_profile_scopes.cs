@@ -45,7 +45,7 @@ public class get_token_with_openid_and_profile_scopes
             ["name"] = $"{_subject}-name",
             ["nickname"] = $"{_subject}-nickname",
             ["picture"] = $"{_subject}-picture",
-            ["emailAddress"] = $"{_subject}@example.test",
+            ["email"] = $"{_subject}@example.test",
             ["arbitrary-claim"] = "arbitrary-value",
          });
 

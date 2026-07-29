@@ -90,16 +90,14 @@ public class ClaimsSerializer : IClaimsSerializer
 
    private static string NormalizeName(string name)
    {
-      if (string.Equals(name, "emailaddress", StringComparison.InvariantCultureIgnoreCase)
-         || string.Equals(name, ClaimTypes.Email, StringComparison.InvariantCultureIgnoreCase)
-         || string.Equals(name, JwtRegisteredClaimNames.Email, StringComparison.InvariantCultureIgnoreCase))
-      {
-         return JwtRegisteredClaimNames.Email;
-      }
+      string[] knownClaims = [
+         JwtRegisteredClaimNames.Name,
+         JwtRegisteredClaimNames.Nickname,
+         JwtRegisteredClaimNames.Picture,
+         JwtRegisteredClaimNames.Email,
+      ];
 
-      string[] knownClaims = ["name", "nickname", "picture", JwtRegisteredClaimNames.Email];
-
-      foreach (string knownClaim in knownClaims)
+      foreach (var knownClaim in knownClaims)
       {
          if (string.Equals(name, knownClaim, StringComparison.InvariantCultureIgnoreCase))
          {

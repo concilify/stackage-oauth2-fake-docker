@@ -122,9 +122,8 @@ public class ClaimsSerializerTests
    [TestCase("Nickname", "nickname")]
    [TestCase("PICTURE", "picture")]
    [TestCase("Picture", "picture")]
-   [TestCase("EMAILADDRESS", JwtRegisteredClaimNames.Email)]
-   [TestCase("EmailAddress", JwtRegisteredClaimNames.Email)]
-   [TestCase(ClaimTypes.Email, JwtRegisteredClaimNames.Email)]
+   [TestCase("EMAIL", "email")]
+   [TestCase("Email", "email")]
    public void try_deserialize_normalises_known_claim_name(string name, string expectedName)
    {
       var testSubject = CreateSerializer();
