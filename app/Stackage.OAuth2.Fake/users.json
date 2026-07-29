@@ -3,14 +3,16 @@
     "subject": "user-a-subject",
     "claims": {
       "nickname": "User A Nickname",
-      "picture": "user-a-picture"
+      "picture": "user-a-picture",
+      "EmailAddress": "user-a@example.com"
     }
   },
   {
     "subject": "user-b-subject",
     "claims": {
       "nickname": "User B Nickname",
-      "picture": "user-b-picture"
+      "picture": "user-b-picture",
+      "EmailAddress": "user-b@example.com"
     }
   }
 ]

@@ -16,6 +16,7 @@ public class TokenGenerator : ITokenGenerator
       JwtRegisteredClaimNames.Name,
       JwtRegisteredClaimNames.Nickname,
       JwtRegisteredClaimNames.Picture,
+      ClaimTypes.Email,
    ];
 
    private readonly JsonWebKeyCache _jsonWebKeyCache;

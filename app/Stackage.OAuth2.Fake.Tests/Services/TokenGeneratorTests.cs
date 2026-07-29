@@ -86,6 +86,7 @@ public class TokenGeneratorTests
    [TestCase("name")]
    [TestCase("nickname")]
    [TestCase("picture")]
+   [TestCase(ClaimTypes.Email)]
    public void response_access_token_does_not_contain_profile_claims(string claim)
    {
       var user = new User(
@@ -201,6 +202,7 @@ public class TokenGeneratorTests
             new Claim("name", "ArbitraryName"),
             new Claim("nickname", "ArbitraryNickname"),
             new Claim("picture", "ArbitraryPicture"),
+            new Claim(ClaimTypes.Email, "user@example.com"),
          ]);
       var userStore = UserStoreStub.Returns(user);
 
@@ -215,13 +217,14 @@ public class TokenGeneratorTests
 
       var jwtSecurityToken = (JwtSecurityToken)new JwtSecurityTokenHandler().ReadToken(response.IdToken);
 
-      var claims = jwtSecurityToken.ParseClaims("name", "nickname", "picture");
+      var claims = jwtSecurityToken.ParseClaims("name", "nickname", "picture", JwtRegisteredClaimNames.Email);
 
       var expectedClaims = new Dictionary<string, StringValues>
       {
          ["name"] = "ArbitraryName",
          ["nickname"] = "ArbitraryNickname",
          ["picture"] = "ArbitraryPicture",
+         [JwtRegisteredClaimNames.Email] = "user@example.com",
       };
 
       claims.ShouldBeEquivalentTo(expectedClaims);
@@ -248,7 +251,7 @@ public class TokenGeneratorTests
 
       var jwtSecurityToken = (JwtSecurityToken)new JwtSecurityTokenHandler().ReadToken(response.IdToken);
 
-      var claims = jwtSecurityToken.ParseClaims("name", "nickname", "picture");
+      var claims = jwtSecurityToken.ParseClaims("name", "nickname", "picture", JwtRegisteredClaimNames.Email);
 
       var expectedClaims = new Dictionary<string, StringValues>
       {
@@ -280,7 +283,7 @@ public class TokenGeneratorTests
 
       var jwtSecurityToken = (JwtSecurityToken)new JwtSecurityTokenHandler().ReadToken(response.IdToken);
 
-      var claims = jwtSecurityToken.ParseClaims("name", "nickname", "picture");
+      var claims = jwtSecurityToken.ParseClaims("name", "nickname", "picture", JwtRegisteredClaimNames.Email);
 
       var expectedClaims = new Dictionary<string, StringValues>
       {
@@ -299,6 +302,7 @@ public class TokenGeneratorTests
             new Claim("name", "name-claim"),
             new Claim("nickname", "nickname-claim"),
             new Claim("picture", "picture-claim"),
+            new Claim(ClaimTypes.Email, "email-claim"),
          ]);
       var userStore = UserStoreStub.Returns(user);
 
@@ -313,7 +317,7 @@ public class TokenGeneratorTests
 
       var jwtSecurityToken = (JwtSecurityToken)new JwtSecurityTokenHandler().ReadToken(response.IdToken);
 
-      var claims = jwtSecurityToken.ParseClaims("name", "nickname", "picture");
+      var claims = jwtSecurityToken.ParseClaims("name", "nickname", "picture", JwtRegisteredClaimNames.Email);
 
       claims.ShouldBeEmpty();
    }
@@ -334,7 +338,7 @@ public class TokenGeneratorTests
 
       var jwtSecurityToken = (JwtSecurityToken)new JwtSecurityTokenHandler().ReadToken(response.IdToken);
 
-      var claims = jwtSecurityToken.ParseClaims("name", "nickname", "picture");
+      var claims = jwtSecurityToken.ParseClaims("name", "nickname", "picture", JwtRegisteredClaimNames.Email);
 
       claims.ShouldBeEmpty();
    }

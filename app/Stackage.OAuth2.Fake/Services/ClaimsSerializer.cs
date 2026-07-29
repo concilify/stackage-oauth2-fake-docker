@@ -90,7 +90,12 @@ public class ClaimsSerializer : IClaimsSerializer
 
    private static string NormalizeName(string name)
    {
-      string[] knownClaims = ["name", "nickname", "picture"];
+      if (string.Equals(name, "emailaddress", StringComparison.InvariantCultureIgnoreCase))
+      {
+         return ClaimTypes.Email;
+      }
+
+      string[] knownClaims = ["name", "nickname", "picture", ClaimTypes.Email];
 
       foreach (string knownClaim in knownClaims)
       {
