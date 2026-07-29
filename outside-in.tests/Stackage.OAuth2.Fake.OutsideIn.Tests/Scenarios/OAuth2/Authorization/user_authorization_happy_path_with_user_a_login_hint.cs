@@ -9,7 +9,7 @@ using System.Web;
 using NUnit.Framework;
 
 // ReSharper disable once InconsistentNaming
-public class user_authorization_happy_path
+public class user_authorization_happy_path_with_user_a_login_hint
 {
    private string? _authorizationCode;
    private HttpResponseMessage? _httpResponse;
@@ -26,7 +26,7 @@ public class user_authorization_happy_path
       var openIdConfigurationResponse = await httpClient.GetWellKnownOpenIdConfigurationAsync();
 
       var authorizationUri =
-         $"{openIdConfigurationResponse.AuthorizationEndpoint}?response_type=code&client_id=ValidClientId&state=ArbitraryState&redirect_uri=http://arbitrary-host/callback";
+         $"{openIdConfigurationResponse.AuthorizationEndpoint}?response_type=code&client_id=ValidClientId&state=ArbitraryState&redirect_uri=http://arbitrary-host/callback&login_hint=user-a@example.com";
 
       _httpResponse = await httpClient.GetAsync(authorizationUri);
 
@@ -58,7 +58,7 @@ public class user_authorization_happy_path
    }
 
    [Test]
-   public async Task response_should_seed_internal_authorization_with_default_subject()
+   public async Task response_should_seed_internal_authorization_with_user_a_subject()
    {
       using var httpClient = new HttpClient();
       httpClient.BaseAddress = new Uri(Configuration.AppUrl);
@@ -67,7 +67,7 @@ public class user_authorization_happy_path
       var httpResponse = await httpClient.GetAsync($".internal/user-authorization?code={_authorizationCode}");
       var authorizationResponse = await httpResponse.ParseAsync<AuthorizationResponse>();
 
-      Assert.That(authorizationResponse.Subject, Is.EqualTo("default-subject"));
+      Assert.That(authorizationResponse.Subject, Is.EqualTo("user-a-subject"));
    }
 
    private record AuthorizationResponse([property: JsonPropertyName("subject")] string Subject);

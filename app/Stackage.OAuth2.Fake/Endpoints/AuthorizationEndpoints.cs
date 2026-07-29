@@ -1,5 +1,7 @@
 namespace Stackage.OAuth2.Fake.Endpoints;
 
+using System;
+using System.Linq;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -25,6 +27,8 @@ public static class AuthorizationEndpoints
             [FromQuery(Name = "scope")] string? scope,
             [FromQuery(Name = "state")] string? state,
             [FromQuery(Name = "audience")] string? audience,
+            [FromQuery(Name = "login_hint")] string? loginHint,
+            IUserStore userStore,
             AuthorizationCache<UserAuthorization> authorizationCache) =>
          {
             // RFC 6749 Section 4.1.2.1: If the request fails due to a missing, invalid, or mismatching
@@ -67,7 +71,7 @@ public static class AuthorizationEndpoints
 
             // This would normally redirect to an intermediate URL to allow the user to logon, but the code returned here
             // can be used immediately with the /oauth2/token endpoint using grant type authorization_code
-            authorization.Authenticate(settings.DefaultSubject);
+            authorization.Authenticate(ResolveSubject(loginHint, userStore, settings.DefaultSubject));
 
             return OAuth2Results.SuccessRedirect(redirectUri, authorization.Code, state);
          });
@@ -104,6 +108,22 @@ public static class AuthorizationEndpoints
             return TypedResults.Json(response);
          })
          .DisableAntiforgery();
+   }
+
+   private static string ResolveSubject(
+      string? loginHint,
+      IUserStore userStore,
+      string defaultSubject)
+   {
+      if (string.IsNullOrWhiteSpace(loginHint))
+      {
+         return defaultSubject;
+      }
+
+      var user = userStore.GetAll()
+         .FirstOrDefault(u => u.GetClaims(["email"]).Any(c => string.Equals(c.Value, loginHint, StringComparison.InvariantCultureIgnoreCase)));
+
+      return user?.Subject ?? defaultSubject;
    }
 
    private record PostDeviceAuthorizationResponse(
