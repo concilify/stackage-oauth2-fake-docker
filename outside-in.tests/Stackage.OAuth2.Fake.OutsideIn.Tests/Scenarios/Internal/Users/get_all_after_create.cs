@@ -59,7 +59,7 @@ public class get_all_after_create
          {
             ["nickname"] = "User A Nickname",
             ["picture"] = "user-a-picture",
-            ["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"] = "user-a@example.com",
+            ["email"] = "user-a@example.com",
          });
 
       var expectedUserB = new UsersResponse.User(
@@ -68,7 +68,7 @@ public class get_all_after_create
          {
             ["nickname"] = "User B Nickname",
             ["picture"] = "user-b-picture",
-            ["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"] = "user-b@example.com",
+            ["email"] = "user-b@example.com",
          });
 
       var expectedNewUser = new UsersResponse.User(

@@ -86,7 +86,7 @@ public class TokenGeneratorTests
    [TestCase("name")]
    [TestCase("nickname")]
    [TestCase("picture")]
-   [TestCase(ClaimTypes.Email)]
+   [TestCase(JwtRegisteredClaimNames.Email)]
    public void response_access_token_does_not_contain_profile_claims(string claim)
    {
       var user = new User(
@@ -202,7 +202,7 @@ public class TokenGeneratorTests
             new Claim("name", "ArbitraryName"),
             new Claim("nickname", "ArbitraryNickname"),
             new Claim("picture", "ArbitraryPicture"),
-            new Claim(ClaimTypes.Email, "user@example.com"),
+            new Claim(JwtRegisteredClaimNames.Email, "user@example.com"),
          ]);
       var userStore = UserStoreStub.Returns(user);
 
@@ -302,7 +302,7 @@ public class TokenGeneratorTests
             new Claim("name", "name-claim"),
             new Claim("nickname", "nickname-claim"),
             new Claim("picture", "picture-claim"),
-            new Claim(ClaimTypes.Email, "email-claim"),
+            new Claim(JwtRegisteredClaimNames.Email, "email-claim"),
          ]);
       var userStore = UserStoreStub.Returns(user);
 
