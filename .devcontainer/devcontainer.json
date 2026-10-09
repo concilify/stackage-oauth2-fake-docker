@@ -1,0 +1,18 @@
+{
+  "name": "stackage-oauth2-fake",
+  "dockerComposeFile": [
+    "../docker-compose.app.yaml",
+    "docker-compose.yaml"
+  ],
+  "service": "devcontainer",
+  "workspaceFolder": "/workspaces/stackage-oauth2-fake",
+  "mounts": [
+    "source=nuget,target=/home/vscode/.nuget,type=volume",
+    "source=build,target=/home/vscode/.build,type=volume"
+  ],
+  "containerEnv": {
+    "CLAUDE_CONFIG_DIR": "${containerWorkspaceFolder}/.claude-state",
+    "DOTNET_BUILD_DIR": "/home/vscode/.build"
+  },
+  "postCreateCommand": "bash .devcontainer/on-create.sh 2>&1 | tee /tmp/on-create.log"
+}

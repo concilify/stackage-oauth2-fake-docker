@@ -1,0 +1,23 @@
+# NOTE: This file is merged with ../docker-compose.yaml, which is listed FIRST
+# in devcontainer.json's dockerComposeFile array. Docker Compose resolves ALL
+# relative paths (build.context, volumes, env_file, etc.) in every merged file
+# against the directory of that FIRST file — i.e. the repo root.
+# Therefore: paths in this file must be written as if this file lived at the
+# repo root, not relative to .devcontainer/. Do not use ".." here.
+
+services:
+  devcontainer:
+    build:
+      context: .
+      dockerfile: .devcontainer/Dockerfile
+
+    volumes:
+      - .:/workspaces/stackage-oauth2-fake
+
+    # working_dir is required: the base image doesn't set one, so without this any
+    # shell opened into this container (VS Code/Rider terminal, a plain `docker
+    # exec`) starts in `/` instead of the repo root.
+    working_dir: /workspaces/stackage-oauth2-fake
+
+    # Needed for VS Code, but not for Rider
+    command: sleep infinity
