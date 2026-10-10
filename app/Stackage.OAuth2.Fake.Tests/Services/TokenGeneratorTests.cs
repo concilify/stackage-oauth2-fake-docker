@@ -10,6 +10,7 @@ using Shouldly;
 using Stackage.OAuth2.Fake.Model;
 using Stackage.OAuth2.Fake.Model.Authorization;
 using Stackage.OAuth2.Fake.Services;
+using Stackage.OAuth2.Fake.Services.ProviderCustomisers;
 using Stackage.OAuth2.Fake.Tests.Stubs;
 using static Stackage.OAuth2.Fake.Tests.Support;
 
@@ -648,19 +649,19 @@ public class TokenGeneratorTests
       IUserStore? userStore = null,
       Settings? settings = null,
       AuthorizationCache<RefreshAuthorization>? authorizationCache = null,
-      IEnumerable<IProviderClaimsStrategy>? providerClaimsStrategies = null)
+      IEnumerable<IProviderCustomiser>? providerCustomisers = null)
    {
       jsonWebKeyCache ??= new JsonWebKeyCache();
       userStore ??= UserStoreStub.Valid();
       settings ??= new Settings();
       authorizationCache ??= new AuthorizationCache<RefreshAuthorization>();
-      providerClaimsStrategies ??= [new EntraProviderClaimsStrategy(), new GoogleProviderClaimsStrategy()];
+      providerCustomisers ??= [new EntraProviderCustomiser(), new GoogleProviderCustomiser()];
 
       return new TokenGenerator(
          jsonWebKeyCache,
          userStore,
          settings,
          authorizationCache,
-         providerClaimsStrategies);
+         providerCustomisers);
    }
 }

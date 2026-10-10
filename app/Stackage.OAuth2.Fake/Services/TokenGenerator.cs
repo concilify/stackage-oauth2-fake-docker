@@ -8,6 +8,7 @@ using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
 using Stackage.OAuth2.Fake.Model;
 using Stackage.OAuth2.Fake.Model.Authorization;
+using Stackage.OAuth2.Fake.Services.ProviderCustomisers;
 
 public class TokenGenerator : ITokenGenerator
 {
@@ -23,20 +24,20 @@ public class TokenGenerator : ITokenGenerator
    private readonly IUserStore _userStore;
    private readonly Settings _settings;
    private readonly AuthorizationCache<RefreshAuthorization> _authorizationCache;
-   private readonly IEnumerable<IProviderClaimsStrategy> _providerClaimsStrategies;
+   private readonly IEnumerable<IProviderCustomiser> _providerCustomisers;
 
    public TokenGenerator(
       JsonWebKeyCache jsonWebKeyCache,
       IUserStore userStore,
       Settings settings,
       AuthorizationCache<RefreshAuthorization> authorizationCache,
-      IEnumerable<IProviderClaimsStrategy> providerClaimsStrategies)
+      IEnumerable<IProviderCustomiser> providerCustomisers)
    {
       _jsonWebKeyCache = jsonWebKeyCache;
       _userStore = userStore;
       _settings = settings;
       _authorizationCache = authorizationCache;
-      _providerClaimsStrategies = providerClaimsStrategies;
+      _providerCustomisers = providerCustomisers;
    }
 
    public TokenResponse Generate(IAuthorization authorization)
@@ -48,7 +49,7 @@ public class TokenGenerator : ITokenGenerator
 
       var user = GetUser(authorization.Subject);
 
-      var providerClaimsStrategy = _providerClaimsStrategies
+      var providerClaimsStrategy = _providerCustomisers
          .FirstOrDefault(strategy => string.Equals(strategy.ProviderMode, _settings.ProviderMode, StringComparison.OrdinalIgnoreCase));
 
       var accessTokenClaims = new List<Claim>
