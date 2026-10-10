@@ -27,6 +27,9 @@ builder.Services.AddTransient<IGrantTypeHandler, RefreshTokenGrantTypeHandler>()
 builder.Services.AddTransient<ITokenGenerator, TokenGenerator>();
 builder.Services.AddTransient<IClaimsSerializer, ClaimsSerializer>();
 
+builder.Services.AddTransient<IProviderClaimsStrategy, EntraProviderClaimsStrategy>();
+builder.Services.AddTransient<IProviderClaimsStrategy, GoogleProviderClaimsStrategy>();
+
 builder.Services.AddTransient<RequestCaptureMiddleware>();
 
 var app = builder.Build();

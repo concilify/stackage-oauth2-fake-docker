@@ -344,6 +344,199 @@ public class TokenGeneratorTests
    }
 
    [Test]
+   public void response_id_token_contains_tid_claim_when_provider_mode_is_entra_and_user_has_tenant_id()
+   {
+      var user = new User(
+         Subject: "arbitrary-subject",
+         Claims: [],
+         TenantId: "ArbitraryTenantId");
+      var userStore = UserStoreStub.Returns(user);
+
+      var testSubject = CreateGenerator(
+         userStore: userStore,
+         settings: new Settings { ProviderMode = ProviderModes.Entra });
+
+      var authorization = AuthorizationStub.With(
+         scope: (Scope)"openid",
+         subject: "arbitrary-subject");
+
+      var response = testSubject.Generate(authorization);
+
+      var jwtSecurityToken = (JwtSecurityToken)new JwtSecurityTokenHandler().ReadToken(response.IdToken);
+
+      var claims = jwtSecurityToken.ParseClaims("tid");
+
+      var expectedClaims = new Dictionary<string, StringValues>
+      {
+         ["tid"] = "ArbitraryTenantId",
+      };
+
+      claims.ShouldBeEquivalentTo(expectedClaims);
+   }
+
+   [Test]
+   public void response_access_token_contains_tid_claim_when_provider_mode_is_entra_and_user_has_tenant_id()
+   {
+      var user = new User(
+         Subject: "arbitrary-subject",
+         Claims: [],
+         TenantId: "ArbitraryTenantId");
+      var userStore = UserStoreStub.Returns(user);
+
+      var testSubject = CreateGenerator(
+         userStore: userStore,
+         settings: new Settings { ProviderMode = ProviderModes.Entra });
+
+      var authorization = AuthorizationStub.With(
+         subject: "arbitrary-subject");
+
+      var response = testSubject.Generate(authorization);
+
+      var jwtSecurityToken = (JwtSecurityToken)new JwtSecurityTokenHandler().ReadToken(response.AccessToken);
+
+      var claims = jwtSecurityToken.ParseClaims("tid");
+
+      var expectedClaims = new Dictionary<string, StringValues>
+      {
+         ["tid"] = "ArbitraryTenantId",
+      };
+
+      claims.ShouldBeEquivalentTo(expectedClaims);
+   }
+
+   [Test]
+   public void response_id_token_contains_hd_claim_when_provider_mode_is_google_and_user_has_hosted_domain()
+   {
+      var user = new User(
+         Subject: "arbitrary-subject",
+         Claims: [],
+         HostedDomain: "ArbitraryHostedDomain");
+      var userStore = UserStoreStub.Returns(user);
+
+      var testSubject = CreateGenerator(
+         userStore: userStore,
+         settings: new Settings { ProviderMode = ProviderModes.Google });
+
+      var authorization = AuthorizationStub.With(
+         scope: (Scope)"openid",
+         subject: "arbitrary-subject");
+
+      var response = testSubject.Generate(authorization);
+
+      var jwtSecurityToken = (JwtSecurityToken)new JwtSecurityTokenHandler().ReadToken(response.IdToken);
+
+      var claims = jwtSecurityToken.ParseClaims("hd");
+
+      var expectedClaims = new Dictionary<string, StringValues>
+      {
+         ["hd"] = "ArbitraryHostedDomain",
+      };
+
+      claims.ShouldBeEquivalentTo(expectedClaims);
+   }
+
+   [Test]
+   public void response_access_token_does_not_contain_hd_claim_when_provider_mode_is_google_and_user_has_hosted_domain()
+   {
+      var user = new User(
+         Subject: "arbitrary-subject",
+         Claims: [],
+         HostedDomain: "ArbitraryHostedDomain");
+      var userStore = UserStoreStub.Returns(user);
+
+      var testSubject = CreateGenerator(
+         userStore: userStore,
+         settings: new Settings { ProviderMode = ProviderModes.Google });
+
+      var authorization = AuthorizationStub.With(
+         subject: "arbitrary-subject");
+
+      var response = testSubject.Generate(authorization);
+
+      var jwtSecurityToken = (JwtSecurityToken)new JwtSecurityTokenHandler().ReadToken(response.AccessToken);
+
+      var claims = jwtSecurityToken.ParseClaims("hd");
+
+      claims.ShouldBeEmpty();
+   }
+
+   [Test]
+   public void response_id_token_does_not_contain_hd_claim_when_provider_mode_is_entra_and_user_has_hosted_domain()
+   {
+      var user = new User(
+         Subject: "arbitrary-subject",
+         Claims: [],
+         HostedDomain: "ArbitraryHostedDomain");
+      var userStore = UserStoreStub.Returns(user);
+
+      var testSubject = CreateGenerator(
+         userStore: userStore,
+         settings: new Settings { ProviderMode = ProviderModes.Entra });
+
+      var authorization = AuthorizationStub.With(
+         scope: (Scope)"openid",
+         subject: "arbitrary-subject");
+
+      var response = testSubject.Generate(authorization);
+
+      var jwtSecurityToken = (JwtSecurityToken)new JwtSecurityTokenHandler().ReadToken(response.IdToken);
+
+      var claims = jwtSecurityToken.ParseClaims("hd");
+
+      claims.ShouldBeEmpty();
+   }
+
+   [Test]
+   public void response_id_token_does_not_contain_tid_claim_when_provider_mode_is_none()
+   {
+      var user = new User(
+         Subject: "arbitrary-subject",
+         Claims: [],
+         TenantId: "ArbitraryTenantId");
+      var userStore = UserStoreStub.Returns(user);
+
+      var testSubject = CreateGenerator(
+         userStore: userStore);
+
+      var authorization = AuthorizationStub.With(
+         scope: (Scope)"openid",
+         subject: "arbitrary-subject");
+
+      var response = testSubject.Generate(authorization);
+
+      var jwtSecurityToken = (JwtSecurityToken)new JwtSecurityTokenHandler().ReadToken(response.IdToken);
+
+      var claims = jwtSecurityToken.ParseClaims("tid");
+
+      claims.ShouldBeEmpty();
+   }
+
+   [Test]
+   public void response_id_token_does_not_contain_tid_claim_when_provider_mode_is_entra_and_user_has_no_tenant_id()
+   {
+      var user = new User(
+         Subject: "arbitrary-subject",
+         Claims: []);
+      var userStore = UserStoreStub.Returns(user);
+
+      var testSubject = CreateGenerator(
+         userStore: userStore,
+         settings: new Settings { ProviderMode = ProviderModes.Entra });
+
+      var authorization = AuthorizationStub.With(
+         scope: (Scope)"openid",
+         subject: "arbitrary-subject");
+
+      var response = testSubject.Generate(authorization);
+
+      var jwtSecurityToken = (JwtSecurityToken)new JwtSecurityTokenHandler().ReadToken(response.IdToken);
+
+      var claims = jwtSecurityToken.ParseClaims("tid");
+
+      claims.ShouldBeEmpty();
+   }
+
+   [Test]
    public void response_id_token_contains_nonce_when_scope_includes_openid_and_authorization_contains_nonce()
    {
       var testSubject = CreateGenerator();
@@ -454,17 +647,20 @@ public class TokenGeneratorTests
       JsonWebKeyCache? jsonWebKeyCache = null,
       IUserStore? userStore = null,
       Settings? settings = null,
-      AuthorizationCache<RefreshAuthorization>? authorizationCache = null)
+      AuthorizationCache<RefreshAuthorization>? authorizationCache = null,
+      IEnumerable<IProviderClaimsStrategy>? providerClaimsStrategies = null)
    {
       jsonWebKeyCache ??= new JsonWebKeyCache();
       userStore ??= UserStoreStub.Valid();
       settings ??= new Settings();
       authorizationCache ??= new AuthorizationCache<RefreshAuthorization>();
+      providerClaimsStrategies ??= [new EntraProviderClaimsStrategy(), new GoogleProviderClaimsStrategy()];
 
       return new TokenGenerator(
          jsonWebKeyCache,
          userStore,
          settings,
-         authorizationCache);
+         authorizationCache,
+         providerClaimsStrategies);
    }
 }

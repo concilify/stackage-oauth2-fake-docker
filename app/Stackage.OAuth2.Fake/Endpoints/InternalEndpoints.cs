@@ -291,7 +291,7 @@ public static class InternalEndpoints
                   return OAuth2Results.InvalidRequestBadRequest("The claims property must contain string properties or string array properties");
                }
 
-               var user = new User(request.Subject, claims);
+               var user = new User(request.Subject, claims, request.TenantId, request.HostedDomain);
 
                return userStore.TryAdd(user)
                   ? TypedResults.Ok()
@@ -324,7 +324,9 @@ public static class InternalEndpoints
             var response = users
                .Select(u => new GetUserResponse.User(
                   Subject: u.Subject,
-                  Claims: u.Claims.ToDictionary(c => c.Type, c => c.Value)))
+                  Claims: u.Claims.ToDictionary(c => c.Type, c => c.Value),
+                  TenantId: u.TenantId,
+                  HostedDomain: u.HostedDomain))
                .ToList();
 
             return TypedResults.Json<IReadOnlyList<GetUserResponse.User>>(response, statusCode: 200);
@@ -437,10 +439,12 @@ public static class InternalEndpoints
 
    private record PostUserRequest(
       [property: JsonPropertyName("subject")] string? Subject,
-      [property: JsonPropertyName("claims")] JsonObject? Claims);
+      [property: JsonPropertyName("claims")] JsonObject? Claims,
+      [property: JsonPropertyName("tenantId")] string? TenantId,
+      [property: JsonPropertyName("hostedDomain")] string? HostedDomain);
 
    private class GetUserResponse
    {
-      public record User(string Subject, IDictionary<string, string> Claims);
+      public record User(string Subject, IDictionary<string, string> Claims, string? TenantId, string? HostedDomain);
    }
 }

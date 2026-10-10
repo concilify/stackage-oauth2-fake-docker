@@ -27,4 +27,7 @@ public record Settings
 
    [ConfigurationKeyName("DEFAULT_TOKEN_EXPIRY_SECONDS")]
    public int DefaultTokenExpirySeconds { get; init; } = 20 * 60;
+
+   [ConfigurationKeyName("PROVIDER_MODE")]
+   public string ProviderMode { get; init; } = string.Empty;
 }

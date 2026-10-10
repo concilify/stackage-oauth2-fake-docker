@@ -23,17 +23,20 @@ public class TokenGenerator : ITokenGenerator
    private readonly IUserStore _userStore;
    private readonly Settings _settings;
    private readonly AuthorizationCache<RefreshAuthorization> _authorizationCache;
+   private readonly IEnumerable<IProviderClaimsStrategy> _providerClaimsStrategies;
 
    public TokenGenerator(
       JsonWebKeyCache jsonWebKeyCache,
       IUserStore userStore,
       Settings settings,
-      AuthorizationCache<RefreshAuthorization> authorizationCache)
+      AuthorizationCache<RefreshAuthorization> authorizationCache,
+      IEnumerable<IProviderClaimsStrategy> providerClaimsStrategies)
    {
       _jsonWebKeyCache = jsonWebKeyCache;
       _userStore = userStore;
       _settings = settings;
       _authorizationCache = authorizationCache;
+      _providerClaimsStrategies = providerClaimsStrategies;
    }
 
    public TokenResponse Generate(IAuthorization authorization)
@@ -45,6 +48,9 @@ public class TokenGenerator : ITokenGenerator
 
       var user = GetUser(authorization.Subject);
 
+      var providerClaimsStrategy = _providerClaimsStrategies
+         .FirstOrDefault(strategy => string.Equals(strategy.ProviderMode, _settings.ProviderMode, StringComparison.OrdinalIgnoreCase));
+
       var accessTokenClaims = new List<Claim>
       {
          new(JwtRegisteredClaimNames.Sub, authorization.Subject),
@@ -55,6 +61,8 @@ public class TokenGenerator : ITokenGenerator
       {
          accessTokenClaims.AddRange(user.GetClaimsWithout(ProfileClaims));
       }
+
+      providerClaimsStrategy?.AddAccessTokenClaims(user, accessTokenClaims);
 
       if (authorization is IAuthorizationWithAudiences { Audiences: not null } authorizationWithAudiences)
       {
@@ -99,6 +107,8 @@ public class TokenGenerator : ITokenGenerator
          {
             idTokenClaims.AddRange(user.GetClaims(ProfileClaims));
          }
+
+         providerClaimsStrategy?.AddIdTokenClaims(user, idTokenClaims);
 
          if (authorization is IAuthorizationWithNonce { Nonce: not null } authorizationWithNonce)
          {
