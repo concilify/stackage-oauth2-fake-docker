@@ -10,6 +10,7 @@ using Shouldly;
 using Stackage.OAuth2.Fake.Model;
 using Stackage.OAuth2.Fake.Model.Authorization;
 using Stackage.OAuth2.Fake.Services;
+using Stackage.OAuth2.Fake.Services.ProviderClaimsPolicies;
 using Stackage.OAuth2.Fake.Tests.Stubs;
 using static Stackage.OAuth2.Fake.Tests.Support;
 
@@ -25,6 +26,20 @@ public class TokenGeneratorTests
       Assert.That(
          () => testSubject.Generate(authorization),
          Throws.InstanceOf<InvalidOperationException>().With.Message.EqualTo("IAuthorizationProxy has not been authenticated."));
+   }
+
+   [Test]
+   public void throws_exception_when_no_provider_claims_policy_matches_provider_mode()
+   {
+      var testSubject = CreateGenerator(
+         settings: new Settings { ProviderMode = "UNSUPPORTED_MODE" },
+         providerClaimsPolicies: []);
+
+      var authorization = AuthorizationStub.With();
+
+      Assert.That(
+         () => testSubject.Generate(authorization),
+         Throws.InstanceOf<InvalidOperationException>().With.Message.EqualTo("ProviderMode UNSUPPORTED_MODE is not supported."));
    }
 
    [Test]
@@ -52,69 +67,59 @@ public class TokenGeneratorTests
    }
 
    [Test]
-   public void response_access_token_contains_claims()
+   public void response_access_token_contains_claims_from_matching_provider_claims_policy_when_user_found()
    {
-      var user = new User(
-         Subject: "arbitrary-subject",
-         Claims: [
-            new Claim("arbitrary-claim-a", "ArbitraryValueA"),
-            new Claim("arbitrary-claim-b", "ArbitraryValueB"),
-         ]);
+      var user = new User(Subject: "arbitrary-subject", Claims: []);
       var userStore = UserStoreStub.Returns(user);
 
-      var testSubject = CreateGenerator(
-         userStore: userStore);
+      var providerClaimsPolicy = ProviderClaimsPolicyStub.AddingClaims(
+         providerMode: "Default",
+         accessTokenClaim: new Claim("arbitrary-access-token-claim", "ArbitraryAccessTokenValue"),
+         idTokenClaim: new Claim("arbitrary-id-token-claim", "ArbitraryIdTokenValue"));
 
-      var authorization = AuthorizationStub.With(
-         subject: "arbitrary-subject");
+      var testSubject = CreateGenerator(
+         userStore: userStore,
+         providerClaimsPolicies: [providerClaimsPolicy]);
+
+      var authorization = AuthorizationStub.With(subject: "arbitrary-subject");
 
       var response = testSubject.Generate(authorization);
 
       var jwtSecurityToken = (JwtSecurityToken)new JwtSecurityTokenHandler().ReadToken(response.AccessToken);
 
-      var claims = jwtSecurityToken.ParseClaims("arbitrary-claim-a", "arbitrary-claim-b");
+      var claims = jwtSecurityToken.ParseClaims("arbitrary-access-token-claim");
 
       var expectedClaims = new Dictionary<string, StringValues>
       {
-         ["arbitrary-claim-a"] = "ArbitraryValueA",
-         ["arbitrary-claim-b"] = "ArbitraryValueB",
+         ["arbitrary-access-token-claim"] = "ArbitraryAccessTokenValue",
       };
 
       claims.ShouldBeEquivalentTo(expectedClaims);
    }
 
-   [TestCase("name")]
-   [TestCase("nickname")]
-   [TestCase("picture")]
-   [TestCase("email")]
-   public void response_access_token_does_not_contain_profile_claims(string claim)
+   [Test]
+   public void response_access_token_does_not_contain_claims_from_provider_claims_policy_when_user_not_found()
    {
-      var user = new User(
-         Subject: "arbitrary-subject",
-         Claims: [
-            new Claim(claim, "ValidValue"),
-            new Claim("arbitrary-claim", "ArbitraryValue"),
-         ]);
-      var userStore = UserStoreStub.Returns(user);
+      var userStore = UserStoreStub.NotFound("arbitrary-subject");
+
+      var providerClaimsPolicy = ProviderClaimsPolicyStub.AddingClaims(
+         providerMode: "Default",
+         accessTokenClaim: new Claim("arbitrary-access-token-claim", "ArbitraryAccessTokenValue"),
+         idTokenClaim: new Claim("arbitrary-id-token-claim", "ArbitraryIdTokenValue"));
 
       var testSubject = CreateGenerator(
-         userStore: userStore);
+         userStore: userStore,
+         providerClaimsPolicies: [providerClaimsPolicy]);
 
-      var authorization = AuthorizationStub.With(
-         subject: "arbitrary-subject");
+      var authorization = AuthorizationStub.With(subject: "arbitrary-subject");
 
       var response = testSubject.Generate(authorization);
 
       var jwtSecurityToken = (JwtSecurityToken)new JwtSecurityTokenHandler().ReadToken(response.AccessToken);
 
-      var claims = jwtSecurityToken.ParseClaims(claim, "arbitrary-claim");
+      var claims = jwtSecurityToken.ParseClaims("arbitrary-access-token-claim");
 
-      var expectedClaims = new Dictionary<string, StringValues>
-      {
-         ["arbitrary-claim"] = "ArbitraryValue",
-      };
-
-      claims.ShouldBeEquivalentTo(expectedClaims);
+      claims.ShouldBeEmpty();
    }
 
    [Test]
@@ -194,151 +199,61 @@ public class TokenGeneratorTests
    }
 
    [Test]
-   public void response_id_token_contains_user_claims_when_scope_includes_openid_and_profile()
+   public void response_id_token_contains_claims_from_matching_provider_claims_policy_when_user_found()
    {
-      var user = new User(
-         Subject: "arbitrary-subject",
-         Claims: [
-            new Claim("name", "ArbitraryName"),
-            new Claim("nickname", "ArbitraryNickname"),
-            new Claim("picture", "ArbitraryPicture"),
-            new Claim("email", "user@example.com"),
-         ]);
+      var user = new User(Subject: "arbitrary-subject", Claims: []);
       var userStore = UserStoreStub.Returns(user);
 
+      var providerClaimsPolicy = ProviderClaimsPolicyStub.AddingClaims(
+         providerMode: "Default",
+         accessTokenClaim: new Claim("arbitrary-access-token-claim", "ArbitraryAccessTokenValue"),
+         idTokenClaim: new Claim("arbitrary-id-token-claim", "ArbitraryIdTokenValue"));
+
       var testSubject = CreateGenerator(
-         userStore: userStore);
+         userStore: userStore,
+         providerClaimsPolicies: [providerClaimsPolicy]);
 
       var authorization = AuthorizationStub.With(
-         scope: (Scope)"openid profile",
+         scope: (Scope)"openid",
          subject: "arbitrary-subject");
 
       var response = testSubject.Generate(authorization);
 
       var jwtSecurityToken = (JwtSecurityToken)new JwtSecurityTokenHandler().ReadToken(response.IdToken);
 
-      var claims = jwtSecurityToken.ParseClaims("name", "nickname", "picture", "email");
+      var claims = jwtSecurityToken.ParseClaims("arbitrary-id-token-claim");
 
       var expectedClaims = new Dictionary<string, StringValues>
       {
-         ["name"] = "ArbitraryName",
-         ["nickname"] = "ArbitraryNickname",
-         ["picture"] = "ArbitraryPicture",
-         ["email"] = "user@example.com",
+         ["arbitrary-id-token-claim"] = "ArbitraryIdTokenValue",
       };
 
       claims.ShouldBeEquivalentTo(expectedClaims);
    }
 
    [Test]
-   public void response_id_token_contains_available_user_claims_when_scope_includes_openid_and_profile()
-   {
-      var user = new User(
-         Subject: "arbitrary-subject",
-         Claims: [
-            new Claim("name", "ArbitraryName"),
-         ]);
-      var userStore = UserStoreStub.Returns(user);
-
-      var testSubject = CreateGenerator(
-         userStore: userStore);
-
-      var authorization = AuthorizationStub.With(
-         scope: (Scope)"openid profile",
-         subject: "arbitrary-subject");
-
-      var response = testSubject.Generate(authorization);
-
-      var jwtSecurityToken = (JwtSecurityToken)new JwtSecurityTokenHandler().ReadToken(response.IdToken);
-
-      var claims = jwtSecurityToken.ParseClaims("name", "nickname", "picture", "email");
-
-      var expectedClaims = new Dictionary<string, StringValues>
-      {
-         ["name"] = "ArbitraryName",
-      };
-
-      claims.ShouldBeEquivalentTo(expectedClaims);
-   }
-
-   [Test]
-   public void response_id_token_does_not_contain_unknown_user_claims_when_scope_includes_openid_and_profile()
-   {
-      var user = new User(
-         Subject: "arbitrary-subject",
-         Claims: [
-            new Claim("unknown-claim", "valid-value"),
-            new Claim("name", "arbitrary-name"),
-         ]);
-      var userStore = UserStoreStub.Returns(user);
-
-      var testSubject = CreateGenerator(
-         userStore: userStore);
-
-      var authorization = AuthorizationStub.With(
-         scope: (Scope)"openid profile",
-         subject: "arbitrary-subject");
-
-      var response = testSubject.Generate(authorization);
-
-      var jwtSecurityToken = (JwtSecurityToken)new JwtSecurityTokenHandler().ReadToken(response.IdToken);
-
-      var claims = jwtSecurityToken.ParseClaims("name", "nickname", "picture", "email");
-
-      var expectedClaims = new Dictionary<string, StringValues>
-      {
-         ["name"] = "arbitrary-name",
-      };
-
-      claims.ShouldBeEquivalentTo(expectedClaims);
-   }
-
-   [Test]
-   public void response_id_token_does_not_contain_user_claims_when_scope_does_not_include_profile()
-   {
-      var user = new User(
-         Subject: "arbitrary-subject",
-         Claims: [
-            new Claim("name", "name-claim"),
-            new Claim("nickname", "nickname-claim"),
-            new Claim("picture", "picture-claim"),
-            new Claim("email", "email-claim"),
-         ]);
-      var userStore = UserStoreStub.Returns(user);
-
-      var testSubject = CreateGenerator(
-         userStore: userStore);
-
-      var authorization = AuthorizationStub.With(
-         scope: (Scope)"openid no-profile",
-         subject: "arbitrary-subject");
-
-      var response = testSubject.Generate(authorization);
-
-      var jwtSecurityToken = (JwtSecurityToken)new JwtSecurityTokenHandler().ReadToken(response.IdToken);
-
-      var claims = jwtSecurityToken.ParseClaims("name", "nickname", "picture", "email");
-
-      claims.ShouldBeEmpty();
-   }
-
-   [Test]
-   public void response_id_token_does_not_contain_user_claims_when_scope_includes_profile_but_user_not_found()
+   public void response_id_token_does_not_contain_claims_from_provider_claims_policy_when_user_not_found()
    {
       var userStore = UserStoreStub.NotFound("arbitrary-subject");
 
+      var providerClaimsPolicy = ProviderClaimsPolicyStub.AddingClaims(
+         providerMode: "Default",
+         accessTokenClaim: new Claim("arbitrary-access-token-claim", "ArbitraryAccessTokenValue"),
+         idTokenClaim: new Claim("arbitrary-id-token-claim", "ArbitraryIdTokenValue"));
+
       var testSubject = CreateGenerator(
-         userStore: userStore);
+         userStore: userStore,
+         providerClaimsPolicies: [providerClaimsPolicy]);
 
       var authorization = AuthorizationStub.With(
-         scope: (Scope)"openid profile",
+         scope: (Scope)"openid",
          subject: "arbitrary-subject");
 
       var response = testSubject.Generate(authorization);
 
       var jwtSecurityToken = (JwtSecurityToken)new JwtSecurityTokenHandler().ReadToken(response.IdToken);
 
-      var claims = jwtSecurityToken.ParseClaims("name", "nickname", "picture", "email");
+      var claims = jwtSecurityToken.ParseClaims("arbitrary-id-token-claim");
 
       claims.ShouldBeEmpty();
    }
@@ -454,17 +369,20 @@ public class TokenGeneratorTests
       JsonWebKeyCache? jsonWebKeyCache = null,
       IUserStore? userStore = null,
       Settings? settings = null,
-      AuthorizationCache<RefreshAuthorization>? authorizationCache = null)
+      AuthorizationCache<RefreshAuthorization>? authorizationCache = null,
+      IEnumerable<IProviderClaimsPolicy>? providerClaimsPolicies = null)
    {
       jsonWebKeyCache ??= new JsonWebKeyCache();
       userStore ??= UserStoreStub.Valid();
       settings ??= new Settings();
       authorizationCache ??= new AuthorizationCache<RefreshAuthorization>();
+      providerClaimsPolicies ??= [ProviderClaimsPolicyStub.ReturningNoClaims(settings.ProviderMode)];
 
       return new TokenGenerator(
          jsonWebKeyCache,
          userStore,
          settings,
-         authorizationCache);
+         authorizationCache,
+         providerClaimsPolicies);
    }
 }

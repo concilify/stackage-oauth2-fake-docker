@@ -119,6 +119,36 @@ public class UserStoreTests
    }
 
    [Test]
+   public void try_get_returns_user_with_tenant_id_and_object_id_and_hosted_domain_when_set()
+   {
+      var files = new Dictionary<string, string>
+      {
+         [_usersPath] = """
+                          [
+                             {
+                                "subject": "arbitrary-subject",
+                                "claims": {},
+                                "tenantId": "arbitrary-tenant-id",
+                                "objectId": "arbitrary-object-id",
+                                "hostedDomain": "arbitrary-hosted-domain"
+                             }
+                          ]
+                          """,
+      };
+      var fileSystem = FileSystemStub.With(FileStub.Using(files));
+
+      var testSubject = CreateStore(fileSystem: fileSystem);
+
+      var result = testSubject.TryGet("arbitrary-subject", out var user);
+
+      Assert.That(result, Is.True);
+      Assert.That(user, Is.Not.Null);
+      Assert.That(user!.TenantId, Is.EqualTo("arbitrary-tenant-id"));
+      Assert.That(user.ObjectId, Is.EqualTo("arbitrary-object-id"));
+      Assert.That(user.HostedDomain, Is.EqualTo("arbitrary-hosted-domain"));
+   }
+
+   [Test]
    public void try_add_creates_file_when_does_not_exist()
    {
       var files = new Dictionary<string, string>();
@@ -143,6 +173,9 @@ public class UserStoreTests
             {
                ["arbitrary-claim"] = "arbitrary-value",
             },
+            ["tenantId"] = null,
+            ["objectId"] = null,
+            ["hostedDomain"] = null,
          },
       };
 
@@ -179,6 +212,47 @@ public class UserStoreTests
             {
                ["arbitrary-claim"] = "arbitrary-value",
             },
+            ["tenantId"] = null,
+            ["objectId"] = null,
+            ["hostedDomain"] = null,
+         },
+      };
+
+      Assert.That(result, Is.True);
+      Assert.That(files.ContainsKey(_usersPath), Is.True);
+      Assert.That(files[_usersPath], Is.EqualTo(expectedUsers.ToJsonString()));
+   }
+
+   [Test]
+   public void try_add_persists_tenant_id_and_object_id_and_hosted_domain()
+   {
+      var files = new Dictionary<string, string>
+      {
+         [_usersPath] = "[]",
+      };
+      var fileSystem = FileSystemStub.With(FileStub.Using(files));
+      var claimsSerializer = ClaimsSerializerStub.SerializeReturns(new JsonObject());
+
+      var testSubject = CreateStore(
+         fileSystem: fileSystem,
+         claimsSerializer: claimsSerializer);
+
+      var result = testSubject.TryAdd(new User(
+         "arbitrary-subject",
+         [],
+         TenantId: "arbitrary-tenant-id",
+         ObjectId: "arbitrary-object-id",
+         HostedDomain: "arbitrary-hosted-domain"));
+
+      var expectedUsers = new JsonArray
+      {
+         new JsonObject
+         {
+            ["subject"] = "arbitrary-subject",
+            ["claims"] = new JsonObject(),
+            ["tenantId"] = "arbitrary-tenant-id",
+            ["objectId"] = "arbitrary-object-id",
+            ["hostedDomain"] = "arbitrary-hosted-domain",
          },
       };
 

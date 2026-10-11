@@ -71,7 +71,7 @@ volumes:
   users-config:
 ```
 
-The `users.json` file defines the set of users and their claims. See [users.json](app/Stackage.OAuth2.Fake/users.json) for an example.
+The `users.json` file defines the set of users and their claims. Each user may also optionally define a `tenantId`, `objectId` and/or `hostedDomain`, used to populate the `tid`/`oid`/`hd` claims when `PROVIDER_MODE` is set (see [Environment Variables](#environment-variables)). `tenantId` and `objectId` should be GUIDs, to match real Entra values. See [users.json](app/Stackage.OAuth2.Fake/users.json) for an example.
 
 ### Endpoints
 
@@ -117,6 +117,7 @@ The following internal endpoints are provided to assist with test setup and veri
 | `LOGOUT_PATH` | `/logout` | Path of the logout endpoint |
 | `DEFAULT_SUBJECT` | _(none)_ | The subject used when authenticating via the authorization or device authorization endpoints when no subject has been explicitly specified |
 | `DEFAULT_TOKEN_EXPIRY_SECONDS` | `1200` | The default token expiry time in seconds (20 minutes) |
+| `PROVIDER_MODE` | _(none)_ | Set to `Entra` or `Google` to emulate that provider's claims (case-insensitive). In `Entra` mode, a user's `tenantId` (if set in `users.json`) is added as a `tid` claim, and their `objectId` (if set) is added as an `oid` claim, to the access token; the ID token also receives the `tid` claim, and receives the `oid` claim only when the `profile` scope is requested, matching Microsoft Entra ID behaviour. In `Google` mode, a user's `hostedDomain` is added as an `hd` claim to the ID token only, matching Google's behaviour (Google access tokens are opaque and carry no claims) |
 
 ---
 

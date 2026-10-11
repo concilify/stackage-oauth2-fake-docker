@@ -8,6 +8,7 @@ using Stackage.OAuth2.Fake.GrantTypeHandlers;
 using Stackage.OAuth2.Fake.Middleware;
 using Stackage.OAuth2.Fake.Model.Authorization;
 using Stackage.OAuth2.Fake.Services;
+using Stackage.OAuth2.Fake.Services.ProviderClaimsPolicies;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +27,10 @@ builder.Services.AddTransient<IGrantTypeHandler, DeviceCodeGrantTypeHandler>();
 builder.Services.AddTransient<IGrantTypeHandler, RefreshTokenGrantTypeHandler>();
 builder.Services.AddTransient<ITokenGenerator, TokenGenerator>();
 builder.Services.AddTransient<IClaimsSerializer, ClaimsSerializer>();
+
+builder.Services.AddTransient<IProviderClaimsPolicy, DefaultProviderClaimsPolicy>();
+builder.Services.AddTransient<IProviderClaimsPolicy, EntraProviderClaimsPolicy>();
+builder.Services.AddTransient<IProviderClaimsPolicy, GoogleProviderClaimsPolicy>();
 
 builder.Services.AddTransient<RequestCaptureMiddleware>();
 
