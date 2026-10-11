@@ -109,7 +109,7 @@ public class TokenGenerator : ITokenGenerator
             idTokenClaims.AddRange(user.GetClaims(ProfileClaims));
          }
 
-         providerClaimsStrategy?.AddIdTokenClaims(user, idTokenClaims);
+         providerClaimsStrategy?.AddIdTokenClaims(user, authorization.Scope, idTokenClaims);
 
          if (authorization is IAuthorizationWithNonce { Nonce: not null } authorizationWithNonce)
          {

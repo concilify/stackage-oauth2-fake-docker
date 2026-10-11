@@ -80,7 +80,7 @@ public class UserStore : IUserStore
 
       return seededUsers
          .Where(u => u is { Subject: not null, Claims: not null })
-         .Select(u => new User(u.Subject!, ParseClaims(u.Claims!), u.TenantId, u.HostedDomain))
+         .Select(u => new User(u.Subject!, ParseClaims(u.Claims!), u.TenantId, u.ObjectId, u.HostedDomain))
          .ToDictionary(u => u.Subject);
    }
 
@@ -92,6 +92,7 @@ public class UserStore : IUserStore
             Subject = u.Value.Subject,
             Claims = _claimsSerializer.Serialize(u.Value.Claims),
             TenantId = u.Value.TenantId,
+            ObjectId = u.Value.ObjectId,
             HostedDomain = u.Value.HostedDomain,
          })
          .ToList();
@@ -118,6 +119,8 @@ public class UserStore : IUserStore
       public JsonObject? Claims { get; init; }
 
       public string? TenantId { get; init; }
+
+      public string? ObjectId { get; init; }
 
       public string? HostedDomain { get; init; }
    }

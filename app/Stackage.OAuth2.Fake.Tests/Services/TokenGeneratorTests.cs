@@ -345,194 +345,103 @@ public class TokenGeneratorTests
    }
 
    [Test]
-   public void response_id_token_contains_tid_claim_when_provider_mode_is_entra_and_user_has_tenant_id()
+   public void response_access_token_contains_claims_added_by_provider_customiser_when_provider_mode_matches()
    {
-      var user = new User(
-         Subject: "arbitrary-subject",
-         Claims: [],
-         TenantId: "ArbitraryTenantId");
-      var userStore = UserStoreStub.Returns(user);
+      var providerCustomiser = ProviderCustomiserStub.AddingClaims(
+         providerMode: "ARBITRARY_MODE",
+         accessTokenClaim: new Claim("arbitrary-access-token-claim", "ArbitraryAccessTokenValue"),
+         idTokenClaim: new Claim("arbitrary-id-token-claim", "ArbitraryIdTokenValue"));
 
       var testSubject = CreateGenerator(
-         userStore: userStore,
-         settings: new Settings { ProviderMode = ProviderModes.Entra });
+         settings: new Settings { ProviderMode = "ARBITRARY_MODE" },
+         providerCustomisers: [providerCustomiser]);
 
-      var authorization = AuthorizationStub.With(
-         scope: (Scope)"openid",
-         subject: "arbitrary-subject");
-
-      var response = testSubject.Generate(authorization);
-
-      var jwtSecurityToken = (JwtSecurityToken)new JwtSecurityTokenHandler().ReadToken(response.IdToken);
-
-      var claims = jwtSecurityToken.ParseClaims("tid");
-
-      var expectedClaims = new Dictionary<string, StringValues>
-      {
-         ["tid"] = "ArbitraryTenantId",
-      };
-
-      claims.ShouldBeEquivalentTo(expectedClaims);
-   }
-
-   [Test]
-   public void response_access_token_contains_tid_claim_when_provider_mode_is_entra_and_user_has_tenant_id()
-   {
-      var user = new User(
-         Subject: "arbitrary-subject",
-         Claims: [],
-         TenantId: "ArbitraryTenantId");
-      var userStore = UserStoreStub.Returns(user);
-
-      var testSubject = CreateGenerator(
-         userStore: userStore,
-         settings: new Settings { ProviderMode = ProviderModes.Entra });
-
-      var authorization = AuthorizationStub.With(
-         subject: "arbitrary-subject");
+      var authorization = AuthorizationStub.With();
 
       var response = testSubject.Generate(authorization);
 
       var jwtSecurityToken = (JwtSecurityToken)new JwtSecurityTokenHandler().ReadToken(response.AccessToken);
 
-      var claims = jwtSecurityToken.ParseClaims("tid");
+      var claims = jwtSecurityToken.ParseClaims("arbitrary-access-token-claim");
 
       var expectedClaims = new Dictionary<string, StringValues>
       {
-         ["tid"] = "ArbitraryTenantId",
+         ["arbitrary-access-token-claim"] = "ArbitraryAccessTokenValue",
       };
 
       claims.ShouldBeEquivalentTo(expectedClaims);
    }
 
    [Test]
-   public void response_id_token_contains_hd_claim_when_provider_mode_is_google_and_user_has_hosted_domain()
+   public void response_id_token_contains_claims_added_by_provider_customiser_when_provider_mode_matches()
    {
-      var user = new User(
-         Subject: "arbitrary-subject",
-         Claims: [],
-         HostedDomain: "ArbitraryHostedDomain");
-      var userStore = UserStoreStub.Returns(user);
+      var providerCustomiser = ProviderCustomiserStub.AddingClaims(
+         providerMode: "ARBITRARY_MODE",
+         accessTokenClaim: new Claim("arbitrary-access-token-claim", "ArbitraryAccessTokenValue"),
+         idTokenClaim: new Claim("arbitrary-id-token-claim", "ArbitraryIdTokenValue"));
 
       var testSubject = CreateGenerator(
-         userStore: userStore,
-         settings: new Settings { ProviderMode = ProviderModes.Google });
+         settings: new Settings { ProviderMode = "ARBITRARY_MODE" },
+         providerCustomisers: [providerCustomiser]);
 
-      var authorization = AuthorizationStub.With(
-         scope: (Scope)"openid",
-         subject: "arbitrary-subject");
+      var authorization = AuthorizationStub.With(scope: (Scope)"openid");
 
       var response = testSubject.Generate(authorization);
 
       var jwtSecurityToken = (JwtSecurityToken)new JwtSecurityTokenHandler().ReadToken(response.IdToken);
 
-      var claims = jwtSecurityToken.ParseClaims("hd");
+      var claims = jwtSecurityToken.ParseClaims("arbitrary-id-token-claim");
 
       var expectedClaims = new Dictionary<string, StringValues>
       {
-         ["hd"] = "ArbitraryHostedDomain",
+         ["arbitrary-id-token-claim"] = "ArbitraryIdTokenValue",
       };
 
       claims.ShouldBeEquivalentTo(expectedClaims);
    }
 
    [Test]
-   public void response_access_token_does_not_contain_hd_claim_when_provider_mode_is_google_and_user_has_hosted_domain()
+   public void response_access_token_does_not_contain_claims_added_by_provider_customiser_when_provider_mode_does_not_match()
    {
-      var user = new User(
-         Subject: "arbitrary-subject",
-         Claims: [],
-         HostedDomain: "ArbitraryHostedDomain");
-      var userStore = UserStoreStub.Returns(user);
+      var providerCustomiser = ProviderCustomiserStub.AddingClaims(
+         providerMode: "ARBITRARY_MODE",
+         accessTokenClaim: new Claim("arbitrary-access-token-claim", "ArbitraryAccessTokenValue"),
+         idTokenClaim: new Claim("arbitrary-id-token-claim", "ArbitraryIdTokenValue"));
 
       var testSubject = CreateGenerator(
-         userStore: userStore,
-         settings: new Settings { ProviderMode = ProviderModes.Google });
+         settings: new Settings { ProviderMode = "OTHER_MODE" },
+         providerCustomisers: [providerCustomiser]);
 
-      var authorization = AuthorizationStub.With(
-         subject: "arbitrary-subject");
+      var authorization = AuthorizationStub.With();
 
       var response = testSubject.Generate(authorization);
 
       var jwtSecurityToken = (JwtSecurityToken)new JwtSecurityTokenHandler().ReadToken(response.AccessToken);
 
-      var claims = jwtSecurityToken.ParseClaims("hd");
+      var claims = jwtSecurityToken.ParseClaims("arbitrary-access-token-claim");
 
       claims.ShouldBeEmpty();
    }
 
    [Test]
-   public void response_id_token_does_not_contain_hd_claim_when_provider_mode_is_entra_and_user_has_hosted_domain()
+   public void response_id_token_does_not_contain_claims_added_by_provider_customiser_when_provider_mode_does_not_match()
    {
-      var user = new User(
-         Subject: "arbitrary-subject",
-         Claims: [],
-         HostedDomain: "ArbitraryHostedDomain");
-      var userStore = UserStoreStub.Returns(user);
+      var providerCustomiser = ProviderCustomiserStub.AddingClaims(
+         providerMode: "ARBITRARY_MODE",
+         accessTokenClaim: new Claim("arbitrary-access-token-claim", "ArbitraryAccessTokenValue"),
+         idTokenClaim: new Claim("arbitrary-id-token-claim", "ArbitraryIdTokenValue"));
 
       var testSubject = CreateGenerator(
-         userStore: userStore,
-         settings: new Settings { ProviderMode = ProviderModes.Entra });
+         settings: new Settings { ProviderMode = "OTHER_MODE" },
+         providerCustomisers: [providerCustomiser]);
 
-      var authorization = AuthorizationStub.With(
-         scope: (Scope)"openid",
-         subject: "arbitrary-subject");
+      var authorization = AuthorizationStub.With(scope: (Scope)"openid");
 
       var response = testSubject.Generate(authorization);
 
       var jwtSecurityToken = (JwtSecurityToken)new JwtSecurityTokenHandler().ReadToken(response.IdToken);
 
-      var claims = jwtSecurityToken.ParseClaims("hd");
-
-      claims.ShouldBeEmpty();
-   }
-
-   [Test]
-   public void response_id_token_does_not_contain_tid_claim_when_provider_mode_is_none()
-   {
-      var user = new User(
-         Subject: "arbitrary-subject",
-         Claims: [],
-         TenantId: "ArbitraryTenantId");
-      var userStore = UserStoreStub.Returns(user);
-
-      var testSubject = CreateGenerator(
-         userStore: userStore);
-
-      var authorization = AuthorizationStub.With(
-         scope: (Scope)"openid",
-         subject: "arbitrary-subject");
-
-      var response = testSubject.Generate(authorization);
-
-      var jwtSecurityToken = (JwtSecurityToken)new JwtSecurityTokenHandler().ReadToken(response.IdToken);
-
-      var claims = jwtSecurityToken.ParseClaims("tid");
-
-      claims.ShouldBeEmpty();
-   }
-
-   [Test]
-   public void response_id_token_does_not_contain_tid_claim_when_provider_mode_is_entra_and_user_has_no_tenant_id()
-   {
-      var user = new User(
-         Subject: "arbitrary-subject",
-         Claims: []);
-      var userStore = UserStoreStub.Returns(user);
-
-      var testSubject = CreateGenerator(
-         userStore: userStore,
-         settings: new Settings { ProviderMode = ProviderModes.Entra });
-
-      var authorization = AuthorizationStub.With(
-         scope: (Scope)"openid",
-         subject: "arbitrary-subject");
-
-      var response = testSubject.Generate(authorization);
-
-      var jwtSecurityToken = (JwtSecurityToken)new JwtSecurityTokenHandler().ReadToken(response.IdToken);
-
-      var claims = jwtSecurityToken.ParseClaims("tid");
+      var claims = jwtSecurityToken.ParseClaims("arbitrary-id-token-claim");
 
       claims.ShouldBeEmpty();
    }
@@ -655,7 +564,7 @@ public class TokenGeneratorTests
       userStore ??= UserStoreStub.Valid();
       settings ??= new Settings();
       authorizationCache ??= new AuthorizationCache<RefreshAuthorization>();
-      providerCustomisers ??= [new EntraProviderCustomiser(), new GoogleProviderCustomiser()];
+      providerCustomisers ??= [];
 
       return new TokenGenerator(
          jsonWebKeyCache,

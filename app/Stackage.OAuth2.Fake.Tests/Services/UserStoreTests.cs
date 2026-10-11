@@ -119,7 +119,7 @@ public class UserStoreTests
    }
 
    [Test]
-   public void try_get_returns_user_with_tenant_id_and_hosted_domain_when_set()
+   public void try_get_returns_user_with_tenant_id_and_object_id_and_hosted_domain_when_set()
    {
       var files = new Dictionary<string, string>
       {
@@ -129,6 +129,7 @@ public class UserStoreTests
                                 "subject": "arbitrary-subject",
                                 "claims": {},
                                 "tenantId": "arbitrary-tenant-id",
+                                "objectId": "arbitrary-object-id",
                                 "hostedDomain": "arbitrary-hosted-domain"
                              }
                           ]
@@ -143,6 +144,7 @@ public class UserStoreTests
       Assert.That(result, Is.True);
       Assert.That(user, Is.Not.Null);
       Assert.That(user!.TenantId, Is.EqualTo("arbitrary-tenant-id"));
+      Assert.That(user.ObjectId, Is.EqualTo("arbitrary-object-id"));
       Assert.That(user.HostedDomain, Is.EqualTo("arbitrary-hosted-domain"));
    }
 
@@ -172,6 +174,7 @@ public class UserStoreTests
                ["arbitrary-claim"] = "arbitrary-value",
             },
             ["tenantId"] = null,
+            ["objectId"] = null,
             ["hostedDomain"] = null,
          },
       };
@@ -210,6 +213,7 @@ public class UserStoreTests
                ["arbitrary-claim"] = "arbitrary-value",
             },
             ["tenantId"] = null,
+            ["objectId"] = null,
             ["hostedDomain"] = null,
          },
       };
@@ -220,7 +224,7 @@ public class UserStoreTests
    }
 
    [Test]
-   public void try_add_persists_tenant_id_and_hosted_domain()
+   public void try_add_persists_tenant_id_and_object_id_and_hosted_domain()
    {
       var files = new Dictionary<string, string>
       {
@@ -237,6 +241,7 @@ public class UserStoreTests
          "arbitrary-subject",
          [],
          TenantId: "arbitrary-tenant-id",
+         ObjectId: "arbitrary-object-id",
          HostedDomain: "arbitrary-hosted-domain"));
 
       var expectedUsers = new JsonArray
@@ -246,6 +251,7 @@ public class UserStoreTests
             ["subject"] = "arbitrary-subject",
             ["claims"] = new JsonObject(),
             ["tenantId"] = "arbitrary-tenant-id",
+            ["objectId"] = "arbitrary-object-id",
             ["hostedDomain"] = "arbitrary-hosted-domain",
          },
       };

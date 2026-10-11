@@ -10,5 +10,5 @@ public interface IProviderCustomiser
 
    void AddAccessTokenClaims(User? user, IList<Claim> claims);
 
-   void AddIdTokenClaims(User? user, IList<Claim> claims);
+   void AddIdTokenClaims(User? user, Scope scope, IList<Claim> claims);
 }
