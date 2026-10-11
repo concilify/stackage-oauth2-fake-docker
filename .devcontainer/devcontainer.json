@@ -7,8 +7,8 @@
   "service": "devcontainer",
   "workspaceFolder": "/workspaces/stackage-oauth2-fake",
   "mounts": [
-    "source=nuget,target=/home/vscode/.nuget,type=volume",
-    "source=build,target=/home/vscode/.build,type=volume"
+    "source=build,target=/home/vscode/.build,type=volume",
+    "source=nuget,target=/home/vscode/.nuget,type=volume"
   ],
   "containerEnv": {
     "CLAUDE_CONFIG_DIR": "${containerWorkspaceFolder}/.claude-state",
