@@ -1,5 +1,14 @@
 .idea/
 
+# Claude Code local state: CLI runtime/session/credentials data persists across
+# devcontainer rebuilds via bind mount, and is intentionally untracked so it isn't
+# cloned to other machines or wiped by `git clean`.
+/.claude-state/
+
+#.claude/settings.json (team-wide hooks/permissions) is NOT ignored here — that
+# one is meant to be committed.
+/.claude/settings.local.json
+
 # Created by https://www.gitignore.io/api/rider,visualstudio,visualstudiocode
 # Edit at https://www.gitignore.io/?templates=rider,visualstudio,visualstudiocode
 
