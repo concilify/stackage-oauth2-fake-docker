@@ -8,36 +8,28 @@ using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
 using Stackage.OAuth2.Fake.Model;
 using Stackage.OAuth2.Fake.Model.Authorization;
-using Stackage.OAuth2.Fake.Services.ProviderCustomisers;
+using Stackage.OAuth2.Fake.Services.ProviderClaimsPolicies;
 
 public class TokenGenerator : ITokenGenerator
 {
-   private static readonly string[] ProfileClaims =
-   [
-      JwtRegisteredClaimNames.Name,
-      JwtRegisteredClaimNames.Nickname,
-      JwtRegisteredClaimNames.Picture,
-      JwtRegisteredClaimNames.Email,
-   ];
-
    private readonly JsonWebKeyCache _jsonWebKeyCache;
    private readonly IUserStore _userStore;
    private readonly Settings _settings;
    private readonly AuthorizationCache<RefreshAuthorization> _authorizationCache;
-   private readonly IEnumerable<IProviderCustomiser> _providerCustomisers;
+   private readonly IEnumerable<IProviderClaimsPolicy> _providerClaimsPolicies;
 
    public TokenGenerator(
       JsonWebKeyCache jsonWebKeyCache,
       IUserStore userStore,
       Settings settings,
       AuthorizationCache<RefreshAuthorization> authorizationCache,
-      IEnumerable<IProviderCustomiser> providerCustomisers)
+      IEnumerable<IProviderClaimsPolicy> providerClaimsPolicies)
    {
       _jsonWebKeyCache = jsonWebKeyCache;
       _userStore = userStore;
       _settings = settings;
       _authorizationCache = authorizationCache;
-      _providerCustomisers = providerCustomisers;
+      _providerClaimsPolicies = providerClaimsPolicies;
    }
 
    public TokenResponse Generate(IAuthorization authorization)
@@ -47,10 +39,15 @@ public class TokenGenerator : ITokenGenerator
          throw new InvalidOperationException($"{authorization.GetType().Name} has not been authenticated.");
       }
 
-      var user = GetUser(authorization.Subject);
-
-      var providerClaimsStrategy = _providerCustomisers
+      var providerClaimsPolicy = _providerClaimsPolicies
          .FirstOrDefault(strategy => string.Equals(strategy.ProviderMode, _settings.ProviderMode, StringComparison.OrdinalIgnoreCase));
+
+      if (providerClaimsPolicy == null)
+      {
+         throw new InvalidOperationException($"ProviderMode {_settings.ProviderMode} is not supported.");
+      }
+
+      var user = GetUser(authorization.Subject);
 
       var accessTokenClaims = new List<Claim>
       {
@@ -60,10 +57,8 @@ public class TokenGenerator : ITokenGenerator
 
       if (user != null)
       {
-         accessTokenClaims.AddRange(user.GetClaimsWithout(ProfileClaims));
+         accessTokenClaims.AddRange(providerClaimsPolicy.GetAccessTokenClaims(user, authorization.Scope));
       }
-
-      providerClaimsStrategy?.AddAccessTokenClaims(user, accessTokenClaims);
 
       if (authorization is IAuthorizationWithAudiences { Audiences: not null } authorizationWithAudiences)
       {
@@ -104,12 +99,10 @@ public class TokenGenerator : ITokenGenerator
             new(JwtRegisteredClaimNames.Aud, authorization.ClientId),
          };
 
-         if (user != null && authorization.Scope.Contains("profile"))
+         if (user != null)
          {
-            idTokenClaims.AddRange(user.GetClaims(ProfileClaims));
+            idTokenClaims.AddRange(providerClaimsPolicy.GetIdTokenClaims(user, authorization.Scope));
          }
-
-         providerClaimsStrategy?.AddIdTokenClaims(user, authorization.Scope, idTokenClaims);
 
          if (authorization is IAuthorizationWithNonce { Nonce: not null } authorizationWithNonce)
          {

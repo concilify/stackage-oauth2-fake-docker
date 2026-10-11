@@ -1,16 +1,17 @@
+using Stackage.OAuth2.Fake.Services.ProviderClaimsPolicies;
+
 namespace Stackage.OAuth2.Fake.Tests.Stubs;
 
 using System.Collections.Generic;
 using System.Security.Claims;
 using Moq;
 using Stackage.OAuth2.Fake.Model;
-using Stackage.OAuth2.Fake.Services.ProviderCustomisers;
 
 public static class ProviderCustomiserStub
 {
-   public static IProviderCustomiser AddingClaims(string providerMode, Claim accessTokenClaim, Claim idTokenClaim)
+   public static IProviderClaimsPolicy AddingClaims(string providerMode, Claim accessTokenClaim, Claim idTokenClaim)
    {
-      var mock = new Mock<IProviderCustomiser>();
+      var mock = new Mock<IProviderClaimsPolicy>();
 
       mock.Setup(m => m.ProviderMode).Returns(providerMode);
 
