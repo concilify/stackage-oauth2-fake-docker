@@ -1,27 +1,31 @@
-using Stackage.OAuth2.Fake.Services.ProviderClaimsPolicies;
-
 namespace Stackage.OAuth2.Fake.Tests.Stubs;
 
-using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Security.Claims;
 using Moq;
 using Stackage.OAuth2.Fake.Model;
+using Stackage.OAuth2.Fake.Services.ProviderClaimsPolicies;
 
-public static class ProviderCustomiserStub
+public static class ProviderClaimsPolicyStub
 {
+   public static IProviderClaimsPolicy ReturningNoClaims(string providerMode)
+   {
+      var mock = new Mock<IProviderClaimsPolicy>();
+
+      mock.Setup(m => m.ProviderMode).Returns(providerMode);
+      mock.Setup(m => m.GetAccessTokenClaims(It.IsAny<User>(), It.IsAny<Scope>())).Returns(ImmutableArray<Claim>.Empty);
+      mock.Setup(m => m.GetIdTokenClaims(It.IsAny<User>(), It.IsAny<Scope>())).Returns(ImmutableArray<Claim>.Empty);
+
+      return mock.Object;
+   }
+
    public static IProviderClaimsPolicy AddingClaims(string providerMode, Claim accessTokenClaim, Claim idTokenClaim)
    {
       var mock = new Mock<IProviderClaimsPolicy>();
 
       mock.Setup(m => m.ProviderMode).Returns(providerMode);
-
-      mock
-         .Setup(m => m.AddAccessTokenClaims(It.IsAny<User?>(), It.IsAny<IList<Claim>>()))
-         .Callback<User?, IList<Claim>>((_, claims) => claims.Add(accessTokenClaim));
-
-      mock
-         .Setup(m => m.AddIdTokenClaims(It.IsAny<User?>(), It.IsAny<Scope>(), It.IsAny<IList<Claim>>()))
-         .Callback<User?, Scope, IList<Claim>>((_, _, claims) => claims.Add(idTokenClaim));
+      mock.Setup(m => m.GetAccessTokenClaims(It.IsAny<User>(), It.IsAny<Scope>())).Returns(ImmutableArray.Create(accessTokenClaim));
+      mock.Setup(m => m.GetIdTokenClaims(It.IsAny<User>(), It.IsAny<Scope>())).Returns(ImmutableArray.Create(idTokenClaim));
 
       return mock.Object;
    }
