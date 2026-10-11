@@ -1,0 +1,15 @@
+<Project>
+  <!--
+    DOTNET_BUILD_DIR is set explicitly in the Dev Container to a Docker Volume outside of the bind
+    mount. Outside of the Dev Container, the user's home directory is used instead. This avoids
+    problems with locked files in obj and bin folders created by the Windows host.
+  -->
+  <PropertyGroup Condition="'$(DOTNET_BUILD_DIR)' == ''">
+    <DOTNET_BUILD_DIR Condition="'$(HOME)' != ''">$(HOME)/.build/daniels-db</DOTNET_BUILD_DIR>
+    <DOTNET_BUILD_DIR Condition="'$(USERPROFILE)' != ''">$(USERPROFILE)/.build/daniels-db</DOTNET_BUILD_DIR>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(DOTNET_BUILD_DIR)' != ''">
+    <BaseIntermediateOutputPath>$(DOTNET_BUILD_DIR)/obj/$(MSBuildProjectName)/</BaseIntermediateOutputPath>
+    <BaseOutputPath>$(DOTNET_BUILD_DIR)/bin/$(MSBuildProjectName)/</BaseOutputPath>
+  </PropertyGroup>
+</Project>

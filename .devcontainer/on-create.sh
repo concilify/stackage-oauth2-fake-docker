@@ -7,6 +7,6 @@ cc() {
 }
 ' >> ~/.bashrc
 
-sudo chown -R vscode:vscode /home/vscode/.nuget
+sudo chown -R vscode:vscode /home/vscode/.build /home/vscode/.nuget
 
 dotnet restore
