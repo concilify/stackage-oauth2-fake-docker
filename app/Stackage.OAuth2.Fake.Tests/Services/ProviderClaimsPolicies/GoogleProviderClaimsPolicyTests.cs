@@ -17,25 +17,74 @@ public class GoogleProviderClaimsPolicyTests
    }
 
    [Test]
-   public void get_id_token_claims_includes_hd_claim_when_user_has_hosted_domain()
+   public void get_id_token_claims_includes_hd_claim_when_user_has_tenant_id()
    {
       var testSubject = new GoogleProviderClaimsPolicy();
 
-      var user = new User(Subject: "arbitrary-subject", Claims: [], HostedDomain: "ArbitraryHostedDomain");
+      var user = new User(Subject: "arbitrary-subject", Claims: [], TenantId: "ArbitraryTenantId");
 
       var claims = testSubject.GetIdTokenClaims(user, Scope.Empty);
 
-      claims.ShouldContain(c => c.Type == "hd" && c.Value == "ArbitraryHostedDomain");
+      claims.ShouldContain(c => c.Type == "hd" && c.Value == "ArbitraryTenantId");
    }
 
    [Test]
-   public void get_id_token_claims_does_not_include_hd_claim_when_user_has_no_hosted_domain()
+   public void get_id_token_claims_does_not_include_hd_claim_when_user_has_no_tenant_id()
    {
       var testSubject = new GoogleProviderClaimsPolicy();
 
       var user = new User(Subject: "arbitrary-subject", Claims: []);
 
       var claims = testSubject.GetIdTokenClaims(user, Scope.Empty);
+
+      claims.ShouldNotContain(c => c.Type == "hd");
+   }
+
+   [TestCase(true, "true")]
+   [TestCase(false, "false")]
+   public void get_id_token_claims_includes_email_verified_claim_when_user_has_verified(bool verified, string expectedValue)
+   {
+      var testSubject = new GoogleProviderClaimsPolicy();
+
+      var user = new User(Subject: "arbitrary-subject", Claims: [], Verified: verified);
+
+      var claims = testSubject.GetIdTokenClaims(user, Scope.Empty);
+
+      claims.ShouldContain(c => c.Type == "email_verified" && c.Value == expectedValue && c.ValueType == ClaimValueTypes.Boolean);
+   }
+
+   [Test]
+   public void get_id_token_claims_does_not_include_email_verified_claim_when_user_has_no_verified()
+   {
+      var testSubject = new GoogleProviderClaimsPolicy();
+
+      var user = new User(Subject: "arbitrary-subject", Claims: []);
+
+      var claims = testSubject.GetIdTokenClaims(user, Scope.Empty);
+
+      claims.ShouldNotContain(c => c.Type == "email_verified");
+   }
+
+   [Test]
+   public void get_access_token_claims_does_not_include_email_verified_claim_when_user_has_verified()
+   {
+      var testSubject = new GoogleProviderClaimsPolicy();
+
+      var user = new User(Subject: "arbitrary-subject", Claims: [], Verified: true);
+
+      var claims = testSubject.GetAccessTokenClaims(user, Scope.Empty);
+
+      claims.ShouldNotContain(c => c.Type == "email_verified");
+   }
+
+   [Test]
+   public void get_access_token_claims_does_not_include_hd_claim_when_user_has_tenant_id()
+   {
+      var testSubject = new GoogleProviderClaimsPolicy();
+
+      var user = new User(Subject: "arbitrary-subject", Claims: [], TenantId: "ArbitraryTenantId");
+
+      var claims = testSubject.GetAccessTokenClaims(user, Scope.Empty);
 
       claims.ShouldNotContain(c => c.Type == "hd");
    }

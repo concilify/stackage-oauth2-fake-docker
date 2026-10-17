@@ -232,6 +232,32 @@ public class TokenGeneratorTests
    }
 
    [Test]
+   public void response_id_token_contains_boolean_claims_from_provider_claims_policy_as_json_booleans()
+   {
+      var user = new User(Subject: "arbitrary-subject", Claims: []);
+      var userStore = UserStoreStub.Returns(user);
+
+      var providerClaimsPolicy = ProviderClaimsPolicyStub.AddingClaims(
+         providerMode: "Default",
+         accessTokenClaim: new Claim("arbitrary-access-token-claim", "ArbitraryAccessTokenValue"),
+         idTokenClaim: new Claim("arbitrary-id-token-claim", "true", ClaimValueTypes.Boolean));
+
+      var testSubject = CreateGenerator(
+         userStore: userStore,
+         providerClaimsPolicies: [providerClaimsPolicy]);
+
+      var authorization = AuthorizationStub.With(
+         scope: (Scope)"openid",
+         subject: "arbitrary-subject");
+
+      var response = testSubject.Generate(authorization);
+
+      var jwtSecurityToken = (JwtSecurityToken)new JwtSecurityTokenHandler().ReadToken(response.IdToken);
+
+      jwtSecurityToken.Payload["arbitrary-id-token-claim"].ShouldBe(true);
+   }
+
+   [Test]
    public void response_id_token_does_not_contain_claims_from_provider_claims_policy_when_user_not_found()
    {
       var userStore = UserStoreStub.NotFound("arbitrary-subject");
