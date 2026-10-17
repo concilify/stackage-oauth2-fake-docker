@@ -6,7 +6,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Security.Claims;
 
-public record User(string Subject, ImmutableArray<Claim> Claims, string? TenantId = null, string? ObjectId = null, string? HostedDomain = null)
+public record User(string Subject, ImmutableArray<Claim> Claims, string? TenantId = null, string? ObjectId = null, bool? Verified = null)
 {
    public IEnumerable<Claim> GetClaims(IEnumerable<string> names)
    {

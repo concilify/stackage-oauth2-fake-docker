@@ -29,4 +29,7 @@ public class DefaultProviderClaimsPolicy : IProviderClaimsPolicy
 
    protected static ImmutableArray<Claim> Optional(string type, string? value) =>
       value is null ? [] : [new Claim(type, value)];
+
+   protected static ImmutableArray<Claim> Optional(string type, bool? value) =>
+      value is null ? [] : [new Claim(type, value.Value ? "true" : "false", ClaimValueTypes.Boolean)];
 }

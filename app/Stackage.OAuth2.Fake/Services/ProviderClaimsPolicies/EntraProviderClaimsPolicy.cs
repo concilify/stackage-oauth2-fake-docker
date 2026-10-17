@@ -8,6 +8,7 @@ public class EntraProviderClaimsPolicy : DefaultProviderClaimsPolicy
 {
    private const string TidClaimName = "tid";
    private const string OidClaimName = "oid";
+   private const string XmsEdovClaimName = "xms_edov";
 
    public override string ProviderMode => ProviderModes.Entra;
 
@@ -23,5 +24,6 @@ public class EntraProviderClaimsPolicy : DefaultProviderClaimsPolicy
       .. base.GetIdTokenClaims(user, scope),
       .. Optional(TidClaimName, user.TenantId),
       .. scope.Contains("profile") ? Optional(OidClaimName, user.ObjectId) : [],
+      .. Optional(XmsEdovClaimName, user.Verified),
    ];
 }

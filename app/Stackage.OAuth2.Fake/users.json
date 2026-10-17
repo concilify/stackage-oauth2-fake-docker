@@ -23,16 +23,17 @@
       "email": "user-entra@example.com"
     },
     "tenantId": "9bbbe6f2-9d3c-4c6b-8f8e-8c1a6a8b4c21",
-    "objectId": "f2a1c6d4-5b7e-4a9d-9c3f-0e6a2b1d4e8a"
+    "objectId": "f2a1c6d4-5b7e-4a9d-9c3f-0e6a2b1d4e8a",
+    "verified": true
   },
   {
     "subject": "user-google-subject",
     "claims": {
       "nickname": "User Google Nickname",
       "picture": "user-google-picture",
-      "email": "user-google@example.com",
-      "email_verified": "true"
+      "email": "user-google@example.com"
     },
-    "hostedDomain": "example.com"
+    "tenantId": "example.com",
+    "verified": true
   }
 ]

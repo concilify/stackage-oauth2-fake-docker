@@ -123,4 +123,41 @@ public class EntraProviderClaimsPolicyTests
 
       claims.ShouldNotContain(c => c.Type == "oid");
    }
+
+   [TestCase(true, "true")]
+   [TestCase(false, "false")]
+   public void get_id_token_claims_includes_xms_edov_claim_when_user_has_verified(bool verified, string expectedValue)
+   {
+      var testSubject = new EntraProviderClaimsPolicy();
+
+      var user = new User(Subject: "arbitrary-subject", Claims: [], Verified: verified);
+
+      var claims = testSubject.GetIdTokenClaims(user, Scope.Empty);
+
+      claims.ShouldContain(c => c.Type == "xms_edov" && c.Value == expectedValue && c.ValueType == ClaimValueTypes.Boolean);
+   }
+
+   [Test]
+   public void get_id_token_claims_does_not_include_xms_edov_claim_when_user_has_no_verified()
+   {
+      var testSubject = new EntraProviderClaimsPolicy();
+
+      var user = new User(Subject: "arbitrary-subject", Claims: []);
+
+      var claims = testSubject.GetIdTokenClaims(user, Scope.Empty);
+
+      claims.ShouldNotContain(c => c.Type == "xms_edov");
+   }
+
+   [Test]
+   public void get_access_token_claims_does_not_include_xms_edov_claim_when_user_has_verified()
+   {
+      var testSubject = new EntraProviderClaimsPolicy();
+
+      var user = new User(Subject: "arbitrary-subject", Claims: [], Verified: true);
+
+      var claims = testSubject.GetAccessTokenClaims(user, Scope.Empty);
+
+      claims.ShouldNotContain(c => c.Type == "xms_edov");
+   }
 }

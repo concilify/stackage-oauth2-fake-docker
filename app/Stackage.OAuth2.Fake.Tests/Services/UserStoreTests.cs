@@ -119,7 +119,7 @@ public class UserStoreTests
    }
 
    [Test]
-   public void try_get_returns_user_with_tenant_id_and_object_id_and_hosted_domain_when_set()
+   public void try_get_returns_user_with_tenant_id_and_object_id_and_verified_when_set()
    {
       var files = new Dictionary<string, string>
       {
@@ -130,7 +130,7 @@ public class UserStoreTests
                                 "claims": {},
                                 "tenantId": "arbitrary-tenant-id",
                                 "objectId": "arbitrary-object-id",
-                                "hostedDomain": "arbitrary-hosted-domain"
+                                "verified": true
                              }
                           ]
                           """,
@@ -145,7 +145,7 @@ public class UserStoreTests
       Assert.That(user, Is.Not.Null);
       Assert.That(user!.TenantId, Is.EqualTo("arbitrary-tenant-id"));
       Assert.That(user.ObjectId, Is.EqualTo("arbitrary-object-id"));
-      Assert.That(user.HostedDomain, Is.EqualTo("arbitrary-hosted-domain"));
+      Assert.That(user.Verified, Is.True);
    }
 
    [Test]
@@ -175,7 +175,7 @@ public class UserStoreTests
             },
             ["tenantId"] = null,
             ["objectId"] = null,
-            ["hostedDomain"] = null,
+            ["verified"] = null,
          },
       };
 
@@ -214,7 +214,7 @@ public class UserStoreTests
             },
             ["tenantId"] = null,
             ["objectId"] = null,
-            ["hostedDomain"] = null,
+            ["verified"] = null,
          },
       };
 
@@ -224,7 +224,7 @@ public class UserStoreTests
    }
 
    [Test]
-   public void try_add_persists_tenant_id_and_object_id_and_hosted_domain()
+   public void try_add_persists_tenant_id_and_object_id_and_verified()
    {
       var files = new Dictionary<string, string>
       {
@@ -242,7 +242,7 @@ public class UserStoreTests
          [],
          TenantId: "arbitrary-tenant-id",
          ObjectId: "arbitrary-object-id",
-         HostedDomain: "arbitrary-hosted-domain"));
+         Verified: true));
 
       var expectedUsers = new JsonArray
       {
@@ -252,7 +252,7 @@ public class UserStoreTests
             ["claims"] = new JsonObject(),
             ["tenantId"] = "arbitrary-tenant-id",
             ["objectId"] = "arbitrary-object-id",
-            ["hostedDomain"] = "arbitrary-hosted-domain",
+            ["verified"] = true,
          },
       };
 
