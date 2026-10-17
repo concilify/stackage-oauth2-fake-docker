@@ -5,8 +5,8 @@
     problems with locked files in obj and bin folders created by the Windows host.
   -->
   <PropertyGroup Condition="'$(DOTNET_BUILD_DIR)' == ''">
-    <DOTNET_BUILD_DIR Condition="'$(HOME)' != ''">$(HOME)/.build/daniels-db</DOTNET_BUILD_DIR>
-    <DOTNET_BUILD_DIR Condition="'$(USERPROFILE)' != ''">$(USERPROFILE)/.build/daniels-db</DOTNET_BUILD_DIR>
+    <DOTNET_BUILD_DIR Condition="'$(HOME)' != ''">$(HOME)/.build/stackage-oauth2-fake</DOTNET_BUILD_DIR>
+    <DOTNET_BUILD_DIR Condition="'$(USERPROFILE)' != ''">$(USERPROFILE)/.build/stackage-oauth2-fake</DOTNET_BUILD_DIR>
   </PropertyGroup>
   <PropertyGroup Condition="'$(DOTNET_BUILD_DIR)' != ''">
     <BaseIntermediateOutputPath>$(DOTNET_BUILD_DIR)/obj/$(MSBuildProjectName)/</BaseIntermediateOutputPath>
